@@ -11,6 +11,90 @@
     ".": {
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
+    },
+    "./lite": {
+      "import": "./dist/esm/lite.js",
+      "require": "./dist/cjs/lite.js"
+    },
+    "./languages/bigquery": {
+      "import": "./dist/esm/languages/bigquery/index.js",
+      "require": "./dist/cjs/languages/bigquery/index.js"
+    },
+    "./languages/clickhouse": {
+      "import": "./dist/esm/languages/clickhouse/index.js",
+      "require": "./dist/cjs/languages/clickhouse/index.js"
+    },
+    "./languages/db2": {
+      "import": "./dist/esm/languages/db2/index.js",
+      "require": "./dist/cjs/languages/db2/index.js"
+    },
+    "./languages/db2i": {
+      "import": "./dist/esm/languages/db2i/index.js",
+      "require": "./dist/cjs/languages/db2i/index.js"
+    },
+    "./languages/duckdb": {
+      "import": "./dist/esm/languages/duckdb/index.js",
+      "require": "./dist/cjs/languages/duckdb/index.js"
+    },
+    "./languages/hive": {
+      "import": "./dist/esm/languages/hive/index.js",
+      "require": "./dist/cjs/languages/hive/index.js"
+    },
+    "./languages/mariadb": {
+      "import": "./dist/esm/languages/mariadb/index.js",
+      "require": "./dist/cjs/languages/mariadb/index.js"
+    },
+    "./languages/mysql": {
+      "import": "./dist/esm/languages/mysql/index.js",
+      "require": "./dist/cjs/languages/mysql/index.js"
+    },
+    "./languages/n1ql": {
+      "import": "./dist/esm/languages/n1ql/index.js",
+      "require": "./dist/cjs/languages/n1ql/index.js"
+    },
+    "./languages/plsql": {
+      "import": "./dist/esm/languages/plsql/index.js",
+      "require": "./dist/cjs/languages/plsql/index.js"
+    },
+    "./languages/postgresql": {
+      "import": "./dist/esm/languages/postgresql/index.js",
+      "require": "./dist/cjs/languages/postgresql/index.js"
+    },
+    "./languages/redshift": {
+      "import": "./dist/esm/languages/redshift/index.js",
+      "require": "./dist/cjs/languages/redshift/index.js"
+    },
+    "./languages/singlestoredb": {
+      "import": "./dist/esm/languages/singlestoredb/index.js",
+      "require": "./dist/cjs/languages/singlestoredb/index.js"
+    },
+    "./languages/snowflake": {
+      "import": "./dist/esm/languages/snowflake/index.js",
+      "require": "./dist/cjs/languages/snowflake/index.js"
+    },
+    "./languages/spark": {
+      "import": "./dist/esm/languages/spark/index.js",
+      "require": "./dist/cjs/languages/spark/index.js"
+    },
+    "./languages/sql": {
+      "import": "./dist/esm/languages/sql/index.js",
+      "require": "./dist/cjs/languages/sql/index.js"
+    },
+    "./languages/sqlite": {
+      "import": "./dist/esm/languages/sqlite/index.js",
+      "require": "./dist/cjs/languages/sqlite/index.js"
+    },
+    "./languages/tidb": {
+      "import": "./dist/esm/languages/tidb/index.js",
+      "require": "./dist/cjs/languages/tidb/index.js"
+    },
+    "./languages/transactsql": {
+      "import": "./dist/esm/languages/transactsql/index.js",
+      "require": "./dist/cjs/languages/transactsql/index.js"
+    },
+    "./languages/trino": {
+      "import": "./dist/esm/languages/trino/index.js",
+      "require": "./dist/cjs/languages/trino/index.js"
     }
   },
   "bin": {
@@ -61,6 +145,7 @@
     "test": "yarn grammar && jest",
     "test:watch": "yarn test -- --watch",
     "test:perf": "yarn grammar && jest --testMatch '<rootDir>/test/perftest.ts' --coverage=false",
+    "test:bundle-size": "yarn grammar && jest --testMatch '<rootDir>/test/bundleSize.test.ts' --coverage=false",
     "check": "yarn ts:check && yarn pretty:check && yarn lint && yarn test",
     "prepare": "yarn clean && yarn grammar && yarn fix && yarn check && yarn build",
     "pre-commit": "npm-run-all --parallel ts:changes lint:changes",
@@ -100,6 +185,7 @@
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-inline-import": "^3.0.0",
     "dedent-js": "^1.0.1",
+    "esbuild": "^0.27.2",
     "eslint": "^8.14.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
