@@ -61,6 +61,43 @@ format('SELECT * FROM tbl', {
 });
 ```
 
+### Smaller bundle size with `formatDialect`
+
+The default `format` function includes all SQL dialects, which increases bundle size (~75KB gzipped).
+For browser and frontend applications where bundle size matters, you can use `formatDialect` with
+individual dialect imports to enable tree-shaking and significantly reduce the bundle size:
+
+```js
+import { formatDialect } from 'sql-formatter/lite';
+import { postgresql } from 'sql-formatter/languages/postgresql';
+
+const result = formatDialect('SELECT * FROM tbl', {
+  dialect: postgresql,
+  keywordCase: 'upper',
+});
+```
+
+This approach loads only the core formatter and the specific dialect you need, reducing the bundle
+size by approximately **75%** (~19KB gzipped for a single dialect).
+
+You can import multiple dialects if needed:
+
+```js
+import { formatDialect } from 'sql-formatter/lite';
+import { postgresql } from 'sql-formatter/languages/postgresql';
+import { mysql } from 'sql-formatter/languages/mysql';
+
+// Use postgresql dialect
+formatDialect(query1, { dialect: postgresql });
+
+// Use mysql dialect
+formatDialect(query2, { dialect: mysql });
+```
+
+Each additional dialect adds only the size of that dialect's definitions to your bundle.
+
+See [dialect option docs](docs/dialect.md) for the full list of available dialect imports.
+
 ### Disabling the formatter
 
 You can disable the formatter for a section of SQL by surrounding it with disable/enable comments:

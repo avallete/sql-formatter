@@ -16,9 +16,61 @@ not with the old `format()` function.
 It also can't be used in config file of the command line tool -
 for that, use the [language][] option.
 
+## Tree-shaking for smaller bundles
+
+For applications where bundle size matters (browser/frontend), you can import `formatDialect`
+from the lightweight entry point and individual dialects from their dedicated modules.
+This enables tree-shaking and can reduce your bundle size by approximately **75%**:
+
+```ts
+import { formatDialect } from 'sql-formatter/lite';
+import { postgresql } from 'sql-formatter/languages/postgresql';
+
+const result = formatDialect('SELECT * FROM tbl', {
+  dialect: postgresql,
+  keywordCase: 'upper',
+});
+```
+
+### Bundle size comparison
+
+| Import method                                          | Gzipped size |
+| ------------------------------------------------------ | ------------ |
+| Full bundle (`import { format } from 'sql-formatter'`) | ~75 KB       |
+| Lite + single dialect                                  | ~19 KB       |
+| Lite + two dialects                                    | ~22 KB       |
+
+### Available dialect imports
+
+Each dialect can be imported from its dedicated module:
+
+| Dialect       | Import path                             |
+| ------------- | --------------------------------------- |
+| BigQuery      | `sql-formatter/languages/bigquery`      |
+| Clickhouse    | `sql-formatter/languages/clickhouse`    |
+| DB2           | `sql-formatter/languages/db2`           |
+| DB2i          | `sql-formatter/languages/db2i`          |
+| DuckDB        | `sql-formatter/languages/duckdb`        |
+| Hive          | `sql-formatter/languages/hive`          |
+| MariaDB       | `sql-formatter/languages/mariadb`       |
+| MySQL         | `sql-formatter/languages/mysql`         |
+| N1QL          | `sql-formatter/languages/n1ql`          |
+| PL/SQL        | `sql-formatter/languages/plsql`         |
+| PostgreSQL    | `sql-formatter/languages/postgresql`    |
+| Redshift      | `sql-formatter/languages/redshift`      |
+| SingleStoreDB | `sql-formatter/languages/singlestoredb` |
+| Snowflake     | `sql-formatter/languages/snowflake`     |
+| Spark         | `sql-formatter/languages/spark`         |
+| SQL           | `sql-formatter/languages/sql`           |
+| SQLite        | `sql-formatter/languages/sqlite`        |
+| TiDB          | `sql-formatter/languages/tidb`          |
+| Transact-SQL  | `sql-formatter/languages/transactsql`   |
+| Trino         | `sql-formatter/languages/trino`         |
+
 ## Options
 
-The following dialects can be imported from `"sql-formatter"` module:
+The following dialects can also be imported from the main `"sql-formatter"` module
+(though this doesn't enable tree-shaking):
 
 - `sql` - [Standard SQL][]
 - `bigquery` - [GCP BigQuery][]
