@@ -34,38 +34,38 @@ const result = formatDialect('SELECT * FROM tbl', {
 
 ### Bundle size comparison
 
-| Import method | Gzipped size |
-|---------------|--------------|
-| Full bundle (`import { format } from 'sql-formatter'`) | ~75 KB |
-| Lite + single dialect | ~19 KB |
-| Lite + two dialects | ~22 KB |
+| Import method                                          | Gzipped size |
+| ------------------------------------------------------ | ------------ |
+| Full bundle (`import { format } from 'sql-formatter'`) | ~75 KB       |
+| Lite + single dialect                                  | ~19 KB       |
+| Lite + two dialects                                    | ~22 KB       |
 
 ### Available dialect imports
 
 Each dialect can be imported from its dedicated module:
 
-| Dialect | Import path |
-|---------|-------------|
-| BigQuery | `sql-formatter/languages/bigquery` |
-| Clickhouse | `sql-formatter/languages/clickhouse` |
-| DB2 | `sql-formatter/languages/db2` |
-| DB2i | `sql-formatter/languages/db2i` |
-| DuckDB | `sql-formatter/languages/duckdb` |
-| Hive | `sql-formatter/languages/hive` |
-| MariaDB | `sql-formatter/languages/mariadb` |
-| MySQL | `sql-formatter/languages/mysql` |
-| N1QL | `sql-formatter/languages/n1ql` |
-| PL/SQL | `sql-formatter/languages/plsql` |
-| PostgreSQL | `sql-formatter/languages/postgresql` |
-| Redshift | `sql-formatter/languages/redshift` |
+| Dialect       | Import path                             |
+| ------------- | --------------------------------------- |
+| BigQuery      | `sql-formatter/languages/bigquery`      |
+| Clickhouse    | `sql-formatter/languages/clickhouse`    |
+| DB2           | `sql-formatter/languages/db2`           |
+| DB2i          | `sql-formatter/languages/db2i`          |
+| DuckDB        | `sql-formatter/languages/duckdb`        |
+| Hive          | `sql-formatter/languages/hive`          |
+| MariaDB       | `sql-formatter/languages/mariadb`       |
+| MySQL         | `sql-formatter/languages/mysql`         |
+| N1QL          | `sql-formatter/languages/n1ql`          |
+| PL/SQL        | `sql-formatter/languages/plsql`         |
+| PostgreSQL    | `sql-formatter/languages/postgresql`    |
+| Redshift      | `sql-formatter/languages/redshift`      |
 | SingleStoreDB | `sql-formatter/languages/singlestoredb` |
-| Snowflake | `sql-formatter/languages/snowflake` |
-| Spark | `sql-formatter/languages/spark` |
-| SQL | `sql-formatter/languages/sql` |
-| SQLite | `sql-formatter/languages/sqlite` |
-| TiDB | `sql-formatter/languages/tidb` |
-| Transact-SQL | `sql-formatter/languages/transactsql` |
-| Trino | `sql-formatter/languages/trino` |
+| Snowflake     | `sql-formatter/languages/snowflake`     |
+| Spark         | `sql-formatter/languages/spark`         |
+| SQL           | `sql-formatter/languages/sql`           |
+| SQLite        | `sql-formatter/languages/sqlite`        |
+| TiDB          | `sql-formatter/languages/tidb`          |
+| Transact-SQL  | `sql-formatter/languages/transactsql`   |
+| Trino         | `sql-formatter/languages/trino`         |
 
 ## Options
 
