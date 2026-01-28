@@ -66,7 +66,7 @@ describe('Bundle Size', () => {
       `;
 
       const { size, gzipSize } = await bundleCode(code, 'full-bundle');
-
+      // eslint-disable-next-line no-console
       console.log(
         `Full bundle size: ${(size / 1024).toFixed(2)} KB (${(gzipSize / 1024).toFixed(
           2
@@ -89,7 +89,7 @@ describe('Bundle Size', () => {
       `;
 
       const { size, gzipSize } = await bundleCode(code, 'lite-postgresql');
-
+      // eslint-disable-next-line no-console
       console.log(
         `Lite + PostgreSQL bundle size: ${(size / 1024).toFixed(2)} KB (${(gzipSize / 1024).toFixed(
           2
@@ -113,6 +113,7 @@ describe('Bundle Size', () => {
 
       const { size, gzipSize } = await bundleCode(code, 'lite-two-dialects');
 
+      // eslint-disable-next-line no-console
       console.log(
         `Lite + PostgreSQL + MySQL bundle size: ${(size / 1024).toFixed(2)} KB (${(
           gzipSize / 1024
@@ -143,6 +144,7 @@ describe('Bundle Size', () => {
       ]);
 
       const savings = ((fullBundle.size - liteBundle.size) / fullBundle.size) * 100;
+      // eslint-disable-next-line no-console
       console.log(
         `Size savings: ${savings.toFixed(1)}% (${(
           (fullBundle.size - liteBundle.size) /
