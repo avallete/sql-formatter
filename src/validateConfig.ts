@@ -25,6 +25,18 @@ export function validateConfig(cfg: FormatOptions): FormatOptions {
     );
   }
 
+  if (cfg.caseWhenStyle && !['inline', 'newline'].includes(cfg.caseWhenStyle)) {
+    throw new ConfigError(
+      `caseWhenStyle config must be 'inline' or 'newline'. Received '${cfg.caseWhenStyle}' instead.`
+    );
+  }
+
+  if (cfg.subqueryParenStyle && !['same-line', 'new-line'].includes(cfg.subqueryParenStyle)) {
+    throw new ConfigError(
+      `subqueryParenStyle config must be 'same-line' or 'new-line'. Received '${cfg.subqueryParenStyle}' instead.`
+    );
+  }
+
   if (cfg.params && !validateParams(cfg.params)) {
     // eslint-disable-next-line no-console
     console.warn('WARNING: All "params" option values should be strings.');

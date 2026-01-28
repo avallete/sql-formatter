@@ -53,6 +53,9 @@ const defaultOptions: FormatOptions = {
   linesBetweenQueries: 1,
   denseOperators: false,
   newlineBeforeSemicolon: false,
+  // pgFormatter compatibility options (defaults maintain current behavior)
+  caseWhenStyle: 'inline',
+  subqueryParenStyle: 'new-line',
 };
 
 /**

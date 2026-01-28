@@ -6,9 +6,9 @@
  *
  * Run: yarn test -- --testPathPattern=pgFormatter
  */
-import { format } from '../../src/sqlFormatter.js';
 import fs from 'fs';
 import path from 'path';
+import { format } from '../../src/sqlFormatter.js';
 
 // Path to fixtures (relative to project root where Jest runs)
 const FIXTURES_ROOT = path.resolve('./test/pgFormatter/fixtures');
@@ -25,12 +25,16 @@ const PG_TEST_FILES_EXPECTED_DIR = path.join(FIXTURES_ROOT, 'pg-test-files/expec
  * - 4 spaces indentation
  * - Uppercase keywords (SELECT, FROM, WHERE, etc.)
  * - Logical operators at start of line (AND, OR)
+ * - CASE/WHEN result on new line (pgFormatter style)
+ * - Subquery parenthesis on same line as keyword (pgFormatter style)
  */
 const PGFORMATTER_COMPATIBLE_OPTIONS = {
   language: 'postgresql' as const,
   tabWidth: 4,
   keywordCase: 'upper' as const,
   logicalOperatorNewline: 'before' as const,
+  caseWhenStyle: 'newline' as const,
+  subqueryParenStyle: 'same-line' as const,
 };
 
 /**

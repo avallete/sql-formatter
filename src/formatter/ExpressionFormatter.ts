@@ -196,7 +196,18 @@ export default class ExpressionFormatter {
       this.layout.add(node.openParen);
       this.layout.add(...inlineLayout.getLayoutItems());
       this.layout.add(WS.NO_SPACE, node.closeParen, WS.SPACE);
+    } else if (this.cfg.subqueryParenStyle === 'same-line') {
+      // pgFormatter style: keep ( on the same line as preceding keyword
+      this.layout.add(WS.NO_NEWLINE, WS.SPACE, node.openParen, WS.NEWLINE);
+
+      this.layout.indentation.increaseBlockLevel();
+      this.layout.add(WS.INDENT);
+      this.layout = this.formatSubExpression(node.children);
+      this.layout.indentation.decreaseBlockLevel();
+
+      this.layout.add(WS.NO_SPACE, node.closeParen, WS.SPACE);
     } else {
+      // Default style: ( on new line
       this.layout.add(node.openParen, WS.NEWLINE);
 
       if (isTabularStyle(this.cfg)) {
@@ -238,13 +249,35 @@ export default class ExpressionFormatter {
     this.formatNode(node.whenKw);
     this.layout = this.formatSubExpression(node.condition);
     this.formatNode(node.thenKw);
-    this.layout = this.formatSubExpression(node.result);
+
+    if (this.cfg.caseWhenStyle === 'newline') {
+      // pgFormatter style: result on new line, indented
+      this.layout.add(WS.NEWLINE);
+      this.layout.indentation.increaseBlockLevel();
+      this.layout.add(WS.INDENT);
+      this.layout = this.formatSubExpression(node.result);
+      this.layout.indentation.decreaseBlockLevel();
+    } else {
+      // Default: inline
+      this.layout = this.formatSubExpression(node.result);
+    }
   }
 
   private formatCaseElse(node: CaseElseNode) {
     this.layout.add(WS.NEWLINE, WS.INDENT);
     this.formatNode(node.elseKw);
-    this.layout = this.formatSubExpression(node.result);
+
+    if (this.cfg.caseWhenStyle === 'newline') {
+      // pgFormatter style: result on new line, indented
+      this.layout.add(WS.NEWLINE);
+      this.layout.indentation.increaseBlockLevel();
+      this.layout.add(WS.INDENT);
+      this.layout = this.formatSubExpression(node.result);
+      this.layout.indentation.decreaseBlockLevel();
+    } else {
+      // Default: inline
+      this.layout = this.formatSubExpression(node.result);
+    }
   }
 
   private formatClause(node: ClauseNode) {

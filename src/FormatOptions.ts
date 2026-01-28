@@ -11,6 +11,10 @@ export type FunctionCase = KeywordCase;
 
 export type LogicalOperatorNewline = 'before' | 'after';
 
+// pgFormatter compatibility options
+export type CaseWhenStyle = 'inline' | 'newline';
+export type SubqueryParenStyle = 'same-line' | 'new-line';
+
 export interface FormatOptions {
   tabWidth: number;
   useTabs: boolean;
@@ -24,6 +28,9 @@ export interface FormatOptions {
   linesBetweenQueries: number;
   denseOperators: boolean;
   newlineBeforeSemicolon: boolean;
+  // pgFormatter compatibility options
+  caseWhenStyle: CaseWhenStyle;
+  subqueryParenStyle: SubqueryParenStyle;
   params?: ParamItems | string[];
   paramTypes?: ParamTypes;
 }
