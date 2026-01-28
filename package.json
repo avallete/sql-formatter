@@ -1,5 +1,5 @@
 {
-  "name": "sql-formatter",
+  "name": "@avallete/sql-formatter",
   "version": "15.7.0",
   "description": "Format whitespace in a SQL query to make it more readable",
   "license": "MIT",
@@ -158,10 +158,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sql-formatter-org/sql-formatter.git"
+    "url": "git+https://github.com/avallete/sql-formatter.git"
   },
   "bugs": {
-    "url": "https://github.com/sql-formatter-org/sql-formatter/issues"
+    "url": "https://github.com/avallete/sql-formatter/issues"
   },
   "dependencies": {
     "argparse": "^2.0.1",
