@@ -85,17 +85,18 @@ FROM
     pg_timezone_abbrevs;
 
 -- Let's check the non-default timezone abbreviation sets, too
-SET timezone_abbreviations = 'Australia';
+SET
+    timezone_abbreviations = 'Australia';
 
 SELECT
     count(DISTINCT utc_offset) >= 24 AS ok
 FROM
     pg_timezone_abbrevs;
 
-SET timezone_abbreviations = 'India';
+SET
+    timezone_abbreviations = 'India';
 
 SELECT
     count(DISTINCT utc_offset) >= 24 AS ok
 FROM
     pg_timezone_abbrevs;
-

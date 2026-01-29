@@ -1,81 +1,94 @@
 --
 -- VACUUM
 --
-CREATE TABLE vactst (
-    i int
-);
+CREATE TABLE vactst (i INT);
 
-INSERT INTO vactst
-    VALUES (1);
+INSERT INTO
+    vactst
+VALUES
+    (1);
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
-    VALUES (0);
+INSERT INTO
+    vactst
+VALUES
+    (0);
 
 SELECT
     count(*)
@@ -83,89 +96,101 @@ FROM
     vactst;
 
 DELETE FROM vactst
-WHERE i != 0;
+WHERE
+    i != 0;
 
 SELECT
     *
 FROM
     vactst;
 
-VACUUM
-    FULL vactst;
+VACUUM FULL vactst;
 
-UPDATE
-    vactst
+UPDATE vactst
 SET
     i = i + 1;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
+INSERT INTO
+    vactst
 SELECT
     *
 FROM
     vactst;
 
-INSERT INTO vactst
-    VALUES (0);
+INSERT INTO
+    vactst
+VALUES
+    (0);
 
 SELECT
     count(*)
@@ -173,10 +198,10 @@ FROM
     vactst;
 
 DELETE FROM vactst
-WHERE i != 0;
+WHERE
+    i != 0;
 
-VACUUM (
-    FULL) vactst;
+VACUUM (FULL) vactst;
 
 DELETE FROM vactst;
 
@@ -185,114 +210,90 @@ SELECT
 FROM
     vactst;
 
-VACUUM (
-    FULL,
-    FREEZE) vactst;
+VACUUM (FULL, FREEZE) vactst;
 
-VACUUM (ANALYZE,
+VACUUM (
+    ANALYZE,
     FULL) vactst;
 
-CREATE TABLE vaccluster (
-    i int PRIMARY KEY
-);
+CREATE TABLE vaccluster (i INT PRIMARY KEY);
 
-ALTER TABLE vaccluster CLUSTER ON vaccluster_pkey;
+ALTER TABLE vaccluster
+CLUSTER ON vaccluster_pkey;
 
 CLUSTER vaccluster;
 
-CREATE FUNCTION do_analyze ()
-    RETURNS VOID VOLATILE
-    LANGUAGE SQL
-    AS '
-    ANALYZE pg_am;
-';
+CREATE FUNCTION do_analyze () RETURNS VOID VOLATILE LANGUAGE SQL AS 'ANALYZE pg_am';
 
-CREATE FUNCTION wrap_do_analyze (c int)
-    RETURNS int IMMUTABLE
-    LANGUAGE SQL
-    AS '
-    SELECT
-        $1
-    FROM
-        do_analyze ();
-';
+CREATE FUNCTION wrap_do_analyze (c INT) RETURNS INT IMMUTABLE LANGUAGE SQL AS 'SELECT $1 FROM do_analyze()';
 
 CREATE INDEX ON vaccluster (wrap_do_analyze (i));
 
-INSERT INTO vaccluster
+INSERT INTO
+    vaccluster
 VALUES
     (1),
     (2);
 
 ANALYZE vaccluster;
 
-VACUUM
-    FULL pg_am;
+VACUUM FULL pg_am;
 
-VACUUM
-    FULL pg_class;
+VACUUM FULL pg_class;
 
-VACUUM
-    FULL pg_database;
+VACUUM FULL pg_database;
 
-VACUUM
-    FULL vaccluster;
+VACUUM FULL vaccluster;
 
-VACUUM
-    FULL vactst;
+VACUUM FULL vactst;
 
 VACUUM (DISABLE_PAGE_SKIPPING) vaccluster;
 
 -- INDEX_CLEANUP option
-CREATE TABLE no_index_cleanup (
-    i int PRIMARY KEY
-)
-WITH (
-    vacuum_index_cleanup = FALSE
-);
+CREATE TABLE no_index_cleanup (i INT PRIMARY KEY)
+WITH
+    (vacuum_index_cleanup = FALSE);
 
 VACUUM (INDEX_CLEANUP FALSE) vaccluster;
 
 VACUUM (INDEX_CLEANUP FALSE) vactst;
 
 -- index cleanup option is ignored if no indexes
-VACUUM (INDEX_CLEANUP FALSE,
-    FREEZE TRUE) vaccluster;
+VACUUM (INDEX_CLEANUP FALSE, FREEZE TRUE) vaccluster;
 
 -- index cleanup option is ignored if VACUUM FULL
-VACUUM (INDEX_CLEANUP TRUE,
-    FULL TRUE) no_index_cleanup;
+VACUUM (INDEX_CLEANUP TRUE, FULL TRUE) no_index_cleanup;
 
-VACUUM (
-    FULL TRUE) no_index_cleanup;
+VACUUM (FULL TRUE) no_index_cleanup;
 
 -- partitioned table
-CREATE TABLE vacparted (
-    a int,
-    b char
-)
-PARTITION BY LIST (a);
+CREATE TABLE vacparted (a int, b char)
+PARTITION BY
+    LIST (a);
 
-CREATE TABLE vacparted1 PARTITION OF vacparted
-FOR VALUES IN (1);
+CREATE TABLE vacparted1 PARTITION OF vacparted FOR
+VALUES
+    IN (1);
 
-INSERT INTO vacparted
-    VALUES (1, 'a');
-
-UPDATE
+INSERT INTO
     vacparted
+VALUES
+    (1, 'a');
+
+UPDATE vacparted
 SET
     b = 'b';
 
-VACUUM (ANALYZE) vacparted;
-
 VACUUM (
-    FULL) vacparted;
+    ANALYZE) vacparted;
+
+VACUUM (FULL) vacparted;
 
 VACUUM (FREEZE) vacparted;
 
 -- check behavior with duplicate column mentions
-VACUUM ANALYZE vacparted (a, b, a);
+VACUUM
+ANALYZE vacparted (a, b, a);
 
 ANALYZE vacparted (a, b, b);
 
@@ -310,20 +311,20 @@ vactst;
 VACUUM (FREEZE) does_not_exist,
 vaccluster;
 
-VACUUM ANALYZE vactst,
+VACUUM
+ANALYZE vactst,
 vacparted (a);
 
-VACUUM ANALYZE vactst (does_not_exist),
+VACUUM
+ANALYZE vactst (does_not_exist),
 vacparted (b);
 
-VACUUM
-    FULL vacparted,
-    vactst;
+VACUUM FULL vacparted,
+vactst;
 
-VACUUM
-    FULL vactst,
-    vacparted (a, b),
-    vaccluster (i);
+VACUUM FULL vactst,
+vacparted (a, b),
+vaccluster (i);
 
 ANALYZE vactst,
 vacparted;
@@ -347,17 +348,14 @@ ANALYZE (nonexistentarg) does_not_exit;
 
 -- ensure argument order independence, and that SKIP_LOCKED on non-existing
 -- relation still errors out.
-ANALYZE (SKIP_LOCKED,
-    VERBOSE) does_not_exist;
+ANALYZE (SKIP_LOCKED, VERBOSE) does_not_exist;
 
-ANALYZE (VERBOSE,
-    SKIP_LOCKED) does_not_exist;
+ANALYZE (VERBOSE, SKIP_LOCKED) does_not_exist;
 
 -- SKIP_LOCKED option
 VACUUM (SKIP_LOCKED) vactst;
 
-VACUUM (SKIP_LOCKED,
-    FULL) vactst;
+VACUUM (SKIP_LOCKED, FULL) vactst;
 
 ANALYZE (SKIP_LOCKED) vactst;
 
@@ -370,20 +368,19 @@ DROP TABLE vacparted;
 DROP TABLE no_index_cleanup;
 
 -- relation ownership, WARNING logs generated as all are skipped.
-CREATE TABLE vacowned (
-    a int
-);
+CREATE TABLE vacowned (a int);
 
-CREATE TABLE vacowned_parted (
-    a int
-)
-PARTITION BY LIST (a);
+CREATE TABLE vacowned_parted (a int)
+PARTITION BY
+    LIST (a);
 
-CREATE TABLE vacowned_part1 PARTITION OF vacowned_parted
-FOR VALUES IN (1);
+CREATE TABLE vacowned_part1 PARTITION OF vacowned_parted FOR
+VALUES
+    IN (1);
 
-CREATE TABLE vacowned_part2 PARTITION OF vacowned_parted
-FOR VALUES IN (2);
+CREATE TABLE vacowned_part2 PARTITION OF vacowned_parted FOR
+VALUES
+    IN (2);
 
 CREATE ROLE regress_vacuum;
 
@@ -394,21 +391,24 @@ VACUUM vacowned;
 
 ANALYZE vacowned;
 
-VACUUM (ANALYZE) vacowned;
+VACUUM (
+    ANALYZE) vacowned;
 
 -- Catalog
 VACUUM pg_catalog.pg_class;
 
 ANALYZE pg_catalog.pg_class;
 
-VACUUM (ANALYZE) pg_catalog.pg_class;
+VACUUM (
+    ANALYZE) pg_catalog.pg_class;
 
 -- Shared catalog
 VACUUM pg_catalog.pg_authid;
 
 ANALYZE pg_catalog.pg_authid;
 
-VACUUM (ANALYZE) pg_catalog.pg_authid;
+VACUUM (
+    ANALYZE) pg_catalog.pg_authid;
 
 -- Partitioned table and its partitions, nothing owned by other user.
 -- Relations are not listed in a single command to test ownership
@@ -425,11 +425,14 @@ ANALYZE vacowned_part1;
 
 ANALYZE vacowned_part2;
 
-VACUUM (ANALYZE) vacowned_parted;
+VACUUM (
+    ANALYZE) vacowned_parted;
 
-VACUUM (ANALYZE) vacowned_part1;
+VACUUM (
+    ANALYZE) vacowned_part1;
 
-VACUUM (ANALYZE) vacowned_part2;
+VACUUM (
+    ANALYZE) vacowned_part2;
 
 RESET ROLE;
 
@@ -452,11 +455,14 @@ ANALYZE vacowned_part1;
 
 ANALYZE vacowned_part2;
 
-VACUUM (ANALYZE) vacowned_parted;
+VACUUM (
+    ANALYZE) vacowned_parted;
 
-VACUUM (ANALYZE) vacowned_part1;
+VACUUM (
+    ANALYZE) vacowned_part1;
 
-VACUUM (ANALYZE) vacowned_part2;
+VACUUM (
+    ANALYZE) vacowned_part2;
 
 RESET ROLE;
 
@@ -477,11 +483,14 @@ ANALYZE vacowned_part1;
 
 ANALYZE vacowned_part2;
 
-VACUUM (ANALYZE) vacowned_parted;
+VACUUM (
+    ANALYZE) vacowned_parted;
 
-VACUUM (ANALYZE) vacowned_part1;
+VACUUM (
+    ANALYZE) vacowned_part1;
 
-VACUUM (ANALYZE) vacowned_part2;
+VACUUM (
+    ANALYZE) vacowned_part2;
 
 RESET ROLE;
 
@@ -504,11 +513,14 @@ ANALYZE vacowned_part1;
 
 ANALYZE vacowned_part2;
 
-VACUUM (ANALYZE) vacowned_parted;
+VACUUM (
+    ANALYZE) vacowned_parted;
 
-VACUUM (ANALYZE) vacowned_part1;
+VACUUM (
+    ANALYZE) vacowned_part1;
 
-VACUUM (ANALYZE) vacowned_part2;
+VACUUM (
+    ANALYZE) vacowned_part2;
 
 RESET ROLE;
 
@@ -517,4 +529,3 @@ DROP TABLE vacowned;
 DROP TABLE vacowned_parted;
 
 DROP ROLE regress_vacuum;
-

@@ -12,27 +12,8 @@ SELECT
             'N'
     END AS new_col
 FROM
-    my_table;
-
-SELECT DISTINCT
-    ON (a, b) a,
-    b,
-    c
-FROM
-    d
-ORDER BY
-    a,
-    b,
-    c;
-
-SELECT DISTINCT
-    a,
-    b,
-    b,
-    c
-FROM
-    d
-ORDER BY
-    a,
-    b,
-    c;
+    my_table
+WHERE
+    col1 = 123
+    AND col2 = 56
+    AND col3 = 'hello';

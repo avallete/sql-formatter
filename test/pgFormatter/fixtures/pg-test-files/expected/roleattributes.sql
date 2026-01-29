@@ -18,7 +18,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_superuser';
 
-CREATE ROLE regress_test_superuser WITH SUPERUSER;
+CREATE ROLE regress_test_superuser
+WITH
+    SUPERUSER;
 
 SELECT
     rolname,
@@ -37,7 +39,9 @@ FROM
 WHERE
     rolname = 'regress_test_superuser';
 
-ALTER ROLE regress_test_superuser WITH NOSUPERUSER;
+ALTER ROLE regress_test_superuser
+WITH
+    NOSUPERUSER;
 
 SELECT
     rolname,
@@ -56,7 +60,9 @@ FROM
 WHERE
     rolname = 'regress_test_superuser';
 
-ALTER ROLE regress_test_superuser WITH SUPERUSER;
+ALTER ROLE regress_test_superuser
+WITH
+    SUPERUSER;
 
 SELECT
     rolname,
@@ -95,7 +101,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_inherit';
 
-CREATE ROLE regress_test_inherit WITH NOINHERIT;
+CREATE ROLE regress_test_inherit
+WITH
+    NOINHERIT;
 
 SELECT
     rolname,
@@ -114,7 +122,9 @@ FROM
 WHERE
     rolname = 'regress_test_inherit';
 
-ALTER ROLE regress_test_inherit WITH INHERIT;
+ALTER ROLE regress_test_inherit
+WITH
+    INHERIT;
 
 SELECT
     rolname,
@@ -133,7 +143,9 @@ FROM
 WHERE
     rolname = 'regress_test_inherit';
 
-ALTER ROLE regress_test_inherit WITH NOINHERIT;
+ALTER ROLE regress_test_inherit
+WITH
+    NOINHERIT;
 
 SELECT
     rolname,
@@ -172,7 +184,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_createrole';
 
-CREATE ROLE regress_test_createrole WITH CREATEROLE;
+CREATE ROLE regress_test_createrole
+WITH
+    CREATEROLE;
 
 SELECT
     rolname,
@@ -191,7 +205,9 @@ FROM
 WHERE
     rolname = 'regress_test_createrole';
 
-ALTER ROLE regress_test_createrole WITH NOCREATEROLE;
+ALTER ROLE regress_test_createrole
+WITH
+    NOCREATEROLE;
 
 SELECT
     rolname,
@@ -210,7 +226,9 @@ FROM
 WHERE
     rolname = 'regress_test_createrole';
 
-ALTER ROLE regress_test_createrole WITH CREATEROLE;
+ALTER ROLE regress_test_createrole
+WITH
+    CREATEROLE;
 
 SELECT
     rolname,
@@ -249,7 +267,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_createdb';
 
-CREATE ROLE regress_test_createdb WITH CREATEDB;
+CREATE ROLE regress_test_createdb
+WITH
+    CREATEDB;
 
 SELECT
     rolname,
@@ -268,7 +288,9 @@ FROM
 WHERE
     rolname = 'regress_test_createdb';
 
-ALTER ROLE regress_test_createdb WITH NOCREATEDB;
+ALTER ROLE regress_test_createdb
+WITH
+    NOCREATEDB;
 
 SELECT
     rolname,
@@ -287,7 +309,9 @@ FROM
 WHERE
     rolname = 'regress_test_createdb';
 
-ALTER ROLE regress_test_createdb WITH CREATEDB;
+ALTER ROLE regress_test_createdb
+WITH
+    CREATEDB;
 
 SELECT
     rolname,
@@ -326,7 +350,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_role_canlogin';
 
-CREATE ROLE regress_test_role_canlogin WITH LOGIN;
+CREATE ROLE regress_test_role_canlogin
+WITH
+    LOGIN;
 
 SELECT
     rolname,
@@ -345,7 +371,9 @@ FROM
 WHERE
     rolname = 'regress_test_role_canlogin';
 
-ALTER ROLE regress_test_role_canlogin WITH NOLOGIN;
+ALTER ROLE regress_test_role_canlogin
+WITH
+    NOLOGIN;
 
 SELECT
     rolname,
@@ -364,7 +392,9 @@ FROM
 WHERE
     rolname = 'regress_test_role_canlogin';
 
-ALTER ROLE regress_test_role_canlogin WITH LOGIN;
+ALTER ROLE regress_test_role_canlogin
+WITH
+    LOGIN;
 
 SELECT
     rolname,
@@ -403,7 +433,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_user_canlogin';
 
-CREATE USER regress_test_user_canlogin WITH NOLOGIN;
+CREATE USER regress_test_user_canlogin
+WITH
+    NOLOGIN;
 
 SELECT
     rolname,
@@ -422,7 +454,9 @@ FROM
 WHERE
     rolname = 'regress_test_user_canlogin';
 
-ALTER USER regress_test_user_canlogin WITH LOGIN;
+ALTER USER regress_test_user_canlogin
+WITH
+    LOGIN;
 
 SELECT
     rolname,
@@ -441,7 +475,9 @@ FROM
 WHERE
     rolname = 'regress_test_user_canlogin';
 
-ALTER USER regress_test_user_canlogin WITH NOLOGIN;
+ALTER USER regress_test_user_canlogin
+WITH
+    NOLOGIN;
 
 SELECT
     rolname,
@@ -480,7 +516,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_replication';
 
-CREATE ROLE regress_test_replication WITH REPLICATION;
+CREATE ROLE regress_test_replication
+WITH
+    REPLICATION;
 
 SELECT
     rolname,
@@ -499,7 +537,9 @@ FROM
 WHERE
     rolname = 'regress_test_replication';
 
-ALTER ROLE regress_test_replication WITH NOREPLICATION;
+ALTER ROLE regress_test_replication
+WITH
+    NOREPLICATION;
 
 SELECT
     rolname,
@@ -518,7 +558,9 @@ FROM
 WHERE
     rolname = 'regress_test_replication';
 
-ALTER ROLE regress_test_replication WITH REPLICATION;
+ALTER ROLE regress_test_replication
+WITH
+    REPLICATION;
 
 SELECT
     rolname,
@@ -557,7 +599,9 @@ FROM
 WHERE
     rolname = 'regress_test_def_bypassrls';
 
-CREATE ROLE regress_test_bypassrls WITH BYPASSRLS;
+CREATE ROLE regress_test_bypassrls
+WITH
+    BYPASSRLS;
 
 SELECT
     rolname,
@@ -576,7 +620,9 @@ FROM
 WHERE
     rolname = 'regress_test_bypassrls';
 
-ALTER ROLE regress_test_bypassrls WITH NOBYPASSRLS;
+ALTER ROLE regress_test_bypassrls
+WITH
+    NOBYPASSRLS;
 
 SELECT
     rolname,
@@ -595,7 +641,9 @@ FROM
 WHERE
     rolname = 'regress_test_bypassrls';
 
-ALTER ROLE regress_test_bypassrls WITH BYPASSRLS;
+ALTER ROLE regress_test_bypassrls
+WITH
+    BYPASSRLS;
 
 SELECT
     rolname,
@@ -646,4 +694,3 @@ DROP ROLE regress_test_replication;
 DROP ROLE regress_test_def_bypassrls;
 
 DROP ROLE regress_test_bypassrls;
-

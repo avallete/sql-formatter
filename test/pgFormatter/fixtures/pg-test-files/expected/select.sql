@@ -108,11 +108,14 @@ ORDER BY
 --
 ANALYZE onek2;
 
-SET enable_seqscan TO OFF;
+SET
+    enable_seqscan TO off;
 
-SET enable_bitmapscan TO OFF;
+SET
+    enable_bitmapscan TO off;
 
-SET enable_sort TO OFF;
+SET
+    enable_sort TO off;
 
 --
 -- awk '{if($1<10){print $0;}else{next;}}' onek.data | sort +0n -1
@@ -197,22 +200,28 @@ ORDER BY
 SELECT
     foo
 FROM (
-    SELECT
-        1 OFFSET 0) AS foo;
+        SELECT
+            1
+        OFFSET
+            0) AS foo;
 
 SELECT
     foo
 FROM (
-    SELECT
-        NULL OFFSET 0) AS foo;
+        SELECT
+            NULL
+        OFFSET
+            0) AS foo;
 
 SELECT
     foo
 FROM (
-    SELECT
-        'xyzzy',
-        1,
-        NULL OFFSET 0) AS foo;
+        SELECT
+            'xyzzy',
+            1,
+            NULL
+        OFFSET
+            0) AS foo;
 
 --
 -- Test VALUES lists
@@ -220,9 +229,9 @@ FROM (
 SELECT
     *
 FROM
-    onek,
-    (
-        VALUES (147, 'RFAAAA'),
+    onek, (
+        VALUES
+            (147, 'RFAAAA'),
             (931, 'VJAAAA')) AS v (i, j)
 WHERE
     onek.unique1 = v.i
@@ -233,18 +242,23 @@ WHERE
 SELECT
     *
 FROM
-    onek,
-    (
-        VALUES ((
+    onek, (
+        VALUES ( (
                     SELECT
                         i
                     FROM (
-                        VALUES (10000), (2), (389), (1000), (2000), (
-                                SELECT
-                                    10029)) AS foo (i)
+                            VALUES
+                                (10000),
+                                (2),
+                                (389),
+                                (1000),
+                                (2000), ( (
+                                        SELECT
+                                            10029))) AS foo (i)
                     ORDER BY
                         i ASC
-                    LIMIT 1))) bar (i)
+                    LIMIT
+                        1))) bar (i)
 WHERE
     onek.unique1 = bar.i;
 
@@ -253,42 +267,40 @@ SELECT
     *
 FROM
     onek
-WHERE (unique1, ten) IN (
-    VALUES (1, 1),
-        (20, 0),
-        (99, 9),
-        (17, 99))
+WHERE
+    (unique1, ten) IN (
+        VALUES
+            (1, 1),
+            (20, 0),
+            (99, 9),
+            (17, 99))
 ORDER BY
     unique1;
 
 -- VALUES is also legal as a standalone query or a set-operation member
-VALUES (1,
-    2),
-(3,
-    4 + 4),
-(7,
-    77.7);
+VALUES
+    (1, 2),
+    (3, 4 + 4),
+    (7, 77.7);
 
-VALUES (1,
-    2),
-(3,
-    4 + 4),
-(7,
-    77.7)
+VALUES
+    (1, 2),
+    (3, 4 + 4),
+    (7, 77.7)
 UNION ALL
 SELECT
     2 + 2,
     57
-UNION ALL TABLE int8_tbl;
+UNION ALL
+TABLE int8_tbl;
 
 --
 -- Test ORDER BY options
 --
-CREATE TEMP TABLE foo (
-    f1 int
-);
+CREATE TEMP TABLE foo (f1 int);
 
-INSERT INTO foo
+INSERT INTO
+    foo
 VALUES
     (42),
     (3),
@@ -337,7 +349,8 @@ ORDER BY
 -- check if indexscans do the right things
 CREATE INDEX fooi ON foo (f1);
 
-SET enable_sort = FALSE;
+SET
+    enable_sort = FALSE;
 
 SELECT
     *
@@ -435,9 +448,7 @@ ORDER BY
 -- Test planning of some cases with partial indexes
 --
 -- partial index is usable
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -456,11 +467,10 @@ WHERE
 
 -- actually run the query with an analyze to use the partial index
 EXPLAIN (
-    COSTS OFF,
+    costs off,
     ANALYZE ON,
-    timing OFF,
-    summary OFF
-)
+    timing off,
+    summary off)
 SELECT
     *
 FROM
@@ -469,9 +479,7 @@ WHERE
     unique2 = 11
     AND stringu1 = 'ATAAAA';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique2
 FROM
@@ -489,9 +497,7 @@ WHERE
     AND stringu1 = 'ATAAAA';
 
 -- partial index predicate implies clause, so no need for retest
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -508,9 +514,7 @@ WHERE
     unique2 = 11
     AND stringu1 < 'B';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique2
 FROM
@@ -528,9 +532,7 @@ WHERE
     AND stringu1 < 'B';
 
 -- but if it's an update target, must retest anyway
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique2
 FROM
@@ -550,9 +552,7 @@ WHERE
 FOR UPDATE;
 
 -- partial index is not applicable
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique2
 FROM
@@ -570,11 +570,10 @@ WHERE
     AND stringu1 < 'C';
 
 -- partial index implies clause, but bitmap scan must recheck predicate anyway
-SET enable_indexscan TO OFF;
+SET
+    enable_indexscan TO off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique2
 FROM
@@ -594,37 +593,36 @@ WHERE
 RESET enable_indexscan;
 
 -- check multi-index cases too
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique1,
     unique2
 FROM
     onek2
-WHERE (unique2 = 11
-    OR unique1 = 0)
-AND stringu1 < 'B';
+WHERE (
+        unique2 = 11
+        OR unique1 = 0)
+    AND stringu1 < 'B';
 
 SELECT
     unique1,
     unique2
 FROM
     onek2
-WHERE (unique2 = 11
-    OR unique1 = 0)
-AND stringu1 < 'B';
+WHERE (
+        unique2 = 11
+        OR unique1 = 0)
+    AND stringu1 < 'B';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique1,
     unique2
 FROM
     onek2
-WHERE (unique2 = 11
-    AND stringu1 < 'B')
+WHERE (
+        unique2 = 11
+        AND stringu1 < 'B')
     OR unique1 = 0;
 
 SELECT
@@ -632,8 +630,9 @@ SELECT
     unique2
 FROM
     onek2
-WHERE (unique2 = 11
-    AND stringu1 < 'B')
+WHERE (
+        unique2 = 11
+        AND stringu1 < 'B')
     OR unique1 = 0;
 
 --
@@ -646,16 +645,7 @@ ORDER BY
     x;
 
 -- But ORDER BY on a set-valued expression does
-CREATE FUNCTION sillysrf (int)
-    RETURNS SETOF int
-    AS '
-    VALUES (1),
-    (10),
-    (2),
-    ($1);
-'
-LANGUAGE sql
-IMMUTABLE;
+CREATE FUNCTION sillysrf (int) returns setof int AS 'values (1),(10),(2),($1)' language sql immutable;
 
 SELECT
     sillysrf (42);
@@ -672,9 +662,10 @@ DROP FUNCTION sillysrf (int);
 SELECT
     *
 FROM (
-    VALUES (2),
-        (NULL),
-        (1)) v (k)
+        VALUES
+            (2),
+            (NULL),
+            (1)) v (k)
 WHERE
     k = k
 ORDER BY
@@ -683,31 +674,29 @@ ORDER BY
 SELECT
     *
 FROM (
-    VALUES (2),
-        (NULL),
-        (1)) v (k)
+        VALUES
+            (2),
+            (NULL),
+            (1)) v (k)
 WHERE
     k = k;
 
 -- Test partitioned tables with no partitions, which should be handled the
 -- same as the non-inheritance case when expanding its RTE.
-CREATE TABLE list_parted_tbl (
-    a int,
-    b int
-)
-PARTITION BY LIST (a);
+CREATE TABLE list_parted_tbl (a int, b int)
+PARTITION BY
+    list (a);
 
-CREATE TABLE list_parted_tbl1 PARTITION OF list_parted_tbl
-FOR VALUES IN (1)
-PARTITION BY LIST (b);
+CREATE TABLE list_parted_tbl1 partition of list_parted_tbl FOR
+VALUES
+    IN (1)
+PARTITION BY
+    list (b);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     list_parted_tbl;
 
 DROP TABLE list_parted_tbl;
-

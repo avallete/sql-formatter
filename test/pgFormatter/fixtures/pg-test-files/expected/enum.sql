@@ -7,8 +7,7 @@ CREATE TYPE rainbow AS ENUM (
     'yellow',
     'green',
     'blue',
-    'purple'
-);
+    'purple');
 
 --
 -- Did it create the right number of rows?
@@ -32,11 +31,7 @@ SELECT
 --
 -- adding new values
 --
-CREATE TYPE planets AS ENUM (
-    'venus',
-    'earth',
-    'mars'
-);
+CREATE TYPE planets AS ENUM('venus', 'earth', 'mars');
 
 SELECT
     enumlabel,
@@ -49,7 +44,7 @@ ORDER BY
     2;
 
 ALTER TYPE planets
-    ADD VALUE 'uranus';
+ADD VALUE 'uranus';
 
 SELECT
     enumlabel,
@@ -62,16 +57,18 @@ ORDER BY
     2;
 
 ALTER TYPE planets
-    ADD VALUE 'mercury' BEFORE 'venus';
+ADD VALUE 'mercury' BEFORE 'venus';
 
 ALTER TYPE planets
-    ADD VALUE 'saturn' BEFORE 'uranus';
+ADD VALUE 'saturn' BEFORE 'uranus';
 
 ALTER TYPE planets
-    ADD VALUE 'jupiter' AFTER 'mars';
+ADD VALUE 'jupiter'
+AFTER 'mars';
 
 ALTER TYPE planets
-    ADD VALUE 'neptune' AFTER 'uranus';
+ADD VALUE 'neptune'
+AFTER 'uranus';
 
 SELECT
     enumlabel,
@@ -95,26 +92,27 @@ ORDER BY
 
 -- errors for adding labels
 ALTER TYPE planets
-    ADD VALUE 'plutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutopluto';
+ADD VALUE 'plutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutoplutopluto';
 
 ALTER TYPE planets
-    ADD VALUE 'pluto' AFTER 'zeus';
+ADD VALUE 'pluto'
+AFTER 'zeus';
 
 -- if not exists tests
 --  existing value gives error
 ALTER TYPE planets
-    ADD VALUE 'mercury';
+ADD VALUE 'mercury';
 
 -- unless IF NOT EXISTS is specified
 ALTER TYPE planets
-    ADD VALUE IF NOT EXISTS 'mercury';
+ADD VALUE IF NOT EXISTS 'mercury';
 
 -- should be neptune, not mercury
 SELECT
     enum_last(NULL::planets);
 
 ALTER TYPE planets
-    ADD VALUE IF NOT EXISTS 'pluto';
+ADD VALUE IF NOT EXISTS 'pluto';
 
 -- should be pluto, i.e. the new value
 SELECT
@@ -123,110 +121,108 @@ SELECT
 --
 -- Test inserting so many values that we have to renumber
 --
-CREATE TYPE insenum AS enum (
-    'L1',
-    'L2'
-);
+CREATE TYPE insenum AS enum('L1', 'L2');
 
 ALTER TYPE insenum
-    ADD value 'i1' BEFORE 'L2';
+ADD value 'i1' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i2' BEFORE 'L2';
+ADD value 'i2' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i3' BEFORE 'L2';
+ADD value 'i3' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i4' BEFORE 'L2';
+ADD value 'i4' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i5' BEFORE 'L2';
+ADD value 'i5' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i6' BEFORE 'L2';
+ADD value 'i6' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i7' BEFORE 'L2';
+ADD value 'i7' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i8' BEFORE 'L2';
+ADD value 'i8' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i9' BEFORE 'L2';
+ADD value 'i9' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i10' BEFORE 'L2';
+ADD value 'i10' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i11' BEFORE 'L2';
+ADD value 'i11' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i12' BEFORE 'L2';
+ADD value 'i12' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i13' BEFORE 'L2';
+ADD value 'i13' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i14' BEFORE 'L2';
+ADD value 'i14' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i15' BEFORE 'L2';
+ADD value 'i15' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i16' BEFORE 'L2';
+ADD value 'i16' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i17' BEFORE 'L2';
+ADD value 'i17' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i18' BEFORE 'L2';
+ADD value 'i18' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i19' BEFORE 'L2';
+ADD value 'i19' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i20' BEFORE 'L2';
+ADD value 'i20' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i21' BEFORE 'L2';
+ADD value 'i21' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i22' BEFORE 'L2';
+ADD value 'i22' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i23' BEFORE 'L2';
+ADD value 'i23' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i24' BEFORE 'L2';
+ADD value 'i24' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i25' BEFORE 'L2';
+ADD value 'i25' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i26' BEFORE 'L2';
+ADD value 'i26' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i27' BEFORE 'L2';
+ADD value 'i27' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i28' BEFORE 'L2';
+ADD value 'i28' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i29' BEFORE 'L2';
+ADD value 'i29' before 'L2';
 
 ALTER TYPE insenum
-    ADD value 'i30' BEFORE 'L2';
+ADD value 'i30' before 'L2';
 
 -- The exact values of enumsortorder will now depend on the local properties
 -- of float4, but in any reasonable implementation we should get at least
 -- 20 splits before having to renumber; so only hide values > 20.
 SELECT
     enumlabel,
-    CASE WHEN enumsortorder > 20 THEN
-        NULL
-    ELSE
-        enumsortorder
+    CASE
+        WHEN enumsortorder > 20 THEN
+            NULL
+        ELSE
+            enumsortorder
     END AS so
 FROM
     pg_enum
@@ -238,11 +234,10 @@ ORDER BY
 --
 -- Basic table creation, row selection
 --
-CREATE TABLE enumtest (
-    col rainbow
-);
+CREATE TABLE enumtest (col rainbow);
 
-INSERT INTO enumtest
+INSERT INTO
+    enumtest
 VALUES
     ('red'),
     ('orange'),
@@ -341,9 +336,11 @@ WHERE
 --
 -- Index tests, force use of index
 --
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = off;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = off;
 
 --
 -- Btree index / opclass with the various operators
@@ -424,7 +421,7 @@ DROP INDEX enumtest_btree;
 --
 -- Hash index / opclass with the = operator
 --
-CREATE INDEX enumtest_hash ON enumtest USING HASH (col);
+CREATE INDEX enumtest_hash ON enumtest USING hash (col);
 
 SELECT
     *
@@ -465,7 +462,7 @@ SELECT
     '{red,green,blue}'::rainbow[];
 
 SELECT
-    ('{red,green,blue}'::rainbow[])[2];
+    ('{red,green,blue}'::rainbow[]) [2];
 
 SELECT
     'red' = ANY ('{red,green,blue}'::rainbow[]);
@@ -506,14 +503,11 @@ SELECT
 --
 -- User functions, can't test perl/python etc here since may not be compiled.
 --
-CREATE FUNCTION echo_me (anyenum)
-    RETURNS text
-    AS $$
+CREATE FUNCTION echo_me (anyenum) RETURNS text AS $$
 BEGIN
-    RETURN $1::text || 'omg';
+RETURN $1::text || 'omg';
 END
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 SELECT
     echo_me ('red'::rainbow);
@@ -521,14 +515,11 @@ SELECT
 --
 -- Concrete function should override generic one
 --
-CREATE FUNCTION echo_me (rainbow)
-    RETURNS text
-    AS $$
+CREATE FUNCTION echo_me (rainbow) RETURNS text AS $$
 BEGIN
-    RETURN $1::text || 'wtf';
+RETURN $1::text || 'wtf';
 END
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 SELECT
     echo_me ('red'::rainbow);
@@ -547,22 +538,24 @@ DROP FUNCTION echo_me (rainbow);
 --
 -- RI triggers on enum types
 --
-CREATE TABLE enumtest_parent (
-    id rainbow PRIMARY KEY
-);
+CREATE TABLE enumtest_parent (id rainbow PRIMARY KEY);
 
-CREATE TABLE enumtest_child (
-    parent rainbow REFERENCES enumtest_parent
-);
+CREATE TABLE enumtest_child (parent rainbow REFERENCES enumtest_parent);
 
-INSERT INTO enumtest_parent
-    VALUES ('red');
+INSERT INTO
+    enumtest_parent
+VALUES
+    ('red');
 
-INSERT INTO enumtest_child
-    VALUES ('red');
+INSERT INTO
+    enumtest_child
+VALUES
+    ('red');
 
-INSERT INTO enumtest_child
-    VALUES ('blue');
+INSERT INTO
+    enumtest_child
+VALUES
+    ('blue');
 
 -- fail
 DELETE FROM enumtest_parent;
@@ -571,20 +564,15 @@ DELETE FROM enumtest_parent;
 --
 -- cross-type RI should fail
 --
-CREATE TYPE bogus AS ENUM (
-    'good',
-    'bad',
-    'ugly'
-);
+CREATE TYPE bogus AS ENUM('good', 'bad', 'ugly');
 
-CREATE TABLE enumtest_bogus_child (
-    parent bogus REFERENCES enumtest_parent
-);
+CREATE TABLE enumtest_bogus_child (parent bogus REFERENCES enumtest_parent);
 
 DROP TYPE bogus;
 
 -- check renaming a value
-ALTER TYPE rainbow RENAME VALUE 'red' TO 'crimson';
+ALTER TYPE rainbow
+RENAME VALUE 'red' TO 'crimson';
 
 SELECT
     enumlabel,
@@ -597,26 +585,30 @@ ORDER BY
     2;
 
 -- check that renaming a non-existent value fails
-ALTER TYPE rainbow RENAME VALUE 'red' TO 'crimson';
+ALTER TYPE rainbow
+RENAME VALUE 'red' TO 'crimson';
 
 -- check that renaming to an existent value fails
-ALTER TYPE rainbow RENAME VALUE 'blue' TO 'green';
+ALTER TYPE rainbow
+RENAME VALUE 'blue' TO 'green';
 
 --
 -- check transactional behaviour of ALTER TYPE ... ADD VALUE
 --
-CREATE TYPE bogus AS ENUM (
-    'good'
-);
+CREATE TYPE bogus AS ENUM('good');
 
 -- check that we can add new values to existing enums in a transaction
 -- but we can't use them
 BEGIN;
+
 ALTER TYPE bogus
-    ADD VALUE 'new';
+ADD VALUE 'new';
+
 SAVEPOINT x;
+
 SELECT
     'new'::bogus;
+
 -- unsafe
 ROLLBACK TO x;
 
@@ -655,47 +647,62 @@ ORDER BY
 -- check that we recognize the case where the enum already existed but was
 -- modified in the current txn; this should not be considered safe
 BEGIN;
-ALTER TYPE bogus RENAME TO bogon;
+
+ALTER TYPE bogus
+RENAME TO bogon;
+
 ALTER TYPE bogon
-    ADD VALUE 'bad';
+ADD VALUE 'bad';
+
 SELECT
     'bad'::bogon;
+
 ROLLBACK;
 
 -- but a renamed value is safe to use later in same transaction
 BEGIN;
-ALTER TYPE bogus RENAME VALUE 'good' TO 'bad';
+
+ALTER TYPE bogus
+RENAME VALUE 'good' TO 'bad';
+
 SELECT
     'bad'::bogus;
+
 ROLLBACK;
 
 DROP TYPE bogus;
 
 -- check that values created during CREATE TYPE can be used in any case
 BEGIN;
-CREATE TYPE bogus AS ENUM (
-    'good',
-    'bad',
-    'ugly'
-);
-ALTER TYPE bogus RENAME TO bogon;
+
+CREATE TYPE bogus AS ENUM('good', 'bad', 'ugly');
+
+ALTER TYPE bogus
+RENAME TO bogon;
+
 SELECT
     enum_range(NULL::bogon);
+
 ROLLBACK;
 
 -- ideally, we'd allow this usage; but it requires keeping track of whether
 -- the enum type was created in the current transaction, which is expensive
 BEGIN;
-CREATE TYPE bogus AS ENUM (
-    'good'
-);
-ALTER TYPE bogus RENAME TO bogon;
+
+CREATE TYPE bogus AS ENUM('good');
+
+ALTER TYPE bogus
+RENAME TO bogon;
+
 ALTER TYPE bogon
-    ADD VALUE 'bad';
+ADD VALUE 'bad';
+
 ALTER TYPE bogon
-    ADD VALUE 'ugly';
+ADD VALUE 'ugly';
+
 SELECT
     enum_range(NULL::bogon);
+
 -- fails
 ROLLBACK;
 
@@ -732,4 +739,3 @@ WHERE
             pg_type
         WHERE
             pg_type.oid = enumtypid);
-

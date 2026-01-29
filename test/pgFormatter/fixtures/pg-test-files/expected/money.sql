@@ -1,12 +1,12 @@
 --
 -- MONEY
 --
-CREATE TABLE money_data (
-    m money
-);
+CREATE TABLE money_data (m money);
 
-INSERT INTO money_data
-    VALUES ('123');
+INSERT INTO
+    money_data
+VALUES
+    ('123');
 
 SELECT
     *
@@ -171,29 +171,31 @@ FROM
     money_data;
 
 SELECT
-    cashlarger(m, '$124.00')
+    cashlarger (m, '$124.00')
 FROM
     money_data;
 
 SELECT
-    cashsmaller(m, '$124.00')
+    cashsmaller (m, '$124.00')
 FROM
     money_data;
 
 SELECT
-    cash_words(m)
+    cash_words (m)
 FROM
     money_data;
 
 SELECT
-    cash_words(m + '1.23')
+    cash_words (m + '1.23')
 FROM
     money_data;
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.45');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.45');
 
 SELECT
     *
@@ -202,8 +204,10 @@ FROM
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.451');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.451');
 
 SELECT
     *
@@ -212,8 +216,10 @@ FROM
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.454');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.454');
 
 SELECT
     *
@@ -222,8 +228,10 @@ FROM
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.455');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.455');
 
 SELECT
     *
@@ -232,8 +240,10 @@ FROM
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.456');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.456');
 
 SELECT
     *
@@ -242,8 +252,10 @@ FROM
 
 DELETE FROM money_data;
 
-INSERT INTO money_data
-    VALUES ('$123.459');
+INSERT INTO
+    money_data
+VALUES
+    ('$123.459');
 
 SELECT
     *
@@ -371,4 +383,3 @@ SELECT
 
 SELECT
     '-12345678901234567'::money::numeric;
-

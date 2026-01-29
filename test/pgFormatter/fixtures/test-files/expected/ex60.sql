@@ -1,88 +1,83 @@
 CREATE TABLE public.test (
-    value DOUBLE PRECISION,
-    ts1 TIMESTAMP(4) WITH TIME ZONE,
-    ts2 TIMESTAMP WITH TIME ZONE,
-    ts1 TIMESTAMP(4) WITHOUT TIME ZONE,
-    ts2 TIMESTAMP WITHOUT TIME ZONE,
-    t1 TIME(4) WITH TIME ZONE,
-    t2 TIME WITH TIME ZONE,
-    t1 TIME(4) WITHOUT TIME ZONE,
-    t2 TIME WITHOUT TIME ZONE,
-    d1 INTERVAL second (6),
-    d2 INTERVAL second,
-    d3 INTERVAL(6)
-);
+    value double precision,
+    ts1 timestamp(4) with time zone,
+    ts2 timestamp with time zone,
+    ts1 timestamp(4) without time zone,
+    ts2 timestamp without time zone,
+    t1 time(4) with time zone,
+    t2 time with time zone,
+    t1 time(4) without time zone,
+    t2 time without time zone,
+    d1 interval SECOND (6),
+    d2 interval SECOND,
+    d3 interval(6));
 
 CREATE TABLE brintest (
-    byteacol BYTEA,
+    byteacol bytea,
     charcol "char",
-    namecol NAME,
-    int8col BIGINT,
-    int2col SMALLINT,
-    int4col INTEGER,
-    textcol TEXT,
-    oidcol OID,
-    tidcol TID,
-    float4col REAL,
-    float8col DOUBLE PRECISION,
-    macaddrcol MACADDR,
-    inetcol INET,
-    cidrcol CIDR,
-    bpcharcol CHARACTER,
-    datecol DATE,
-    timecol TIME WITHOUT TIME ZONE,
-    timestampcol TIMESTAMP WITHOUT TIME ZONE,
-    timestamptzcol TIMESTAMP WITH TIME ZONE,
-    intervalcol INTERVAL,
-    timetzcol TIME WITH TIME ZONE,
-    bitcol BIT(10),
-    varbitcol BIT VARYING(16),
-    numericcol NUMERIC,
-    uuidcol UUID,
-    int4rangecol INT4RANGE,
-    lsncol PG_LSN,
-    boxcol BOX
-)
-WITH (
-    fillfactor = 10
-);
+    namecol name,
+    int8col bigint,
+    int2col smallint,
+    int4col integer,
+    textcol text,
+    oidcol oid,
+    tidcol tid,
+    float4col real,
+    float8col double precision,
+    macaddrcol macaddr,
+    inetcol inet,
+    cidrcol cidr,
+    bpcharcol character,
+    datecol date,
+    timecol time without time zone,
+    timestampcol timestamp without time zone,
+    timestamptzcol timestamp with time zone,
+    intervalcol interval,
+    timetzcol time with time zone,
+    bitcol bit(10),
+    varbitcol bit varying(16),
+    numericcol numeric,
+    uuidcol uuid,
+    int4rangecol int4range,
+    lsncol pg_lsn,
+    boxcol box)
+WITH
+    (fillfactor = 10);
 
-CREATE TABLE reservation (
-    room INT,
-    during TSRANGE
-);
+CREATE TABLE reservation (room int, during tsrange);
 
-INSERT INTO reservation
-    VALUES (1108, '[2010-01-01 14:30, 2010-01-01 15:30)');
+INSERT INTO
+    reservation
+VALUES
+    (1108, '[2010-01-01 14:30, 2010-01-01 15:30)');
 
 -- Containment
 SELECT
-    INT4RANGE(10, 20) @> 3;
+    int4range (10, 20) @> 3;
 
 -- Overlaps
 SELECT
-    NUMRANGE(11.1, 22.2) && NUMRANGE(20.0, 30.0);
+    numrange (11.1, 22.2) && numrange (20.0, 30.0);
 
 -- Extract the upper bound
 SELECT
-    UPPER(INT8RANGE(15, 25));
+    upper(int8range (15, 25));
 
 -- Compute the intersection
 SELECT
-    INT4RANGE(10, 20) * INT4RANGE(15, 25);
+    int4range (10, 20) * int4range (15, 25);
 
 -- Is the range empty?
 SELECT
-    ISEMPTY(NUMRANGE(1, 5));
+    isempty(numrange (1, 5));
 
 SELECT
-    '(3,7)'::INT4RANGE;
+    '(3,7)'::int4range;
 
 CREATE TABLE position (
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
-    name TEXT
-);
+    latitude double precision,
+    longitude double precision,
+    name text);
 
 -- pg_trgm operators
 SELECT
@@ -103,7 +98,8 @@ FROM
     test_trgm
 ORDER BY
     dist
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
     t,
@@ -124,7 +120,8 @@ FROM
     test_trgm
 ORDER BY
     dist
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
     t,
@@ -133,5 +130,5 @@ FROM
     test_trgm
 ORDER BY
     dist
-LIMIT 10;
-
+LIMIT
+    10;

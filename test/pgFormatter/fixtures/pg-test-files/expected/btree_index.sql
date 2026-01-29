@@ -90,15 +90,16 @@ WHERE
 -- Check correct optimization of LIKE (special index operator support)
 -- for both indexscan and bitmapscan cases
 --
-SET enable_seqscan TO FALSE;
+SET
+    enable_seqscan TO FALSE;
 
-SET enable_indexscan TO TRUE;
+SET
+    enable_indexscan TO TRUE;
 
-SET enable_bitmapscan TO FALSE;
+SET
+    enable_bitmapscan TO FALSE;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -117,9 +118,7 @@ WHERE
 ORDER BY
     1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -138,9 +137,7 @@ WHERE
 ORDER BY
     1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -150,13 +147,13 @@ WHERE
 ORDER BY
     1;
 
-SET enable_indexscan TO FALSE;
+SET
+    enable_indexscan TO FALSE;
 
-SET enable_bitmapscan TO TRUE;
+SET
+    enable_bitmapscan TO TRUE;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -175,9 +172,7 @@ WHERE
 ORDER BY
     1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -196,9 +191,7 @@ WHERE
 ORDER BY
     1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     proname
 FROM
@@ -226,17 +219,19 @@ RESET enable_bitmapscan;
 -- The text column must be the leading column in the index, since suffix
 -- truncation would otherwise truncate tuples on internal pages, leaving us
 -- with a short tree.
-CREATE TABLE btree_tall_tbl (
-    id int4,
-    t text
-);
+CREATE TABLE btree_tall_tbl (id int4, t text);
 
 ALTER TABLE btree_tall_tbl
-    ALTER COLUMN t SET storage plain;
+ALTER COLUMN t
+SET
+    storage plain;
 
-CREATE INDEX btree_tall_idx ON btree_tall_tbl (t, id) WITH (fillfactor = 10);
+CREATE INDEX btree_tall_idx ON btree_tall_tbl (t, id)
+WITH
+    (fillfactor = 10);
 
-INSERT INTO btree_tall_tbl
+INSERT INTO
+    btree_tall_tbl
 SELECT
     g,
     repeat('x', 250)
@@ -247,11 +242,11 @@ FROM
 -- Test vacuum_cleanup_index_scale_factor
 --
 -- Simple create
-CREATE TABLE btree_test (
-    a int
-);
+CREATE TABLE btree_test (a int);
 
-CREATE INDEX btree_idx1 ON btree_test (a) WITH (vacuum_cleanup_index_scale_factor = 40.0);
+CREATE INDEX btree_idx1 ON btree_test (a)
+WITH
+    (vacuum_cleanup_index_scale_factor = 40.0);
 
 SELECT
     reloptions
@@ -261,16 +256,26 @@ WHERE
     oid = 'btree_idx1'::regclass;
 
 -- Fail while setting improper values
-CREATE INDEX btree_idx_err ON btree_test (a) WITH (vacuum_cleanup_index_scale_factor = -10.0);
+CREATE INDEX btree_idx_err ON btree_test (a)
+WITH
+    (vacuum_cleanup_index_scale_factor = -10.0);
 
-CREATE INDEX btree_idx_err ON btree_test (a) WITH (vacuum_cleanup_index_scale_factor = 100.0);
+CREATE INDEX btree_idx_err ON btree_test (a)
+WITH
+    (vacuum_cleanup_index_scale_factor = 100.0);
 
-CREATE INDEX btree_idx_err ON btree_test (a) WITH (vacuum_cleanup_index_scale_factor = 'string');
+CREATE INDEX btree_idx_err ON btree_test (a)
+WITH
+    (vacuum_cleanup_index_scale_factor = 'string');
 
-CREATE INDEX btree_idx_err ON btree_test (a) WITH (vacuum_cleanup_index_scale_factor = TRUE);
+CREATE INDEX btree_idx_err ON btree_test (a)
+WITH
+    (vacuum_cleanup_index_scale_factor = TRUE);
 
 -- Simple ALTER INDEX
-ALTER INDEX btree_idx1 SET (vacuum_cleanup_index_scale_factor = 70.0);
+ALTER INDEX btree_idx1
+SET
+    (vacuum_cleanup_index_scale_factor = 70.0);
 
 SELECT
     reloptions
@@ -282,14 +287,10 @@ WHERE
 --
 -- Test for multilevel page deletion
 --
-CREATE TABLE delete_test_table (
-    a bigint,
-    b bigint,
-    c bigint,
-    d bigint
-);
+CREATE TABLE delete_test_table (a bigint, b bigint, c bigint, d bigint);
 
-INSERT INTO delete_test_table
+INSERT INTO
+    delete_test_table
 SELECT
     i,
     1,
@@ -299,12 +300,13 @@ FROM
     generate_series(1, 80000) i;
 
 ALTER TABLE delete_test_table
-    ADD PRIMARY KEY (a, b, c, d);
+ADD PRIMARY KEY (a, b, c, d);
 
 -- Delete most entries, and vacuum, deleting internal pages and creating "fast
 -- root"
 DELETE FROM delete_test_table
-WHERE a < 79990;
+WHERE
+    a < 79990;
 
 VACUUM delete_test_table;
 
@@ -315,7 +317,8 @@ VACUUM delete_test_table;
 --
 -- The vacuum above should've turned the leaf page into a fast root. We just
 -- need to insert some rows to cause the fast root page to split.
-INSERT INTO delete_test_table
+INSERT INTO
+    delete_test_table
 SELECT
     i,
     1,
@@ -323,4 +326,3 @@ SELECT
     3
 FROM
     generate_series(1, 1000) i;
-

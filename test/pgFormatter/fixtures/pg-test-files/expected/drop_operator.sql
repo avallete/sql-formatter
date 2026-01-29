@@ -1,19 +1,17 @@
-CREATE OPERATOR === (
+CREATE OPERATOR = = = (
     PROCEDURE = int8eq,
     LEFTARG = bigint,
     RIGHTARG = bigint,
-    COMMUTATOR = ===
-);
+    COMMUTATOR = = = =);
 
-CREATE OPERATOR !== (
+CREATE OPERATOR != = (
     PROCEDURE = int8ne,
     LEFTARG = bigint,
     RIGHTARG = bigint,
-    NEGATOR = ===,
-    COMMUTATOR = !==
-);
+    NEGATOR = = = =,
+    COMMUTATOR = != =);
 
-DROP OPERATOR !== (bigint, bigint);
+DROP OPERATOR != = (bigint, bigint);
 
 SELECT
     ctid,
@@ -45,23 +43,21 @@ WHERE
         WHERE
             pk.oid = fk.oprnegate);
 
-DROP OPERATOR === (bigint, bigint);
+DROP OPERATOR = = = (bigint, bigint);
 
-CREATE OPERATOR <||<| (
+CREATE OPERATOR < | (
     PROCEDURE = int8lt,
     LEFTARG = bigint,
-    RIGHTARG = bigint
-);
+    RIGHTARG = bigint);
 
-CREATE OPERATOR <||><| (
+CREATE OPERATOR | > (
     PROCEDURE = int8gt,
     LEFTARG = bigint,
     RIGHTARG = bigint,
-    NEGATOR = <|,
-    COMMUTATOR = <|
-);
+    NEGATOR = < |,
+    COMMUTATOR = < |);
 
-DROP OPERATOR <||><| (bigint, bigint);
+DROP OPERATOR | > (bigint, bigint);
 
 SELECT
     ctid,
@@ -93,5 +89,4 @@ WHERE
         WHERE
             pk.oid = fk.oprnegate);
 
-DROP OPERATOR <||<| (bigint, bigint);
-
+DROP OPERATOR < | (bigint, bigint);

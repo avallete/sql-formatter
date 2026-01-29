@@ -20,11 +20,15 @@ WHERE
     refclassid = 0
     OR refobjid = 0
     OR deptype NOT IN ('a', 'e', 'i', 'n', 'p')
-    OR (deptype != 'p'
-        AND (classid = 0
+    OR (
+        deptype != 'p'
+        AND (
+            classid = 0
             OR objid = 0))
-    OR (deptype = 'p'
-        AND (classid != 0
+    OR (
+        deptype = 'p'
+        AND (
+            classid != 0
             OR objid != 0
             OR objsubid != 0));
 
@@ -39,11 +43,15 @@ WHERE
     refclassid = 0
     OR refobjid = 0
     OR deptype NOT IN ('a', 'o', 'p', 'r')
-    OR (deptype != 'p'
-        AND (classid = 0
+    OR (
+        deptype != 'p'
+        AND (
+            classid = 0
             OR objid = 0))
-    OR (deptype = 'p'
-        AND (dbid != 0
+    OR (
+        deptype = 'p'
+        AND (
+            dbid != 0
             OR classid != 0
             OR objid != 0
             OR objsubid != 0));
@@ -57,66 +65,35 @@ WHERE
 -- in initdb, where it intentionally isn't pinned.  Legitimate exceptions
 -- to that rule are listed in the comments in setup_depend().
 DO $$
-DECLARE
-    relnm text;
-    reloid oid;
-    shared bool;
-    lowoid oid;
-    pinned bool;
-BEGIN
-    FOR relnm,
-    reloid,
-    shared IN
-    SELECT
-        relname,
-        oid,
-        relisshared
-    FROM
-        pg_class
-    WHERE
-        EXISTS (
-            SELECT
-                *
-            FROM
-                pg_attribute
-            WHERE
-                attrelid = pg_class.oid
-                AND attname = 'oid')
-        AND relkind = 'r'
-        AND oid < 16384
-    ORDER BY
-        1 LOOP
-            EXECUTE 'select min(oid) from ' || relnm INTO lowoid;
-            CONTINUE
-            WHEN lowoid IS NULL
-                OR lowoid >= 16384;
-            IF shared THEN
-                pinned := EXISTS (
-                    SELECT
-                        1
-                    FROM
-                        pg_shdepend
-                    WHERE
-                        refclassid = reloid
-                        AND refobjid = lowoid
-                        AND deptype = 'p');
-            ELSE
-                pinned := EXISTS (
-                    SELECT
-                        1
-                    FROM
-                        pg_depend
-                    WHERE
-                        refclassid = reloid
-                        AND refobjid = lowoid
-                        AND deptype = 'p');
-            END IF;
-            IF NOT pinned THEN
-                RAISE NOTICE '% contains unpinned initdb-created object(s)', relnm;
-            END IF;
-        END LOOP;
-END
-$$;
+declare relnm text;
+  reloid oid;
+  shared bool;
+  lowoid oid;
+  pinned bool;
+begin
+for relnm, reloid, shared in
+  select relname, oid, relisshared from pg_class
+  where EXISTS(
+      SELECT * FROM pg_attribute
+      WHERE attrelid = pg_class.oid AND attname = 'oid')
+    and relkind = 'r' and oid < 16384 order by 1
+loop
+  execute 'select min(oid) from ' || relnm into lowoid;
+  continue when lowoid is null or lowoid >= 16384;
+  if shared then
+    pinned := exists(select 1 from pg_shdepend
+                     where refclassid = reloid and refobjid = lowoid
+                     and deptype = 'p');
+  else
+    pinned := exists(select 1 from pg_depend
+                     where refclassid = reloid and refobjid = lowoid
+                     and deptype = 'p');
+  end if;
+  if not pinned then
+    raise notice '% contains unpinned initdb-created object(s)', relnm;
+  end if;
+end loop;
+end$$;
 
 -- **************** pg_class ****************
 -- Look for system tables with varlena columns but no toast table. All
@@ -142,4 +119,3 @@ WHERE
 ORDER BY
     1,
     2;
-

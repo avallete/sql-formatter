@@ -14,7 +14,7 @@ SELECT
     pg_start_backup('should fail');
 
 SELECT
-    pg_switch_wal ();
+    pg_switch_wal();
 
 SELECT
     pg_stop_backup();
@@ -40,4 +40,3 @@ WHERE
 -- suicide is painless
 SELECT
     pg_cancel_backend(pg_backend_pid());
-

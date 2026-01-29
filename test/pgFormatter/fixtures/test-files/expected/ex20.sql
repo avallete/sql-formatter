@@ -1,5 +1,8 @@
 SELECT
-    group_concat(k.column_name ORDER BY k.ordinal_position) AS column_names,
+    group_concat (
+        k.column_name
+        ORDER BY
+            k.ordinal_position) AS column_names,
     t.table_name AS table_name,
     t.table_schema AS table_schema,
     t.constraint_name AS constraint_name
@@ -11,4 +14,3 @@ WHERE
 GROUP BY
     t.table_schema,
     t.table_name;
-

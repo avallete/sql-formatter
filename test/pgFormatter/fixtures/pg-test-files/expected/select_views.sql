@@ -28,51 +28,46 @@ WHERE
 --
 CREATE ROLE regress_alice;
 
-CREATE FUNCTION f_leak (text)
-    RETURNS bool
-    LANGUAGE 'plpgsql'
-    COST 0.0000001
-    AS '
-BEGIN
-    RAISE NOTICE ''f_leak => %'', $1;
-
-RETURN TRUE;
-
-END;
-';
+CREATE FUNCTION f_leak (text) RETURNS bool LANGUAGE 'plpgsql' COST 0.0000001 AS 'BEGIN RAISE NOTICE ''f_leak => %'', $1; RETURN true; END';
 
 CREATE TABLE customer (
     cid int PRIMARY KEY,
     name text NOT NULL,
     tel text,
-    passwd text
-);
+    passwd text);
 
 CREATE TABLE credit_card (
     cid int REFERENCES customer (cid),
     cnum text,
-    climit int
-);
+    climit int);
 
 CREATE TABLE credit_usage (
     cid int REFERENCES customer (cid),
     ymd date,
-    usage int
-);
+    usage int);
 
-INSERT INTO customer
-VALUES
-    (101, 'regress_alice', '+81-12-3456-7890', 'passwd123'),
-    (102, 'regress_bob', '+01-234-567-8901', 'beafsteak'),
+INSERT INTO
+    customer
+VALUES (
+        101,
+        'regress_alice',
+        '+81-12-3456-7890',
+        'passwd123'), (
+        102,
+        'regress_bob',
+        '+01-234-567-8901',
+        'beafsteak'),
     (103, 'regress_eve', '+49-8765-43210', 'hamburger');
 
-INSERT INTO credit_card
+INSERT INTO
+    credit_card
 VALUES
     (101, '1111-2222-3333-4444', 4000),
     (102, '5555-6666-7777-8888', 3000),
     (103, '9801-2345-6789-0123', 2000);
 
-INSERT INTO credit_usage
+INSERT INTO
+    credit_usage
 VALUES
     (101, '2011-09-15', 120),
     (101, '2011-10-05', 90),
@@ -90,16 +85,17 @@ SELECT
 FROM
     customer
 WHERE
-    name = CURRENT_USER;
+    name = current_user;
 
-CREATE VIEW my_property_secure WITH ( security_barrier
-) AS
+CREATE VIEW my_property_secure
+WITH
+    (security_barrier) AS
 SELECT
     *
 FROM
     customer
 WHERE
-    name = CURRENT_USER;
+    name = current_user;
 
 CREATE VIEW my_credit_card_normal AS
 SELECT
@@ -108,17 +104,18 @@ FROM
     customer l
     NATURAL JOIN credit_card r
 WHERE
-    l.name = CURRENT_USER;
+    l.name = current_user;
 
-CREATE VIEW my_credit_card_secure WITH ( security_barrier
-) AS
+CREATE VIEW my_credit_card_secure
+WITH
+    (security_barrier) AS
 SELECT
     *
 FROM
     customer l
     NATURAL JOIN credit_card r
 WHERE
-    l.name = CURRENT_USER;
+    l.name = current_user;
 
 CREATE VIEW my_credit_card_usage_normal AS
 SELECT
@@ -127,25 +124,38 @@ FROM
     my_credit_card_secure l
     NATURAL JOIN credit_usage r;
 
-CREATE VIEW my_credit_card_usage_secure WITH ( security_barrier
-) AS
+CREATE VIEW my_credit_card_usage_secure
+WITH
+    (security_barrier) AS
 SELECT
     *
 FROM
     my_credit_card_secure l
     NATURAL JOIN credit_usage r;
 
-GRANT SELECT ON my_property_normal TO public;
+GRANT
+SELECT
+    ON my_property_normal TO public;
 
-GRANT SELECT ON my_property_secure TO public;
+GRANT
+SELECT
+    ON my_property_secure TO public;
 
-GRANT SELECT ON my_credit_card_normal TO public;
+GRANT
+SELECT
+    ON my_credit_card_normal TO public;
 
-GRANT SELECT ON my_credit_card_secure TO public;
+GRANT
+SELECT
+    ON my_credit_card_secure TO public;
 
-GRANT SELECT ON my_credit_card_usage_normal TO public;
+GRANT
+SELECT
+    ON my_credit_card_usage_normal TO public;
 
-GRANT SELECT ON my_credit_card_usage_secure TO public;
+GRANT
+SELECT
+    ON my_credit_card_usage_secure TO public;
 
 --
 -- Run leaky view scenarios
@@ -163,9 +173,7 @@ FROM
 WHERE
     f_leak (passwd);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -180,9 +188,7 @@ FROM
 WHERE
     f_leak (passwd);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -202,9 +208,7 @@ WHERE
     f_leak ('passwd')
     AND f_leak (passwd);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -221,9 +225,7 @@ WHERE
     f_leak ('passwd')
     AND f_leak (passwd);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -244,9 +246,7 @@ FROM
 WHERE
     f_leak (cnum);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -261,9 +261,7 @@ FROM
 WHERE
     f_leak (cnum);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -285,9 +283,7 @@ WHERE
     AND ymd >= '2011-10-01'
     AND ymd < '2011-11-01';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -306,9 +302,7 @@ WHERE
     AND ymd >= '2011-10-01'
     AND ymd < '2011-11-01';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -344,9 +338,13 @@ EXECUTE p2;
 
 RESET SESSION AUTHORIZATION;
 
-ALTER VIEW my_property_normal SET (security_barrier = TRUE);
+ALTER VIEW my_property_normal
+SET
+    (security_barrier = TRUE);
 
-ALTER VIEW my_property_secure SET (security_barrier = FALSE);
+ALTER VIEW my_property_secure
+SET
+    (security_barrier = FALSE);
 
 SET SESSION AUTHORIZATION regress_alice;
 
@@ -360,4 +358,3 @@ EXECUTE p2;
 RESET SESSION AUTHORIZATION;
 
 DROP ROLE regress_alice;
-

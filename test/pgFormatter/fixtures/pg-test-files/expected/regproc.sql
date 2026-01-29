@@ -6,22 +6,22 @@ CREATE ROLE regress_regrole_test;
 
 -- without schemaname
 SELECT
-    regoper('||/');
+    regoper ('||/');
 
 SELECT
-    regoperator('+(int4,int4)');
+    regoperator ('+(int4,int4)');
 
 SELECT
-    regproc('now');
+    regproc ('now');
 
 SELECT
-    regprocedure('abs(numeric)');
+    regprocedure ('abs(numeric)');
 
 SELECT
-    regclass('pg_class');
+    regclass ('pg_class');
 
 SELECT
-    regtype('int4');
+    regtype ('int4');
 
 SELECT
     to_regoper('||/');
@@ -43,22 +43,22 @@ SELECT
 
 -- with schemaname
 SELECT
-    regoper('pg_catalog.||/');
+    regoper ('pg_catalog.||/');
 
 SELECT
-    regoperator('pg_catalog.+(int4,int4)');
+    regoperator ('pg_catalog.+(int4,int4)');
 
 SELECT
-    regproc('pg_catalog.now');
+    regproc ('pg_catalog.now');
 
 SELECT
-    regprocedure('pg_catalog.abs(numeric)');
+    regprocedure ('pg_catalog.abs(numeric)');
 
 SELECT
-    regclass('pg_catalog.pg_class');
+    regclass ('pg_catalog.pg_class');
 
 SELECT
-    regtype('pg_catalog.int4');
+    regtype ('pg_catalog.int4');
 
 SELECT
     to_regoper('pg_catalog.||/');
@@ -77,16 +77,16 @@ SELECT
 
 -- schemaname not applicable
 SELECT
-    regrole('regress_regrole_test');
+    regrole ('regress_regrole_test');
 
 SELECT
-    regrole('"regress_regrole_test"');
+    regrole ('"regress_regrole_test"');
 
 SELECT
-    regnamespace('pg_catalog');
+    regnamespace ('pg_catalog');
 
 SELECT
-    regnamespace('"pg_catalog"');
+    regnamespace ('"pg_catalog"');
 
 SELECT
     to_regrole('regress_regrole_test');
@@ -100,73 +100,71 @@ SELECT
 SELECT
     to_regnamespace('"pg_catalog"');
 
-
 /* If objects don't exist, raise errors. */
 DROP ROLE regress_regrole_test;
 
 -- without schemaname
 SELECT
-    regoper('||//');
+    regoper ('||//');
 
 SELECT
-    regoperator('++(int4,int4)');
+    regoperator ('++(int4,int4)');
 
 SELECT
-    regproc('know');
+    regproc ('know');
 
 SELECT
-    regprocedure('absinthe(numeric)');
+    regprocedure ('absinthe(numeric)');
 
 SELECT
-    regclass('pg_classes');
+    regclass ('pg_classes');
 
 SELECT
-    regtype('int3');
+    regtype ('int3');
 
 -- with schemaname
 SELECT
-    regoper('ng_catalog.||/');
+    regoper ('ng_catalog.||/');
 
 SELECT
-    regoperator('ng_catalog.+(int4,int4)');
+    regoperator ('ng_catalog.+(int4,int4)');
 
 SELECT
-    regproc('ng_catalog.now');
+    regproc ('ng_catalog.now');
 
 SELECT
-    regprocedure('ng_catalog.abs(numeric)');
+    regprocedure ('ng_catalog.abs(numeric)');
 
 SELECT
-    regclass('ng_catalog.pg_class');
+    regclass ('ng_catalog.pg_class');
 
 SELECT
-    regtype('ng_catalog.int4');
+    regtype ('ng_catalog.int4');
 
 -- schemaname not applicable
 SELECT
-    regrole('regress_regrole_test');
+    regrole ('regress_regrole_test');
 
 SELECT
-    regrole('"regress_regrole_test"');
+    regrole ('"regress_regrole_test"');
 
 SELECT
-    regrole('Nonexistent');
+    regrole ('Nonexistent');
 
 SELECT
-    regrole('"Nonexistent"');
+    regrole ('"Nonexistent"');
 
 SELECT
-    regrole('foo.bar');
+    regrole ('foo.bar');
 
 SELECT
-    regnamespace('Nonexistent');
+    regnamespace ('Nonexistent');
 
 SELECT
-    regnamespace('"Nonexistent"');
+    regnamespace ('"Nonexistent"');
 
 SELECT
-    regnamespace('foo.bar');
-
+    regnamespace ('foo.bar');
 
 /* If objects don't exist, return NULL with no error. */
 -- without schemaname
@@ -234,4 +232,3 @@ SELECT
 
 SELECT
     to_regnamespace('foo.bar');
-

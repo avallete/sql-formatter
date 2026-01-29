@@ -1,5 +1,6 @@
 -- deal with numeric instability of ts_rank
-SET extra_float_digits = 0;
+SET
+    extra_float_digits = 0;
 
 --Base tsvector test
 SELECT
@@ -33,11 +34,14 @@ SELECT
     E'''1 \\''2'' '' 3'' 4 '::tsvector;
 
 SELECT
-    $$ '\\as' ab \c ab\\c AB\\\c ab\\\\c$$::tsvector;
-    SELECT
-        tsvectorin(tsvectorout($$ '\\as' ab \c ab\\c AB\\\c ab\\\\c$$::tsvector));
-                SELECT
-                    '''w'':4A,3B,2C,1D,5 a:8';
+    $$'\\as' ab\c ab\\c AB\\\c ab\\\\c$$::tsvector;
+
+SELECT
+    tsvectorin (
+        tsvectorout ($$'\\as' ab\c ab\\c AB\\\c ab\\\\c$$::tsvector));
+
+SELECT
+    '''w'':4A,3B,2C,1D,5 a:8';
 
 SELECT
     'a:3A b:2a'::tsvector || 'ba:1234 a:1B';
@@ -161,7 +165,7 @@ SELECT
     E'1&(''2''&('' 4''&(\\|5 | ''6 \\'' !|&'')))'::tsquery;
 
 SELECT
-    $$ '\\as' $$::tsquery;
+    $$'\\as'$$::tsquery;
 
 SELECT
     'a:* & nbb:*ac | doo:a* | goo'::tsquery;
@@ -479,10 +483,14 @@ SELECT
     ts_rank_cd(' a:1 sa:2A sb:2D g'::tsvector, 'a <-> s:*');
 
 SELECT
-    ts_rank_cd(' a:1 sa:2A sb:2D g'::tsvector, 'a <-> s:* <-> sa:A');
+    ts_rank_cd (
+        ' a:1 sa:2A sb:2D g'::tsvector,
+        'a <-> s:* <-> sa:A');
 
 SELECT
-    ts_rank_cd(' a:1 sa:2A sb:2D g'::tsvector, 'a <-> s:* <-> sa:B');
+    ts_rank_cd (
+        ' a:1 sa:2A sb:2D g'::tsvector,
+        'a <-> s:* <-> sa:B');
 
 SELECT
     'a:1 b:2'::tsvector @@ 'a <-> b'::tsquery AS "true";
@@ -516,55 +524,86 @@ SELECT
 
 -- tsvector editing operations
 SELECT
-    strip('w:12B w:13* w:12,5,6 a:1,3* a:3 w asd:1dc asd'::tsvector);
+    strip (
+        'w:12B w:13* w:12,5,6 a:1,3* a:3 w asd:1dc asd'::tsvector);
 
 SELECT
-    strip('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
+    strip (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
 
 SELECT
     strip('base hidden rebel spaceship strike'::tsvector);
 
 SELECT
-    ts_delete(to_tsvector('english', 'Rebel spaceships, striking from a hidden base'), 'spaceship');
+    ts_delete (
+        to_tsvector (
+            'english',
+            'Rebel spaceships, striking from a hidden base'),
+        'spaceship');
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, 'base');
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        'base');
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, 'bas');
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        'bas');
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, 'bases');
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        'bases');
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, 'spaceship');
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        'spaceship');
 
 SELECT
-    ts_delete('base hidden rebel spaceship strike'::tsvector, 'spaceship');
+    ts_delete (
+        'base hidden rebel spaceship strike'::tsvector,
+        'spaceship');
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, ARRAY['spaceship', 'rebel']);
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        ARRAY['spaceship', 'rebel']);
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, ARRAY['spaceships', 'rebel']);
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        ARRAY['spaceships', 'rebel']);
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, ARRAY['spaceshi', 'rebel']);
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        ARRAY['spaceshi', 'rebel']);
 
 SELECT
-    ts_delete('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector, ARRAY['spaceship', 'leya', 'rebel']);
+    ts_delete (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector,
+        ARRAY['spaceship', 'leya', 'rebel']);
 
 SELECT
-    ts_delete('base hidden rebel spaceship strike'::tsvector, ARRAY['spaceship', 'leya', 'rebel']);
+    ts_delete (
+        'base hidden rebel spaceship strike'::tsvector,
+        ARRAY['spaceship', 'leya', 'rebel']);
 
 SELECT
-    ts_delete('base hidden rebel spaceship strike'::tsvector, ARRAY['spaceship', 'leya', 'rebel', 'rebel']);
+    ts_delete (
+        'base hidden rebel spaceship strike'::tsvector,
+        ARRAY['spaceship', 'leya', 'rebel', 'rebel']);
 
 SELECT
-    ts_delete('base hidden rebel spaceship strike'::tsvector, ARRAY['spaceship', 'leya', 'rebel', NULL]);
+    ts_delete (
+        'base hidden rebel spaceship strike'::tsvector,
+        ARRAY['spaceship', 'leya', 'rebel', NULL]);
 
 SELECT
-    unnest('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
+    unnest (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
 
 SELECT
     unnest('base hidden rebel spaceship strike'::tsvector);
@@ -572,7 +611,8 @@ SELECT
 SELECT
     *
 FROM
-    unnest('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
+    unnest (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
 
 SELECT
     *
@@ -583,51 +623,79 @@ SELECT
     lexeme,
     positions[1]
 FROM
-    unnest('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
+    unnest (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
 
 SELECT
-    tsvector_to_array ('base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
+    tsvector_to_array (
+        'base:7 hidden:6 rebel:1 spaceship:2,33A,34B,35C,36D strike:3'::tsvector);
 
 SELECT
-    tsvector_to_array ('base hidden rebel spaceship strike'::tsvector);
+    tsvector_to_array('base hidden rebel spaceship strike'::tsvector);
 
 SELECT
-    array_to_tsvector (ARRAY['base', 'hidden', 'rebel', 'spaceship', 'strike']);
+    array_to_tsvector (
+        ARRAY['base', 'hidden', 'rebel', 'spaceship', 'strike']);
 
 SELECT
-    array_to_tsvector (ARRAY['base', 'hidden', 'rebel', 'spaceship', NULL]);
+    array_to_tsvector (
+        ARRAY['base', 'hidden', 'rebel', 'spaceship', NULL]);
 
 -- array_to_tsvector must sort and de-dup
 SELECT
-    array_to_tsvector (ARRAY['foo', 'bar', 'baz', 'bar']);
+    array_to_tsvector(ARRAY['foo', 'bar', 'baz', 'bar']);
 
 SELECT
-    setweight('w:12B w:13* w:12,5,6 a:1,3* a:3 w asd:1dc asd zxc:81,567,222A'::tsvector, 'c');
+    setweight (
+        'w:12B w:13* w:12,5,6 a:1,3* a:3 w asd:1dc asd zxc:81,567,222A'::tsvector,
+        'c');
 
 SELECT
-    setweight('a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector, 'c');
+    setweight (
+        'a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector,
+        'c');
 
 SELECT
-    setweight('a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector, 'c', '{a}');
+    setweight (
+        'a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector,
+        'c',
+        '{a}');
 
 SELECT
-    setweight('a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector, 'c', '{a}');
+    setweight (
+        'a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector,
+        'c',
+        '{a}');
 
 SELECT
-    setweight('a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector, 'c', '{a,zxc}');
+    setweight (
+        'a:1,3A asd:1C w:5,6,12B,13A zxc:81,222A,567'::tsvector,
+        'c',
+        '{a,zxc}');
 
 SELECT
-    setweight('a asd w:5,6,12B,13A zxc'::tsvector, 'c', '{a,zxc}');
+    setweight (
+        'a asd w:5,6,12B,13A zxc'::tsvector,
+        'c',
+        '{a,zxc}');
 
 SELECT
-    setweight('a asd w:5,6,12B,13A zxc'::tsvector, 'c', ARRAY['a', 'zxc', NULL]);
+    setweight (
+        'a asd w:5,6,12B,13A zxc'::tsvector,
+        'c',
+        ARRAY['a', 'zxc', NULL]);
 
 SELECT
-    ts_filter('base:7A empir:17 evil:15 first:11 galact:16 hidden:6A rebel:1A spaceship:2A strike:3A victori:12 won:9'::tsvector, '{a}');
+    ts_filter (
+        'base:7A empir:17 evil:15 first:11 galact:16 hidden:6A rebel:1A spaceship:2A strike:3A victori:12 won:9'::tsvector,
+        '{a}');
 
 SELECT
-    ts_filter('base hidden rebel spaceship strike'::tsvector, '{a}');
+    ts_filter (
+        'base hidden rebel spaceship strike'::tsvector,
+        '{a}');
 
 SELECT
-    ts_filter('base hidden rebel spaceship strike'::tsvector, '{a,b,NULL}');
-
+    ts_filter (
+        'base hidden rebel spaceship strike'::tsvector,
+        '{a,b,NULL}');

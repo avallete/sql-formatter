@@ -15,42 +15,60 @@
 --	0 1 2 3
 --
 -- boxes are specified by two points, given by four floats x1,y1,x2,y2
-CREATE TABLE BOX_TBL (
-    f1 box
-);
+CREATE TABLE BOX_TBL (f1 box);
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(2.0,2.0,0.0,0.0)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(2.0,2.0,0.0,0.0)');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(1.0,1.0,3.0,3.0)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(1.0,1.0,3.0,3.0)');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('((-8, 2), (-2, -10))');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('((-8, 2), (-2, -10))');
 
 -- degenerate cases where the box is a line or a point
 -- note that lines and points boxes all have zero area
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(2.5, 2.5, 2.5,3.5)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(2.5, 2.5, 2.5,3.5)');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(3.0, 3.0,3.0,3.0)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(3.0, 3.0,3.0,3.0)');
 
 -- badly formatted box inputs
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(2.3, 4.5)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(2.3, 4.5)');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('[1, 2, 3, 4)');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('[1, 2, 3, 4)');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(1, 2, 3, 4]');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(1, 2, 3, 4]');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('(1, 2, 3, 4) x');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('(1, 2, 3, 4) x');
 
-INSERT INTO BOX_TBL (f1)
-    VALUES ('asdfasdf(ad');
+INSERT INTO
+    BOX_TBL (f1)
+VALUES
+    ('asdfasdf(ad');
 
 SELECT
     '' AS four,
@@ -211,11 +229,10 @@ FROM
 --
 -- Test the SP-GiST index
 --
-CREATE TEMPORARY TABLE box_temp (
-    f1 box
-);
+CREATE TEMPORARY TABLE box_temp (f1 box);
 
-INSERT INTO box_temp
+INSERT INTO
+    box_temp
 SELECT
     box(point(i, i), point(i * 2, i * 2))
 FROM
@@ -223,7 +240,8 @@ FROM
 
 CREATE INDEX box_spgist ON box_temp USING spgist (f1);
 
-INSERT INTO box_temp
+INSERT INTO
+    box_temp
 VALUES
     (NULL),
     ('(0,0)(0,100)'),
@@ -232,7 +250,8 @@ VALUES
     ('(-infinity,0)(0,infinity)'),
     ('(-infinity,-infinity)(infinity,infinity)');
 
-SET enable_seqscan = FALSE;
+SET
+    enable_seqscan = FALSE;
 
 SELECT
     *
@@ -241,9 +260,7 @@ FROM
 WHERE
     f1 << '(10,20),(30,40)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -258,9 +275,7 @@ FROM
 WHERE
     f1 &< '(10,4.333334),(5,100)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -275,9 +290,7 @@ FROM
 WHERE
     f1 && '(15,20),(25,30)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -292,9 +305,7 @@ FROM
 WHERE
     f1 &> '(40,30),(45,50)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -309,9 +320,7 @@ FROM
 WHERE
     f1 >> '(30,40),(40,30)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -326,9 +335,7 @@ FROM
 WHERE
     f1 <<| '(10,4.33334),(5,100)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -343,9 +350,7 @@ FROM
 WHERE
     f1 &<| '(10,4.3333334),(5,1)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -360,9 +365,7 @@ FROM
 WHERE
     f1 |&> '(49.99,49.99),(49.99,49.99)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -377,9 +380,7 @@ FROM
 WHERE
     f1 |>> '(37,38),(39,40)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -394,9 +395,7 @@ FROM
 WHERE
     f1 @> '(10,11),(15,16)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -411,9 +410,7 @@ FROM
 WHERE
     f1 <@ '(10,15),(30,35)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -428,9 +425,7 @@ FROM
 WHERE
     f1 ~= '(20,20),(40,40)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -445,25 +440,28 @@ DROP INDEX box_spgist;
 --
 -- Test the SP-GiST index on the larger volume of data
 --
-CREATE TABLE quad_box_tbl (
-    b box
-);
+CREATE TABLE quad_box_tbl (b box);
 
-INSERT INTO quad_box_tbl
+INSERT INTO
+    quad_box_tbl
 SELECT
-    box(point(x * 10, y * 10), point(x * 10 + 5, y * 10 + 5))
+    box (
+        point(x * 10, y * 10),
+        point(x * 10 + 5, y * 10 + 5))
 FROM
     generate_series(1, 100) x,
     generate_series(1, 100) y;
 
 -- insert repeating data to test allTheSame
-INSERT INTO quad_box_tbl
+INSERT INTO
+    quad_box_tbl
 SELECT
     '((200, 300),(210, 310))'
 FROM
     generate_series(1, 1000);
 
-INSERT INTO quad_box_tbl
+INSERT INTO
+    quad_box_tbl
 VALUES
     (NULL),
     (NULL),
@@ -473,11 +471,14 @@ VALUES
 
 CREATE INDEX quad_box_tbl_idx ON quad_box_tbl USING spgist (b);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
 SELECT
     count(*)
@@ -575,4 +576,3 @@ RESET enable_seqscan;
 RESET enable_indexscan;
 
 RESET enable_bitmapscan;
-

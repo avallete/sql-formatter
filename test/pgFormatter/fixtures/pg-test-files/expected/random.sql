@@ -9,14 +9,15 @@ FROM
     onek;
 
 -- pick three random rows, they shouldn't match
-(
+ (
     SELECT
         unique1 AS random
     FROM
         onek
     ORDER BY
         random()
-    LIMIT 1)
+    LIMIT
+        1)
 INTERSECT (
     SELECT
         unique1 AS random
@@ -24,7 +25,8 @@ INTERSECT (
         onek
     ORDER BY
         random()
-    LIMIT 1)
+    LIMIT
+        1)
 INTERSECT (
     SELECT
         unique1 AS random
@@ -32,7 +34,8 @@ INTERSECT (
         onek
     ORDER BY
         random()
-    LIMIT 1);
+    LIMIT
+        1);
 
 -- count roughly 1/10 of the tuples
 SELECT
@@ -43,7 +46,8 @@ WHERE
     random() < 1.0 / 10;
 
 -- select again, the count should be different
-INSERT INTO RANDOM_TBL (random)
+INSERT INTO
+    RANDOM_TBL (random)
 SELECT
     count(*)
 FROM
@@ -52,7 +56,8 @@ WHERE
     random() < 1.0 / 10;
 
 -- select again, the count should be different
-INSERT INTO RANDOM_TBL (random)
+INSERT INTO
+    RANDOM_TBL (random)
 SELECT
     count(*)
 FROM
@@ -61,7 +66,8 @@ WHERE
     random() < 1.0 / 10;
 
 -- select again, the count should be different
-INSERT INTO RANDOM_TBL (random)
+INSERT INTO
+    RANDOM_TBL (random)
 SELECT
     count(*)
 FROM
@@ -85,6 +91,4 @@ SELECT
 FROM
     RANDOM_TBL
 HAVING
-    AVG(random)
-    NOT BETWEEN 80 AND 120;
-
+    AVG(random) NOT BETWEEN 80 AND 120;

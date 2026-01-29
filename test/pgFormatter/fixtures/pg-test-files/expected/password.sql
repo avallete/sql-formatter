@@ -2,28 +2,35 @@
 -- Tests for password verifiers
 --
 -- Tests for GUC password_encryption
-SET password_encryption = 'novalue';
+SET
+    password_encryption = 'novalue';
 
 -- error
-SET password_encryption = TRUE;
+SET
+    password_encryption = TRUE;
 
 -- ok
-SET password_encryption = 'md5';
+SET
+    password_encryption = 'md5';
 
 -- ok
-SET password_encryption = 'scram-sha-256';
+SET
+    password_encryption = 'scram-sha-256';
 
 -- ok
 -- consistency of password entries
-SET password_encryption = 'md5';
+SET
+    password_encryption = 'md5';
 
 CREATE ROLE regress_passwd1 PASSWORD 'role_pwd1';
 
-SET password_encryption = 'on';
+SET
+    password_encryption = 'on';
 
 CREATE ROLE regress_passwd2 PASSWORD 'role_pwd2';
 
-SET password_encryption = 'scram-sha-256';
+SET
+    password_encryption = 'scram-sha-256';
 
 CREATE ROLE regress_passwd3 PASSWORD 'role_pwd3';
 
@@ -38,7 +45,10 @@ CREATE ROLE regress_passwd4 PASSWORD NULL;
 -- run. Use a regular expression to mask the changing parts.
 SELECT
     rolname,
-    regexp_replace(rolpassword, '(SCRAM-SHA-256)\$(\d+):([a-zA-Z0-9+/=]+)\$([a-zA-Z0-9+=/]+):([a-zA-Z0-9+/=]+)', '\1$\2:<salt>$<storedkey>:<serverkey>') AS rolpassword_masked
+    regexp_replace (
+        rolpassword,
+        '(SCRAM-SHA-256)\$(\d+):([a-zA-Z0-9+/=]+)\$([a-zA-Z0-9+=/]+):([a-zA-Z0-9+/=]+)',
+        '\1$\2:<salt>$<storedkey>:<serverkey>') AS rolpassword_masked
 FROM
     pg_authid
 WHERE
@@ -48,7 +58,8 @@ ORDER BY
     rolpassword;
 
 -- Rename a role
-ALTER ROLE regress_passwd2 RENAME TO regress_passwd2_new;
+ALTER ROLE regress_passwd2
+RENAME TO regress_passwd2_new;
 
 -- md5 entry should have been removed
 SELECT
@@ -62,11 +73,13 @@ ORDER BY
     rolname,
     rolpassword;
 
-ALTER ROLE regress_passwd2_new RENAME TO regress_passwd2;
+ALTER ROLE regress_passwd2_new
+RENAME TO regress_passwd2;
 
 -- Change passwords with ALTER USER. With plaintext or already-encrypted
 -- passwords.
-SET password_encryption = 'md5';
+SET
+    password_encryption = 'md5';
 
 -- encrypt with MD5
 ALTER ROLE regress_passwd2 PASSWORD 'foo';
@@ -76,7 +89,8 @@ ALTER ROLE regress_passwd1 PASSWORD 'md5cd3578025fe2c3d7ed1b9a9b26238b70';
 
 ALTER ROLE regress_passwd3 PASSWORD 'SCRAM-SHA-256$4096:VLK4RMaQLCvNtQ==$6YtlR4t69SguDiwFvbVgVZtuz6gpJQQqUMZ7IQJK5yI=:ps75jrHeYU4lXCcXI4O8oIdJ3eO8o2jirjruw9phBTo=';
 
-SET password_encryption = 'scram-sha-256';
+SET
+    password_encryption = 'scram-sha-256';
 
 -- create SCRAM verifier
 ALTER ROLE regress_passwd4 PASSWORD 'foo';
@@ -98,7 +112,10 @@ CREATE ROLE regress_passwd8 PASSWORD 'md501234567890123456789012345678901zz';
 
 SELECT
     rolname,
-    regexp_replace(rolpassword, '(SCRAM-SHA-256)\$(\d+):([a-zA-Z0-9+/=]+)\$([a-zA-Z0-9+=/]+):([a-zA-Z0-9+/=]+)', '\1$\2:<salt>$<storedkey>:<serverkey>') AS rolpassword_masked
+    regexp_replace (
+        rolpassword,
+        '(SCRAM-SHA-256)\$(\d+):([a-zA-Z0-9+/=]+)\$([a-zA-Z0-9+=/]+):([a-zA-Z0-9+/=]+)',
+        '\1$\2:<salt>$<storedkey>:<serverkey>') AS rolpassword_masked
 FROM
     pg_authid
 WHERE
@@ -150,4 +167,3 @@ WHERE
 ORDER BY
     rolname,
     rolpassword;
-

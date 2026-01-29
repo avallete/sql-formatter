@@ -1,21 +1,32 @@
-CREATE TABLE indtoasttest (
-    descr text,
-    cnt int DEFAULT 0,
-    f1 text,
-    f2 text
-);
+CREATE TABLE indtoasttest (descr text, cnt int DEFAULT 0, f1 text, f2 text);
 
-INSERT INTO indtoasttest (descr, f1, f2)
-    VALUES ('two-compressed', repeat('1234567890', 1000), repeat('1234567890', 1000));
+INSERT INTO
+    indtoasttest (descr, f1, f2)
+VALUES (
+        'two-compressed',
+        repeat('1234567890', 1000),
+        repeat('1234567890', 1000));
 
-INSERT INTO indtoasttest (descr, f1, f2)
-    VALUES ('two-toasted', repeat('1234567890', 30000), repeat('1234567890', 50000));
+INSERT INTO
+    indtoasttest (descr, f1, f2)
+VALUES (
+        'two-toasted',
+        repeat('1234567890', 30000),
+        repeat('1234567890', 50000));
 
-INSERT INTO indtoasttest (descr, f1, f2)
-    VALUES ('one-compressed,one-null', NULL, repeat('1234567890', 1000));
+INSERT INTO
+    indtoasttest (descr, f1, f2)
+VALUES (
+        'one-compressed,one-null',
+        NULL,
+        repeat('1234567890', 1000));
 
-INSERT INTO indtoasttest (descr, f1, f2)
-    VALUES ('one-toasted,one-null', NULL, repeat('1234567890', 50000));
+INSERT INTO
+    indtoasttest (descr, f1, f2)
+VALUES (
+        'one-toasted,one-null',
+        NULL,
+        repeat('1234567890', 50000));
 
 -- check whether indirect tuples works on the most basic level
 SELECT
@@ -25,16 +36,14 @@ FROM
     indtoasttest;
 
 -- modification without changing varlenas
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1
 RETURNING
     substring(indtoasttest::text, 1, 200);
 
 -- modification without modifying assigned value
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = f1
@@ -42,16 +51,14 @@ RETURNING
     substring(indtoasttest::text, 1, 200);
 
 -- modification modifying, but effectively not changing
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = f1 || ''
 RETURNING
     substring(indtoasttest::text, 1, 200);
 
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = '-' || f1 || '-'
@@ -72,32 +79,26 @@ FROM
     indtoasttest;
 
 -- now create a trigger that forces all Datums to be indirect ones
-CREATE FUNCTION update_using_indirect ()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-    AS $$
+CREATE FUNCTION update_using_indirect () RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-    NEW := make_tuple_indirect (NEW);
+    NEW := make_tuple_indirect(NEW);
     RETURN NEW;
-END
-$$;
+END$$;
 
-CREATE TRIGGER indtoasttest_update_indirect
-    BEFORE INSERT OR UPDATE ON indtoasttest
-    FOR EACH ROW
-    EXECUTE PROCEDURE update_using_indirect ();
+CREATE TRIGGER indtoasttest_update_indirect BEFORE INSERT
+OR
+UPDATE ON indtoasttest FOR EACH ROW
+EXECUTE PROCEDURE update_using_indirect ();
 
 -- modification without changing varlenas
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1
 RETURNING
     substring(indtoasttest::text, 1, 200);
 
 -- modification without modifying assigned value
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = f1
@@ -105,24 +106,26 @@ RETURNING
     substring(indtoasttest::text, 1, 200);
 
 -- modification modifying, but effectively not changing
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = f1 || ''
 RETURNING
     substring(indtoasttest::text, 1, 200);
 
-UPDATE
-    indtoasttest
+UPDATE indtoasttest
 SET
     cnt = cnt + 1,
     f1 = '-' || f1 || '-'
 RETURNING
     substring(indtoasttest::text, 1, 200);
 
-INSERT INTO indtoasttest (descr, f1, f2)
-    VALUES ('one-toasted,one-null, via indirect', repeat('1234567890', 30000), NULL);
+INSERT INTO
+    indtoasttest (descr, f1, f2)
+VALUES (
+        'one-toasted,one-null, via indirect',
+        repeat('1234567890', 30000),
+        NULL);
 
 SELECT
     substring(indtoasttest::text, 1, 200)
@@ -140,4 +143,3 @@ FROM
 DROP TABLE indtoasttest;
 
 DROP FUNCTION update_using_indirect ();
-

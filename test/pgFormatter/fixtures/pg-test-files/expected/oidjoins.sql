@@ -2465,11 +2465,11 @@ SELECT
     ctid,
     conpfeqop
 FROM (
-    SELECT
-        ctid,
-        unnest(conpfeqop) AS conpfeqop
-    FROM
-        pg_catalog.pg_constraint) fk
+        SELECT
+            ctid,
+            unnest(conpfeqop) AS conpfeqop
+        FROM
+            pg_catalog.pg_constraint) fk
 WHERE
     conpfeqop != 0
     AND NOT EXISTS (
@@ -2484,11 +2484,11 @@ SELECT
     ctid,
     conppeqop
 FROM (
-    SELECT
-        ctid,
-        unnest(conppeqop) AS conppeqop
-    FROM
-        pg_catalog.pg_constraint) fk
+        SELECT
+            ctid,
+            unnest(conppeqop) AS conppeqop
+        FROM
+            pg_catalog.pg_constraint) fk
 WHERE
     conppeqop != 0
     AND NOT EXISTS (
@@ -2503,11 +2503,11 @@ SELECT
     ctid,
     conffeqop
 FROM (
-    SELECT
-        ctid,
-        unnest(conffeqop) AS conffeqop
-    FROM
-        pg_catalog.pg_constraint) fk
+        SELECT
+            ctid,
+            unnest(conffeqop) AS conffeqop
+        FROM
+            pg_catalog.pg_constraint) fk
 WHERE
     conffeqop != 0
     AND NOT EXISTS (
@@ -2522,11 +2522,11 @@ SELECT
     ctid,
     conexclop
 FROM (
-    SELECT
-        ctid,
-        unnest(conexclop) AS conexclop
-    FROM
-        pg_catalog.pg_constraint) fk
+        SELECT
+            ctid,
+            unnest(conexclop) AS conexclop
+        FROM
+            pg_catalog.pg_constraint) fk
 WHERE
     conexclop != 0
     AND NOT EXISTS (
@@ -2541,11 +2541,11 @@ SELECT
     ctid,
     proallargtypes
 FROM (
-    SELECT
-        ctid,
-        unnest(proallargtypes) AS proallargtypes
-    FROM
-        pg_catalog.pg_proc) fk
+        SELECT
+            ctid,
+            unnest(proallargtypes) AS proallargtypes
+        FROM
+            pg_catalog.pg_proc) fk
 WHERE
     proallargtypes != 0
     AND NOT EXISTS (
@@ -2555,4 +2555,3 @@ WHERE
             pg_catalog.pg_type pk
         WHERE
             pk.oid = fk.proallargtypes);
-

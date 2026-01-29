@@ -4,22 +4,22 @@ SELECT
     rGpe.slot_id,
     rGpe.grp_art_id
 FROM (
-    SELECT
-        id,
-        part_product_kind_id
-    FROM
-        part_product ldm
-    WHERE
-        nb_colis > 0
-        AND statut_part_product IN ('DISPATCH', 'CANCELED', 'SALE_PROD')
-        AND ldm.art_frect_id IS NULL
-        AND NOT EXISTS (
-            SELECT
-                subparts.id
-            FROM
-                part_product subparts
-            WHERE
-                ldm.id = subparts.part_product_parent_id)) ldm
+        SELECT
+            id,
+            part_product_kind_id
+        FROM
+            part_product ldm
+        WHERE
+            nb_colis > 0
+            AND statut_part_product IN ('DISPATCH', 'CANCELED', 'SALE_PROD')
+            AND ldm.art_frect_id IS NULL
+            AND NOT EXISTS (
+                SELECT
+                    subparts.id
+                FROM
+                    part_product subparts
+                WHERE
+                    ldm.id = subparts.part_product_parent_id)) ldm
     JOIN LATERAL (
         SELECT
             opgt.id,
@@ -37,8 +37,8 @@ FROM (
                 FROM
                     day_export_shop jem
                 WHERE
-                    day <= to_timestamp($2)
-                    AND day > CURRENT_DATE - interval '4 mons')) opgt ON TRUE
+                    DAY <= to_timestamp($2)
+                    AND DAY > current_date - interval '4 mons')) opgt ON TRUE
     JOIN LATERAL (
         SELECT
             r.id AS slot_id,
@@ -57,23 +57,23 @@ SELECT
     rGpe.slot_id,
     rGpe.grp_art_id
 FROM (
-    SELECT
-        id,
-        art_frect_id,
-        part_product_kind_id
-    FROM
-        part_product ldm
-    WHERE
-        nb_colis > 0
-        AND statut_part_product IN ('DISPATCH', 'CANCELED', 'SALE_PROD')
-        AND art_frect_id IS NOT NULL
-        AND NOT EXISTS (
-            SELECT
-                subparts.id
-            FROM
-                part_product subparts
-            WHERE
-                ldm.id = subparts.part_product_parent_id)) ldm
+        SELECT
+            id,
+            art_frect_id,
+            part_product_kind_id
+        FROM
+            part_product ldm
+        WHERE
+            nb_colis > 0
+            AND statut_part_product IN ('DISPATCH', 'CANCELED', 'SALE_PROD')
+            AND art_frect_id IS NOT NULL
+            AND NOT EXISTS (
+                SELECT
+                    subparts.id
+                FROM
+                    part_product subparts
+                WHERE
+                    ldm.id = subparts.part_product_parent_id)) ldm
     JOIN LATERAL (
         SELECT
             opgt.id,
@@ -91,8 +91,8 @@ FROM (
                 FROM
                     day_export_shop jem
                 WHERE
-                    day <= to_timestamp($4)
-                    AND day > CURRENT_DATE - interval '4 mons')) opgt ON TRUE
+                    DAY <= to_timestamp($4)
+                    AND DAY > current_date - interval '4 mons')) opgt ON TRUE
     JOIN LATERAL (
         SELECT
             r.id AS slot_id,
@@ -112,6 +112,6 @@ FROM
     "INSTANCE"
     INNER JOIN "FORM" ON "INSTANCE"."FORM_ID" = "FORM"."FORM_ID"
     LEFT JOIN "FORM_T" ON "FORM"."FORM_ID" = "FORM_T"."FORM_ID"
-        AND "FORM_T"."LANGUAGE" = 'de'
+    AND "FORM_T"."LANGUAGE" = 'de'
     INNER JOIN "INSTANCE_STATE" ON "INSTANCE_STATE"."INSTANCE_STATE_ID" = "INSTANCE"."INSTANCE_STATE_ID"
     LEFT JOIN "INSTANCE_STATE_T" ON "INSTANCE_STATE"."INSTANCE_STATE_ID" = "INSTANCE_STATE_T"."INSTANCE_STATE_ID"

@@ -1,16 +1,22 @@
 --
 -- create user defined conversion
 --
-CREATE USER regress_conversion_user WITH NOCREATEDB NOCREATEROLE;
+CREATE USER regress_conversion_user
+WITH
+    NOCREATEDB NOCREATEROLE;
 
 SET SESSION AUTHORIZATION regress_conversion_user;
 
-CREATE CONVERSION myconv FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+CREATE CONVERSION myconv FOR 'LATIN1' TO 'UTF8'
+FROM
+    iso8859_1_to_utf8;
 
 --
 -- cannot make same name conversion in same schema
 --
-CREATE CONVERSION myconv FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+CREATE CONVERSION myconv FOR 'LATIN1' TO 'UTF8'
+FROM
+    iso8859_1_to_utf8;
 
 --
 -- create default conversion with qualified name
@@ -50,4 +56,3 @@ DROP CONVERSION mydef;
 RESET SESSION AUTHORIZATION;
 
 DROP USER regress_conversion_user;
-

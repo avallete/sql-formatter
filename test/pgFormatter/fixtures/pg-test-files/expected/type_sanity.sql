@@ -20,9 +20,10 @@ FROM
     pg_type AS p1
 WHERE
     p1.typnamespace = 0
-    OR (p1.typlen <= 0
-        AND p1.typlen != - 1
-        AND p1.typlen != - 2)
+    OR (
+        p1.typlen <= 0
+        AND p1.typlen != -1
+        AND p1.typlen != -2)
     OR (p1.typtype NOT IN ('b', 'c', 'd', 'e', 'p', 'r'))
     OR NOT p1.typisdefined
     OR (p1.typalign NOT IN ('c', 's', 'i', 'd'))
@@ -36,13 +37,17 @@ FROM
     pg_type AS p1
 WHERE
     p1.typbyval
-    AND (p1.typlen != 1
+    AND (
+        p1.typlen != 1
         OR p1.typalign != 'c')
-    AND (p1.typlen != 2
+    AND (
+        p1.typlen != 2
         OR p1.typalign != 's')
-    AND (p1.typlen != 4
+    AND (
+        p1.typlen != 4
         OR p1.typalign != 'i')
-    AND (p1.typlen != 8
+    AND (
+        p1.typlen != 8
         OR p1.typalign != 'd');
 
 -- Look for "toastable" types that aren't varlena.
@@ -53,8 +58,9 @@ FROM
     pg_type AS p1
 WHERE
     p1.typstorage != 'p'
-    AND (p1.typbyval
-        OR p1.typlen != - 1);
+    AND (
+        p1.typbyval
+        OR p1.typlen != -1);
 
 -- Look for complex types that do not have a typrelid entry,
 -- or basic types that do.
@@ -63,9 +69,11 @@ SELECT
     p1.typname
 FROM
     pg_type AS p1
-WHERE (p1.typtype = 'c'
-    AND p1.typrelid = 0)
-    OR (p1.typtype != 'c'
+WHERE (
+        p1.typtype = 'c'
+        AND p1.typrelid = 0)
+    OR (
+        p1.typtype != 'c'
         AND p1.typrelid != 0);
 
 -- Look for types that should have an array type according to their typtype,
@@ -102,9 +110,10 @@ FROM
     LEFT JOIN pg_type p2 ON (p1.typarray = p2.oid)
 WHERE
     p1.typarray <> 0
-    AND (p2.oid IS NULL
+    AND (
+        p2.oid IS NULL
         OR p2.typelem <> p1.oid
-        OR p2.typlen <> - 1);
+        OR p2.typlen <> -1);
 
 -- Look for range types that do not have a pg_range entry
 SELECT
@@ -135,11 +144,13 @@ FROM
     LEFT JOIN pg_type AS p2 ON rngsubtype = p2.oid
 WHERE
     p1.typtype = 'r'
-    AND (p1.typalign != (
-            CASE WHEN p2.typalign = 'd' THEN
-                'd'::"char"
-            ELSE
-                'i'::"char"
+    AND (
+        p1.typalign != (
+            CASE
+                WHEN p2.typalign = 'd' THEN
+                    'd'::"char"
+                ELSE
+                    'i'::"char"
             END)
         OR p2.oid IS NULL);
 
@@ -149,8 +160,9 @@ SELECT
     p1.typname
 FROM
     pg_type AS p1
-WHERE (p1.typinput = 0
-    OR p1.typoutput = 0);
+WHERE (
+        p1.typinput = 0
+        OR p1.typoutput = 0);
 
 -- Check for bogus typinput routines
 SELECT
@@ -163,12 +175,15 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typinput = p2.oid
-    AND NOT ((p2.pronargs = 1
+    AND NOT ( (
+            p2.pronargs = 1
             AND p2.proargtypes[0] = 'cstring'::regtype)
-        OR (p2.pronargs = 2
+        OR (
+            p2.pronargs = 2
             AND p2.proargtypes[0] = 'cstring'::regtype
             AND p2.proargtypes[1] = 'oid'::regtype)
-        OR (p2.pronargs = 3
+        OR (
+            p2.pronargs = 3
             AND p2.proargtypes[0] = 'cstring'::regtype
             AND p2.proargtypes[1] = 'oid'::regtype
             AND p2.proargtypes[2] = 'int4'::regtype));
@@ -185,19 +200,18 @@ FROM
     pg_proc
 WHERE
     provariadic != 0
-    AND CASE proargtypes[array_length(proargtypes, 1) - 1]
-    WHEN 2276 THEN
-        2276 -- any -> any
-    WHEN 2277 THEN
-        2283 -- anyarray -> anyelement
-    ELSE
-        (
-            SELECT
-                t.oid
-            FROM
-                pg_type t
-            WHERE
-                t.typarray = proargtypes[array_length(proargtypes, 1) - 1])
+    AND CASE proargtypes[array_length(proargtypes, 1) -1]
+        WHEN 2276 THEN
+            2276 -- any -> any
+        WHEN 2277 THEN
+            2283 -- anyarray -> anyelement
+        ELSE (
+                SELECT
+                    t.oid
+                FROM
+                    pg_type t
+                WHERE
+                    t.typarray = proargtypes[array_length(proargtypes, 1) -1])
     END != provariadic;
 
 -- Check that all and only those functions with a variadic type have
@@ -208,8 +222,9 @@ SELECT
     provariadic
 FROM
     pg_proc
-WHERE (proargmodes IS NOT NULL
-    AND 'v' = ANY (proargmodes)) IS DISTINCT FROM (provariadic != 0);
+WHERE (
+        proargmodes IS NOT NULL
+        AND 'v' = ANY (proargmodes)) IS DISTINCT FROM (provariadic != 0);
 
 -- As of 8.0, this check finds refcursor, which is borrowing
 -- other types' I/O routines
@@ -224,9 +239,11 @@ FROM
 WHERE
     p1.typinput = p2.oid
     AND p1.typtype IN ('b', 'p')
-    AND NOT (p1.typelem != 0
+    AND NOT (
+        p1.typelem != 0
         AND p1.typlen < 0)
-    AND NOT (p2.prorettype = p1.oid
+    AND NOT (
+        p2.prorettype = p1.oid
         AND NOT p2.proretset)
 ORDER BY
     1;
@@ -243,7 +260,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typinput = p2.oid
-    AND (p1.typelem != 0
+    AND (
+        p1.typelem != 0
         AND p1.typlen < 0)
     AND NOT (p2.oid = 'array_in'::regproc)
 ORDER BY
@@ -287,9 +305,12 @@ FROM
 WHERE
     p1.typoutput = p2.oid
     AND p1.typtype IN ('b', 'p')
-    AND NOT (p2.pronargs = 1
-        AND (p2.proargtypes[0] = p1.oid
-            OR (p2.oid = 'array_out'::regproc
+    AND NOT (
+        p2.pronargs = 1
+        AND (
+            p2.proargtypes[0] = p1.oid
+            OR (
+                p2.oid = 'array_out'::regproc
                 AND p1.typelem != 0
                 AND p1.typlen = -1)))
 ORDER BY
@@ -305,7 +326,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typoutput = p2.oid
-    AND NOT (p2.prorettype = 'cstring'::regtype
+    AND NOT (
+        p2.prorettype = 'cstring'::regtype
         AND NOT p2.proretset);
 
 -- typoutput routines should not be volatile
@@ -356,12 +378,15 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typreceive = p2.oid
-    AND NOT ((p2.pronargs = 1
+    AND NOT ( (
+            p2.pronargs = 1
             AND p2.proargtypes[0] = 'internal'::regtype)
-        OR (p2.pronargs = 2
+        OR (
+            p2.pronargs = 2
             AND p2.proargtypes[0] = 'internal'::regtype
             AND p2.proargtypes[1] = 'oid'::regtype)
-        OR (p2.pronargs = 3
+        OR (
+            p2.pronargs = 3
             AND p2.proargtypes[0] = 'internal'::regtype
             AND p2.proargtypes[1] = 'oid'::regtype
             AND p2.proargtypes[2] = 'int4'::regtype));
@@ -379,9 +404,11 @@ FROM
 WHERE
     p1.typreceive = p2.oid
     AND p1.typtype IN ('b', 'p')
-    AND NOT (p1.typelem != 0
+    AND NOT (
+        p1.typelem != 0
         AND p1.typlen < 0)
-    AND NOT (p2.prorettype = p1.oid
+    AND NOT (
+        p2.prorettype = p1.oid
         AND NOT p2.proretset)
 ORDER BY
     1;
@@ -398,7 +425,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typreceive = p2.oid
-    AND (p1.typelem != 0
+    AND (
+        p1.typelem != 0
         AND p1.typlen < 0)
     AND NOT (p2.oid = 'array_recv'::regproc)
 ORDER BY
@@ -459,9 +487,12 @@ FROM
 WHERE
     p1.typsend = p2.oid
     AND p1.typtype IN ('b', 'p')
-    AND NOT (p2.pronargs = 1
-        AND (p2.proargtypes[0] = p1.oid
-            OR (p2.oid = 'array_send'::regproc
+    AND NOT (
+        p2.pronargs = 1
+        AND (
+            p2.proargtypes[0] = p1.oid
+            OR (
+                p2.oid = 'array_send'::regproc
                 AND p1.typelem != 0
                 AND p1.typlen = -1)))
 ORDER BY
@@ -477,7 +508,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typsend = p2.oid
-    AND NOT (p2.prorettype = 'bytea'::regtype
+    AND NOT (
+        p2.prorettype = 'bytea'::regtype
         AND NOT p2.proretset);
 
 -- typsend routines should not be volatile
@@ -528,7 +560,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typmodin = p2.oid
-    AND NOT (p2.pronargs = 1
+    AND NOT (
+        p2.pronargs = 1
         AND p2.proargtypes[0] = 'cstring[]'::regtype
         AND p2.prorettype = 'int4'::regtype
         AND NOT p2.proretset);
@@ -557,7 +590,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typmodout = p2.oid
-    AND NOT (p2.pronargs = 1
+    AND NOT (
+        p2.pronargs = 1
         AND p2.proargtypes[0] = 'int4'::regtype
         AND p2.prorettype = 'cstring'::regtype
         AND NOT p2.proretset);
@@ -586,7 +620,8 @@ FROM
     pg_type AS p2
 WHERE
     p1.typelem = p2.oid
-    AND NOT (p1.typmodin = p2.typmodin
+    AND NOT (
+        p1.typmodin = p2.typmodin
         AND p1.typmodout = p2.typmodout);
 
 -- Array types should have same typdelim as their element types
@@ -615,10 +650,11 @@ FROM
 WHERE
     p1.typarray = p2.oid
     AND p2.typalign != (
-        CASE WHEN p1.typalign = 'd' THEN
-            'd'::"char"
-        ELSE
-            'i'::"char"
+        CASE
+            WHEN p1.typalign = 'd' THEN
+                'd'::"char"
+            ELSE
+                'i'::"char"
         END);
 
 -- Check for bogus typanalyze routines
@@ -632,7 +668,8 @@ FROM
     pg_proc AS p2
 WHERE
     p1.typanalyze = p2.oid
-    AND NOT (p2.pronargs = 1
+    AND NOT (
+        p2.pronargs = 1
         AND p2.proargtypes[0] = 'internal'::regtype
         AND p2.prorettype = 'bool'::regtype
         AND NOT p2.proretset);
@@ -676,7 +713,8 @@ FROM
     pg_type t
 WHERE
     t.typbasetype = 0
-    AND (t.typanalyze = 'array_typanalyze'::regproc) != (typelem != 0
+    AND (t.typanalyze = 'array_typanalyze'::regproc) != (
+        typelem != 0
         AND typlen < 0)
 ORDER BY
     1;
@@ -750,9 +788,10 @@ WHERE
     p1.attrelid = 0
     OR p1.atttypid = 0
     OR p1.attnum = 0
-    OR p1.attcacheoff != - 1
+    OR p1.attcacheoff != -1
     OR p1.attinhcount < 0
-    OR (p1.attinhcount = 0
+    OR (
+        p1.attinhcount = 0
         AND NOT p1.attislocal);
 
 -- Cross-check attnum against parent relation
@@ -798,10 +837,12 @@ FROM
     pg_type AS p2
 WHERE
     p1.atttypid = p2.oid
-    AND (p1.attlen != p2.typlen
+    AND (
+        p1.attlen != p2.typlen
         OR p1.attalign != p2.typalign
         OR p1.attbyval != p2.typbyval
-        OR (p1.attstorage != p2.typstorage
+        OR (
+            p1.attstorage != p2.typstorage
             AND p1.attstorage != 'p'));
 
 -- **************** pg_range ****************
@@ -825,7 +866,8 @@ SELECT
 FROM
     pg_range p1
     JOIN pg_type t ON t.oid = p1.rngsubtype
-WHERE (rngcollation = 0) != (typcollation = 0);
+WHERE
+    (rngcollation = 0) != (typcollation = 0);
 
 -- opclass had better be a btree opclass accepting the subtype.
 -- We must allow anyarray matches, cf opr_sanity's binary_coercible()
@@ -839,8 +881,10 @@ FROM
     JOIN pg_opclass o ON o.oid = p1.rngsubopc
 WHERE
     o.opcmethod != 403
-    OR ((o.opcintype != p1.rngsubtype)
-        AND NOT (o.opcintype = 'pg_catalog.anyarray'::regtype
+    OR (
+        (o.opcintype != p1.rngsubtype)
+        AND NOT (
+            o.opcintype = 'pg_catalog.anyarray'::regtype
             AND EXISTS (
                 SELECT
                     1
@@ -877,4 +921,3 @@ WHERE
     OR proargtypes[0] != rngsubtype
     OR proargtypes[1] != rngsubtype
     OR prorettype != 'pg_catalog.float8'::regtype;
-

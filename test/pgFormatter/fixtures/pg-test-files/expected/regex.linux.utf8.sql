@@ -3,7 +3,8 @@
  * locale classification of Unicode characters with high code values.
  * It must be run in a database with UTF8 encoding and a Unicode-aware locale.
  */
-SET client_encoding TO UTF8;
+SET
+    client_encoding TO UTF8;
 
 --
 -- Test the "high colormap" logic with single characters and ranges that
@@ -11,10 +12,10 @@ SET client_encoding TO UTF8;
 --
 -- trivial cases:
 SELECT
-    'aⓐ' ~ U & 'a\24D0' AS t;
+    'aⓐ' ~ U&'a\24D0' AS t;
 
 SELECT
-    'aⓐ' ~ U & 'a\24D1' AS f;
+    'aⓐ' ~ U&'a\24D1' AS f;
 
 SELECT
     'aⓕ' ~ 'a[ⓐ-ⓩ]' AS t;
@@ -87,4 +88,3 @@ SELECT
 
 SELECT
     'aⒶⓜ⓪' ~ '[a-z][ⓐ-ⓩ][[:alpha:]][[:graph:]]' AS f;
-

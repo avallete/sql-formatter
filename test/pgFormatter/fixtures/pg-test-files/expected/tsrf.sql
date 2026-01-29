@@ -30,10 +30,7 @@ SELECT
     generate_series(generate_series(1, 3), generate_series(2, 4));
 
 -- check proper nesting of SRFs in different expressions
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     generate_series(1, generate_series(1, 3)),
     generate_series(2, 4);
@@ -42,23 +39,17 @@ SELECT
     generate_series(1, generate_series(1, 3)),
     generate_series(2, 4);
 
-CREATE TABLE few (
-    id int,
-    dataa text,
-    datab text
-);
+CREATE TABLE few (id int, dataa text, datab text);
 
-INSERT INTO few
+INSERT INTO
+    few
 VALUES
     (1, 'a', 'foo'),
     (2, 'a', 'bar'),
     (3, 'b', 'bar');
 
 -- SRF with a provably-dummy relation
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     unnest(ARRAY[1, 2])
 FROM
@@ -74,33 +65,32 @@ WHERE
     FALSE;
 
 -- SRF shouldn't prevent upper query from recognizing lower as dummy
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     *
 FROM
-    few f1,
-    (
+    few f1, (
         SELECT
             unnest(ARRAY[1, 2])
         FROM
             few f2
         WHERE
-            FALSE OFFSET 0) ss;
+            FALSE
+        OFFSET
+            0) ss;
 
 SELECT
     *
 FROM
-    few f1,
-    (
+    few f1, (
         SELECT
             unnest(ARRAY[1, 2])
         FROM
             few f2
         WHERE
-            FALSE OFFSET 0) ss;
+            FALSE
+        OFFSET
+            0) ss;
 
 -- SRF output order of sorting is maintained, if SRF is not referenced
 SELECT
@@ -140,7 +130,8 @@ ORDER BY
     generate_series(1, 3) DESC;
 
 -- SRFs are computed after aggregation
-SET enable_hashagg TO 0;
+SET
+    enable_hashagg TO 0;
 
 -- stable output order
 SELECT
@@ -148,7 +139,7 @@ SELECT
     count(*),
     min(id),
     max(id),
-    unnest('{1,1,3}'::int[])
+    unnest('{1,1,3}'::INT[])
 FROM
     few
 WHERE
@@ -162,21 +153,21 @@ SELECT
     count(*),
     min(id),
     max(id),
-    unnest('{1,1,3}'::int[])
+    unnest('{1,1,3}'::INT[])
 FROM
     few
 WHERE
     few.id = 1
 GROUP BY
     few.dataa,
-    unnest('{1,1,3}'::int[]);
+    unnest('{1,1,3}'::INT[]);
 
 SELECT
     few.dataa,
     count(*),
     min(id),
     max(id),
-    unnest('{1,1,3}'::int[])
+    unnest('{1,1,3}'::INT[])
 FROM
     few
 WHERE
@@ -233,17 +224,18 @@ WHERE
     dataa = 'a'
 GROUP BY
     few.dataa,
-    unnest('{1,1,3}'::int[])
+    unnest('{1,1,3}'::INT[])
 ORDER BY
     2;
 
 -- SRFs are not allowed if they'd need to be conditionally executed
 SELECT
     q1,
-    CASE WHEN q1 > 0 THEN
-        generate_series(1, 3)
-    ELSE
-        0
+    CASE
+        WHEN q1 > 0 THEN
+            generate_series(1, 3)
+        ELSE
+            0
     END
 FROM
     int8_tbl;
@@ -262,15 +254,20 @@ FROM
 
 -- ... unless they're within a sub-select
 SELECT
-    sum((3 = ANY (
-            SELECT
-                generate_series(1, 4)))::int);
+    sum ( (
+            3 = ANY (
+                SELECT
+                    generate_series(1, 4)))::int);
 
 SELECT
-    sum((3 = ANY (
-            SELECT
-                lag(x) OVER (ORDER BY x)
-            FROM generate_series(1, 4) x))::int);
+    sum ( (
+            3 = ANY (
+                SELECT
+                    lag(x) OVER (
+                        ORDER BY
+                            x)
+                FROM
+                    generate_series(1, 4) x))::int);
 
 -- SRFs are not allowed in window function arguments, either
 SELECT
@@ -289,7 +286,11 @@ FROM
 
 -- unless referencing SRFs
 SELECT
-    SUM(count(*)) OVER (PARTITION BY generate_series(1, 3) ORDER BY generate_series(1, 3)),
+    SUM(count(*)) OVER (
+        PARTITION BY
+            generate_series(1, 3)
+        ORDER BY
+            generate_series(1, 3)),
     generate_series(1, 3) g
 FROM
     few
@@ -312,7 +313,8 @@ ORDER BY
     1;
 
 -- grouping sets are a bit special, they produce NULLs in columns not actually NULL
-SET enable_hashagg = FALSE;
+SET
+    enable_hashagg = FALSE;
 
 SELECT
     dataa,
@@ -322,8 +324,7 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab);
+    CUBE (dataa, datab);
 
 SELECT
     dataa,
@@ -333,8 +334,7 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab)
+    CUBE (dataa, datab)
 ORDER BY
     dataa;
 
@@ -346,8 +346,7 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab)
+    CUBE (dataa, datab)
 ORDER BY
     g;
 
@@ -359,9 +358,7 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab,
-        g);
+    CUBE (dataa, datab, g);
 
 SELECT
     dataa,
@@ -371,9 +368,7 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab,
-        g)
+    CUBE (dataa, datab, g)
 ORDER BY
     dataa;
 
@@ -385,19 +380,14 @@ SELECT
 FROM
     few
 GROUP BY
-    CUBE (dataa,
-        datab,
-        g)
+    CUBE (dataa, datab, g)
 ORDER BY
     g;
 
 RESET enable_hashagg;
 
 -- case with degenerate ORDER BY
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     'foo' AS f,
     generate_series(1, 2) AS g
@@ -419,8 +409,10 @@ CREATE TABLE fewmore AS
 SELECT
     generate_series(1, 3) AS data;
 
-INSERT INTO fewmore
-    VALUES (generate_series(4, 5));
+INSERT INTO
+    fewmore
+VALUES
+    (generate_series(4, 5));
 
 SELECT
     *
@@ -428,24 +420,25 @@ FROM
     fewmore;
 
 -- SRFs are not allowed in UPDATE (they once were, but it was nonsense)
-UPDATE
-    fewmore
+UPDATE fewmore
 SET
     data = generate_series(4, 9);
 
 -- SRFs are not allowed in RETURNING
-INSERT INTO fewmore
-    VALUES (1)
+INSERT INTO
+    fewmore
+VALUES
+    (1)
 RETURNING
     generate_series(1, 3);
 
 -- nor standalone VALUES (but surely this is a bug?)
-VALUES (1,
-    generate_series(1, 2));
+VALUES
+    (1, generate_series(1, 2));
 
 -- We allow tSRFs that are not at top level
 SELECT
-    int4mul(generate_series(1, 2), 10);
+    int4mul (generate_series(1, 2), 10);
 
 SELECT
     generate_series(1, 3) IS DISTINCT FROM 2;
@@ -454,134 +447,142 @@ SELECT
 SELECT
     *
 FROM
-    int4mul(generate_series(1, 2), 10);
+    int4mul (generate_series(1, 2), 10);
 
 -- DISTINCT ON is evaluated before tSRF evaluation if SRF is not
 -- referenced either in ORDER BY or in the DISTINCT ON list. The ORDER
 -- BY reference can be implicitly generated, if there's no other ORDER BY.
 -- implicit reference (via implicit ORDER) to all columns
-SELECT DISTINCT ON (a)
-    a,
+SELECT DISTINCT
+    ON (a) a,
     b,
     generate_series(1, 3) g
 FROM (
-    VALUES (3, 2),
-        (3, 1),
-        (1, 1),
-        (1, 4),
-        (5, 3),
-        (5, 1)) AS t (a, b);
+        VALUES
+            (3, 2),
+            (3, 1),
+            (1, 1),
+            (1, 4),
+            (5, 3),
+            (5, 1)) AS t (a, b);
 
 -- unreferenced in DISTINCT ON or ORDER BY
-SELECT DISTINCT ON (a)
-    a,
+SELECT DISTINCT
+    ON (a) a,
     b,
     generate_series(1, 3) g
 FROM (
-    VALUES (3, 2),
-        (3, 1),
-        (1, 1),
-        (1, 4),
-        (5, 3),
-        (5, 1)) AS t (a, b)
+        VALUES
+            (3, 2),
+            (3, 1),
+            (1, 1),
+            (1, 4),
+            (5, 3),
+            (5, 1)) AS t (a, b)
 ORDER BY
     a,
     b DESC;
 
 -- referenced in ORDER BY
-SELECT DISTINCT ON (a)
-    a,
+SELECT DISTINCT
+    ON (a) a,
     b,
     generate_series(1, 3) g
 FROM (
-    VALUES (3, 2),
-        (3, 1),
-        (1, 1),
-        (1, 4),
-        (5, 3),
-        (5, 1)) AS t (a, b)
+        VALUES
+            (3, 2),
+            (3, 1),
+            (1, 1),
+            (1, 4),
+            (5, 3),
+            (5, 1)) AS t (a, b)
 ORDER BY
     a,
     b DESC,
     g DESC;
 
 -- referenced in ORDER BY and DISTINCT ON
-SELECT DISTINCT ON (a, b, g)
-    a,
+SELECT DISTINCT
+    ON (a, b, g) a,
     b,
     generate_series(1, 3) g
 FROM (
-    VALUES (3, 2),
-        (3, 1),
-        (1, 1),
-        (1, 4),
-        (5, 3),
-        (5, 1)) AS t (a, b)
+        VALUES
+            (3, 2),
+            (3, 1),
+            (1, 1),
+            (1, 4),
+            (5, 3),
+            (5, 1)) AS t (a, b)
 ORDER BY
     a,
     b DESC,
     g DESC;
 
 -- only SRF mentioned in DISTINCT ON
-SELECT DISTINCT ON (g)
-    a,
+SELECT DISTINCT
+    ON (g) a,
     b,
     generate_series(1, 3) g
 FROM (
-    VALUES (3, 2),
-        (3, 1),
-        (1, 1),
-        (1, 4),
-        (5, 3),
-        (5, 1)) AS t (a, b);
+        VALUES
+            (3, 2),
+            (3, 1),
+            (1, 1),
+            (1, 4),
+            (5, 3),
+            (5, 1)) AS t (a, b);
 
 -- LIMIT / OFFSET is evaluated after SRF evaluation
 SELECT
     a,
     generate_series(1, 2)
 FROM (
-    VALUES (1),
-        (2),
-        (3)) r (a)
-LIMIT 2 OFFSET 2;
+        VALUES
+            (1),
+            (2),
+            (3)) r (a)
+LIMIT
+    2
+OFFSET
+    2;
 
 -- SRFs are not allowed in LIMIT.
 SELECT
     1
-LIMIT generate_series(1, 3);
+LIMIT
+    generate_series(1, 3);
 
 -- tSRF in correlated subquery, referencing table outside
-SELECT
-    (
+SELECT (
         SELECT
             generate_series(1, 3)
-        LIMIT 1 OFFSET few.id)
+        LIMIT
+            1
+        OFFSET
+            few.id)
 FROM
     few;
 
 -- tSRF in correlated subquery, referencing SRF outside
-SELECT
-    (
+SELECT (
         SELECT
             generate_series(1, 3)
-        LIMIT 1 OFFSET g.i)
+        LIMIT
+            1
+        OFFSET
+            g.i)
 FROM
     generate_series(0, 3) g (i);
 
 -- Operators can return sets too
-CREATE OPERATOR |@|||@|||@| (
-    PROCEDURE = unnest,
-    RIGHTARG = ANYARRAY
-);
+CREATE OPERATOR | @ | (PROCEDURE = unnest, RIGHTARG = ANYARRAY);
 
 SELECT
-    | |@| | ARRAY[1, 2, 3];
+    | @ | ARRAY[1, 2, 3];
 
 -- Some fun cases involving duplicate SRF calls
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     generate_series(1, 3) AS x,
     generate_series(1, 3) + 1 AS xp1;
@@ -590,10 +591,7 @@ SELECT
     generate_series(1, 3) AS x,
     generate_series(1, 3) + 1 AS xp1;
 
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     generate_series(1, 3) + 1
 ORDER BY
@@ -605,10 +603,7 @@ ORDER BY
     generate_series(1, 3);
 
 -- Check that SRFs of same nesting level run in lockstep
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     generate_series(1, 3) AS x,
     generate_series(3, 6) + 1 AS y;
@@ -621,4 +616,3 @@ SELECT
 DROP TABLE few;
 
 DROP TABLE fewmore;
-

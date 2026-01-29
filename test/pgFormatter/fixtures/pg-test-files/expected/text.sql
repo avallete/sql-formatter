@@ -2,20 +2,22 @@
 -- TEXT
 --
 SELECT
-    text 'this is a text string' = text 'this is a text string' AS true;
+    text 'this is a text string' = text 'this is a text string' AS TRUE;
 
 SELECT
-    text 'this is a text string' = text 'this is a text strin' AS false;
+    text 'this is a text string' = text 'this is a text strin' AS FALSE;
 
-CREATE TABLE TEXT_TBL (
-    f1 text
-);
+CREATE TABLE TEXT_TBL (f1 text);
 
-INSERT INTO TEXT_TBL
-    VALUES ('doh!');
+INSERT INTO
+    TEXT_TBL
+VALUES
+    ('doh!');
 
-INSERT INTO TEXT_TBL
-    VALUES ('hi de ho neighbor');
+INSERT INTO
+    TEXT_TBL
+VALUES
+    ('hi de ho neighbor');
 
 SELECT
     '' AS two,
@@ -41,7 +43,6 @@ SELECT
 SELECT
     3 || 4.0;
 
-
 /*
  * various string functions
  */
@@ -49,13 +50,28 @@ SELECT
     concat('one');
 
 SELECT
-    concat(1, 2, 3, 'hello', TRUE, FALSE, to_date('20100309', 'YYYYMMDD'));
+    concat (
+        1,
+        2,
+        3,
+        'hello',
+        TRUE,
+        FALSE,
+        to_date('20100309', 'YYYYMMDD'));
 
 SELECT
     concat_ws('#', 'one');
 
 SELECT
-    concat_ws('#', 1, 2, 3, 'hello', TRUE, FALSE, to_date('20100309', 'YYYYMMDD'));
+    concat_ws (
+        '#',
+        1,
+        2,
+        3,
+        'hello',
+        TRUE,
+        FALSE,
+        to_date('20100309', 'YYYYMMDD'));
 
 SELECT
     concat_ws(',', 10, 20, NULL, 30);
@@ -71,10 +87,8 @@ SELECT
 
 SELECT
     i,
-    LEFT ('ahoj',
-        i),
-    RIGHT ('ahoj',
-        i)
+    left('ahoj', i),
+    right('ahoj', i)
 FROM
     generate_series(-5, 5) t (i)
 ORDER BY
@@ -97,18 +111,17 @@ SELECT
     concat_ws(',', VARIADIC ARRAY[1, 2, 3]);
 
 SELECT
-    concat_ws(',', VARIADIC NULL::int[]);
+    concat_ws(',', VARIADIC NULL::INT[]);
 
 SELECT
-    concat(VARIADIC NULL::int[]) IS NULL;
+    concat(VARIADIC NULL::INT[]) IS NULL;
 
 SELECT
-    concat(VARIADIC '{}'::int[]) = '';
+    concat(VARIADIC '{}'::INT[]) = '';
 
 --should fail
 SELECT
     concat_ws(',', VARIADIC 10);
-
 
 /*
  * format
@@ -140,7 +153,11 @@ SELECT
 
 -- check literal and sql identifiers
 SELECT
-    format('INSERT INTO %I VALUES(%L,%L)', 'mytab', 10, 'Hello');
+    format (
+        'INSERT INTO %I VALUES(%L,%L)',
+        'mytab',
+        10,
+        'Hello');
 
 SELECT
     format('%s%s%s', 'Hello', NULL, 'World');
@@ -149,7 +166,11 @@ SELECT
     format('INSERT INTO %I VALUES(%L,%L)', 'mytab', 10, NULL);
 
 SELECT
-    format('INSERT INTO %I VALUES(%L,%L)', 'mytab', NULL, 'Hello');
+    format (
+        'INSERT INTO %I VALUES(%L,%L)',
+        'mytab',
+        NULL,
+        'Hello');
 
 -- should fail, sql identifier cannot be NULL
 SELECT
@@ -160,14 +181,40 @@ SELECT
     format('%1$s %3$s', 1, 2, 3);
 
 SELECT
-    format('%1$s %12$s', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+    format (
+        '%1$s %12$s',
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12);
 
 -- should fail
 SELECT
     format('%1$s %4$s', 1, 2, 3);
 
 SELECT
-    format('%1$s %13$s', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+    format (
+        '%1$s %13$s',
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12);
 
 SELECT
     format('%0$s', 'Hello');
@@ -199,7 +246,7 @@ SELECT
     format('%s, %s', VARIADIC ARRAY[TRUE, FALSE]);
 
 SELECT
-    format('%s, %s', VARIADIC ARRAY[TRUE, FALSE]::text[]);
+    format('%s, %s', VARIADIC ARRAY[TRUE, FALSE]::TEXT[]);
 
 -- check variadic with positional placeholders
 SELECT
@@ -210,7 +257,7 @@ SELECT
 
 -- variadic argument can be array type NULL, but should not be referenced
 SELECT
-    format('Hello', VARIADIC NULL::int[]);
+    format('Hello', VARIADIC NULL::INT[]);
 
 -- variadic argument allows simulating more than FUNC_MAX_ARGS parameters
 SELECT
@@ -269,4 +316,3 @@ SELECT
 
 SELECT
     format('>>%2$*1$L<<', 0, 'Hello');
-

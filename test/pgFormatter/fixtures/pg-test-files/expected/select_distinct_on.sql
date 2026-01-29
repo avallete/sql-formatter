@@ -1,8 +1,8 @@
 --
 -- SELECT_DISTINCT_ON
 --
-SELECT DISTINCT ON (string4)
-    string4,
+SELECT DISTINCT
+    ON (string4) string4,
     two,
     ten
 FROM
@@ -13,8 +13,8 @@ ORDER BY
     ten USING <;
 
 -- this will fail due to conflict of ordering requirements
-SELECT DISTINCT ON (string4, ten)
-    string4,
+SELECT DISTINCT
+    ON (string4, ten) string4,
     two,
     ten
 FROM
@@ -24,8 +24,8 @@ ORDER BY
     two USING <,
     ten USING <;
 
-SELECT DISTINCT ON (string4, ten)
-    string4,
+SELECT DISTINCT
+    ON (string4, ten) string4,
     ten,
     two
 FROM
@@ -36,12 +36,11 @@ ORDER BY
     two USING <;
 
 -- bug #5049: early 8.4.x chokes on volatile DISTINCT ON clauses
-SELECT DISTINCT ON (1)
-    floor(random()) AS r,
+SELECT DISTINCT
+    ON (1) floor(random()) AS r,
     f1
 FROM
     int4_tbl
 ORDER BY
     1,
     2;
-

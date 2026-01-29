@@ -2,27 +2,24 @@
 -- Test INSERT/UPDATE/DELETE RETURNING
 --
 -- Simple cases
-CREATE TEMP TABLE foo (
-    f1 serial,
-    f2 text,
-    f3 int DEFAULT 42
-);
+CREATE TEMP TABLE foo (f1 serial, f2 text, f3 int DEFAULT 42);
 
-INSERT INTO foo (f2, f3)
+INSERT INTO
+    foo (f2, f3)
 VALUES
     ('test', DEFAULT),
     ('More', 11),
     (upper('more'), 7 + 9)
 RETURNING
-    *, f1 + f3 AS sum;
+    *,
+    f1 + f3 AS sum;
 
 SELECT
     *
 FROM
     foo;
 
-UPDATE
-    foo
+UPDATE foo
 SET
     f2 = lower(f2),
     f3 = DEFAULT
@@ -36,12 +33,13 @@ FROM
     foo;
 
 DELETE FROM foo
-WHERE f1 > 2
+WHERE
+    f1 > 2
 RETURNING
     f3,
     f2,
     f1,
-    least (f1, f3);
+    least(f1, f3);
 
 SELECT
     *
@@ -49,7 +47,8 @@ FROM
     foo;
 
 -- Subplans and initplans in the RETURNING list
-INSERT INTO foo
+INSERT INTO
+    foo
 SELECT
     f1 + 10,
     f2,
@@ -69,8 +68,7 @@ RETURNING
         FROM
             int4_tbl) AS initplan;
 
-UPDATE
-    foo
+UPDATE foo
 SET
     f3 = f3 * 2
 WHERE
@@ -89,7 +87,8 @@ RETURNING
             int4_tbl) AS initplan;
 
 DELETE FROM foo
-WHERE f1 > 10
+WHERE
+    f1 > 10
 RETURNING
     *,
     f1 + 112 IN (
@@ -104,8 +103,7 @@ RETURNING
             int4_tbl) AS initplan;
 
 -- Joins
-UPDATE
-    foo
+UPDATE foo
 SET
     f3 = f3 * 2
 FROM
@@ -122,9 +120,11 @@ FROM
     foo;
 
 DELETE FROM foo USING int4_tbl i
-WHERE foo.f1 + 123455 = i.f1
+WHERE
+    foo.f1 + 123455 = i.f1
 RETURNING
-    foo.*, i.f1 AS "i.f1";
+    foo.*,
+    i.f1 AS "i.f1";
 
 SELECT
     *
@@ -132,18 +132,15 @@ FROM
     foo;
 
 -- Check inheritance cases
-CREATE TEMP TABLE foochild (
-    fc int
-)
-INHERITS (
-    foo
-);
+CREATE TEMP TABLE foochild (fc int) INHERITS (foo);
 
-INSERT INTO foochild
-    VALUES (123, 'child', 999, -123);
+INSERT INTO
+    foochild
+VALUES
+    (123, 'child', 999, -123);
 
 ALTER TABLE foo
-    ADD COLUMN f4 int8 DEFAULT 99;
+ADD COLUMN f4 int8 DEFAULT 99;
 
 SELECT
     *
@@ -155,8 +152,7 @@ SELECT
 FROM
     foochild;
 
-UPDATE
-    foo
+UPDATE foo
 SET
     f4 = f4 + f3
 WHERE
@@ -174,8 +170,7 @@ SELECT
 FROM
     foochild;
 
-UPDATE
-    foo
+UPDATE foo
 SET
     f3 = f3 * 2
 FROM
@@ -196,7 +191,8 @@ FROM
     foochild;
 
 DELETE FROM foo USING int8_tbl i
-WHERE foo.f1 = i.q2
+WHERE
+    foo.f1 = i.q2
 RETURNING
     *;
 
@@ -220,43 +216,55 @@ SELECT
 FROM
     foo;
 
-CREATE RULE voo_i AS ON INSERT TO voo
-    DO INSTEAD
-    INSERT INTO foo VALUES (NEW.*, 57);
+CREATE RULE voo_i AS ON INSERT TO voo DO INSTEAD
+INSERT INTO
+    foo
+VALUES
+    (new.*, 57);
 
-INSERT INTO voo
-    VALUES (11, 'zit');
+INSERT INTO
+    voo
+VALUES
+    (11, 'zit');
 
 -- fails:
-INSERT INTO voo
-    VALUES (12, 'zoo')
+INSERT INTO
+    voo
+VALUES
+    (12, 'zoo')
 RETURNING
-    *, f1 * 2;
+    *,
+    f1 * 2;
 
 -- fails, incompatible list:
-CREATE OR REPLACE RULE voo_i AS ON INSERT TO voo
-    DO INSTEAD
-    INSERT INTO foo
-        VALUES (
-            new.*, 57)
-    RETURNING
-        *;
+CREATE OR REPLACE RULE voo_i AS ON INSERT TO voo DO INSTEAD
+INSERT INTO
+    foo
+VALUES
+    (new.*, 57)
+RETURNING
+    *;
 
-CREATE OR REPLACE RULE voo_i AS ON INSERT TO voo
-    DO INSTEAD
-    INSERT INTO foo
-        VALUES (
-            new.*, 57)
-    RETURNING
-        f1, f2;
+CREATE OR REPLACE RULE voo_i AS ON INSERT TO voo DO INSTEAD
+INSERT INTO
+    foo
+VALUES
+    (new.*, 57)
+RETURNING
+    f1,
+    f2;
 
 -- should still work
-INSERT INTO voo
-    VALUES (13, 'zit2');
+INSERT INTO
+    voo
+VALUES
+    (13, 'zit2');
 
 -- works now
-INSERT INTO voo
-    VALUES (14, 'zoo2')
+INSERT INTO
+    voo
+VALUES
+    (14, 'zoo2')
 RETURNING
     *;
 
@@ -270,10 +278,10 @@ SELECT
 FROM
     voo;
 
-CREATE OR REPLACE RULE voo_u AS ON UPDATE TO voo
-    DO INSTEAD
-    UPDATE foo
-    SET f1 = new.f1,
+CREATE OR REPLACE RULE voo_u AS ON UPDATE TO voo DO INSTEAD
+UPDATE foo
+SET
+    f1 = new.f1,
     f2 = new.f2
 WHERE
     f1 = old.f1
@@ -281,15 +289,13 @@ RETURNING
     f1,
     f2;
 
-UPDATE
-    voo
+UPDATE voo
 SET
     f1 = f1 + 1
 WHERE
     f2 = 'zoo2';
 
-UPDATE
-    voo
+UPDATE voo
 SET
     f1 = f1 + 1
 WHERE
@@ -308,11 +314,8 @@ SELECT
 FROM
     voo;
 
-CREATE OR REPLACE RULE voo_d AS ON DELETE TO voo
-    DO INSTEAD
-    DELETE
-FROM
-    foo
+CREATE OR REPLACE RULE voo_d AS ON DELETE TO voo DO INSTEAD
+DELETE FROM foo
 WHERE
     f1 = old.f1
 RETURNING
@@ -320,10 +323,12 @@ RETURNING
     f2;
 
 DELETE FROM foo
-WHERE f1 = 13;
+WHERE
+    f1 = 13;
 
 DELETE FROM foo
-WHERE f2 = 'zit'
+WHERE
+    f2 = 'zit'
 RETURNING
     *;
 
@@ -338,19 +343,22 @@ FROM
     voo;
 
 -- Try a join case
-CREATE TEMP TABLE joinme (
-    f2j text,
-    other int
-);
+CREATE TEMP TABLE joinme (f2j text, other int);
 
-INSERT INTO joinme
-    VALUES ('more', 12345);
+INSERT INTO
+    joinme
+VALUES
+    ('more', 12345);
 
-INSERT INTO joinme
-    VALUES ('zoo2', 54321);
+INSERT INTO
+    joinme
+VALUES
+    ('zoo2', 54321);
 
-INSERT INTO joinme
-    VALUES ('other', 0);
+INSERT INTO
+    joinme
+VALUES
+    ('other', 0);
 
 CREATE TEMP VIEW joinview AS
 SELECT
@@ -365,21 +373,21 @@ SELECT
 FROM
     joinview;
 
-CREATE RULE joinview_u AS ON UPDATE
-    TO joinview
-        DO INSTEAD
-        UPDATE
-            foo SET
-            f1 = NEW.f1,
-            f3 = NEW.f3 FROM
-            joinme WHERE
-            f2 = f2j
-            AND f2 = OLD.f2 RETURNING
-            foo.*,
-            other;
+CREATE RULE joinview_u AS ON UPDATE TO joinview DO INSTEAD
+UPDATE foo
+SET
+    f1 = new.f1,
+    f3 = new.f3
+FROM
+    joinme
+WHERE
+    f2 = f2j
+    AND f2 = old.f2
+RETURNING
+    foo.*,
+    other;
 
-UPDATE
-    joinview
+UPDATE joinview
 SET
     f1 = f1 + 1
 WHERE
@@ -404,27 +412,31 @@ FROM
     voo;
 
 -- Check aliased target relation
-INSERT INTO foo AS bar DEFAULT
-    VALUES
-    RETURNING
-        *;
+INSERT INTO
+    foo AS bar
+DEFAULT VALUES
+RETURNING
+    *;
 
 -- ok
-INSERT INTO foo AS bar DEFAULT
-    VALUES
-    RETURNING
-        foo.*;
+INSERT INTO
+    foo AS bar
+DEFAULT VALUES
+RETURNING
+    foo.*;
 
 -- fails, wrong name
-INSERT INTO foo AS bar DEFAULT
-    VALUES
-    RETURNING
-        bar.*;
+INSERT INTO
+    foo AS bar
+DEFAULT VALUES
+RETURNING
+    bar.*;
 
 -- ok
-INSERT INTO foo AS bar DEFAULT
-    VALUES
-    RETURNING
-        bar.f3;
+INSERT INTO
+    foo AS bar
+DEFAULT VALUES
+RETURNING
+    bar.f3;
 
 -- ok

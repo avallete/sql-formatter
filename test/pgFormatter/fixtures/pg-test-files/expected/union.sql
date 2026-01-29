@@ -208,7 +208,7 @@ SELECT
 FROM
     FLOAT8_TBL
 WHERE
-    f1 BETWEEN - 1e6 AND 1e6
+    f1 BETWEEN -1e6 AND 1e6
 UNION
 SELECT
     f1
@@ -264,7 +264,10 @@ FROM
     VARCHAR_TBL
 UNION
 SELECT
-    TRIM(TRAILING FROM f1)
+    TRIM (
+        TRAILING
+        FROM
+            f1)
 FROM
     CHAR_TBL
 ORDER BY
@@ -325,7 +328,8 @@ SELECT
     q2
 FROM
     int8_tbl
-EXCEPT ALL SELECT DISTINCT
+EXCEPT ALL
+SELECT DISTINCT
     q1
 FROM
     int8_tbl
@@ -360,7 +364,8 @@ SELECT
     q1
 FROM
     int8_tbl
-EXCEPT ALL SELECT DISTINCT
+EXCEPT ALL
+SELECT DISTINCT
     q2
 FROM
     int8_tbl
@@ -379,7 +384,7 @@ FROM
 FOR NO KEY UPDATE;
 
 -- nested cases
-(
+ (
     SELECT
         1,
         2,
@@ -395,7 +400,7 @@ SELECT
     5,
     6;
 
-(
+ (
     SELECT
         1,
         2,
@@ -414,7 +419,7 @@ SELECT
     5,
     6;
 
-(
+ (
     SELECT
         1,
         2,
@@ -430,7 +435,7 @@ SELECT
     5,
     6;
 
-(
+ (
     SELECT
         1,
         2,
@@ -450,40 +455,37 @@ SELECT
     6;
 
 -- exercise both hashed and sorted implementations of INTERSECT/EXCEPT
-SET enable_hashagg TO ON;
+SET
+    enable_hashagg TO ON;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM (
-    SELECT
-        unique1
-    FROM
-        tenk1
-    INTERSECT
-    SELECT
-        fivethous
-    FROM
-        tenk1) ss;
+        SELECT
+            unique1
+        FROM
+            tenk1
+        INTERSECT
+        SELECT
+            fivethous
+        FROM
+            tenk1) ss;
 
 SELECT
     count(*)
 FROM (
-    SELECT
-        unique1
-    FROM
-        tenk1
-    INTERSECT
-    SELECT
-        fivethous
-    FROM
-        tenk1) ss;
+        SELECT
+            unique1
+        FROM
+            tenk1
+        INTERSECT
+        SELECT
+            fivethous
+        FROM
+            tenk1) ss;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique1
 FROM
@@ -508,40 +510,37 @@ FROM
 WHERE
     unique2 != 10;
 
-SET enable_hashagg TO OFF;
+SET
+    enable_hashagg TO off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM (
-    SELECT
-        unique1
-    FROM
-        tenk1
-    INTERSECT
-    SELECT
-        fivethous
-    FROM
-        tenk1) ss;
+        SELECT
+            unique1
+        FROM
+            tenk1
+        INTERSECT
+        SELECT
+            fivethous
+        FROM
+            tenk1) ss;
 
 SELECT
     count(*)
 FROM (
-    SELECT
-        unique1
-    FROM
-        tenk1
-    INTERSECT
-    SELECT
-        fivethous
-    FROM
-        tenk1) ss;
+        SELECT
+            unique1
+        FROM
+            tenk1
+        INTERSECT
+        SELECT
+            fivethous
+        FROM
+            tenk1) ss;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique1
 FROM
@@ -619,7 +618,7 @@ SELECT
     q1
 FROM
     int8_tbl
-INTERSECT (
+INTERSECT ( ( (
             SELECT
                 q2
             FROM
@@ -628,11 +627,11 @@ INTERSECT (
             SELECT
                 q2
             FROM
-                int8_tbl)
+                int8_tbl)))
 ORDER BY
     1;
 
-(((
+ ( ( (
             SELECT
                 q1
             FROM
@@ -671,7 +670,7 @@ SELECT
     q1
 FROM
     int8_tbl
-UNION ALL ((
+UNION ALL ( ( (
             SELECT
                 q2
             FROM
@@ -682,9 +681,9 @@ UNION ALL ((
             FROM
                 int8_tbl
             ORDER BY
-                1));
+                1)));
 
-(((
+ ( ( (
             SELECT
                 q1
             FROM
@@ -733,28 +732,30 @@ FROM
     int8_tbl
 ORDER BY
     q2
-LIMIT 1;
+LIMIT
+    1;
 
 -- But this should work:
 SELECT
     q1
 FROM
     int8_tbl
-EXCEPT (
+EXCEPT ( ( (
             SELECT
                 q2
             FROM
                 int8_tbl
             ORDER BY
                 q2
-            LIMIT 1)
+            LIMIT
+                1)))
 ORDER BY
     1;
 
 --
 -- New syntaxes (7.1) permit new tests
 --
-(((((
+ ( ( ( ( (
                     SELECT
                         *
                     FROM
@@ -765,27 +766,24 @@ ORDER BY
 --
 SELECT
 UNION
-SELECT
-;
+SELECT;
 
 SELECT
 INTERSECT
-SELECT
-;
+SELECT;
 
 SELECT
 EXCEPT
-SELECT
-;
+SELECT;
 
 -- check hashed implementation
-SET enable_hashagg = TRUE;
+SET
+    enable_hashagg = TRUE;
 
-SET enable_sort = FALSE;
+SET
+    enable_sort = FALSE;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
 FROM
     generate_series(1, 5)
@@ -794,9 +792,7 @@ SELECT
 FROM
     generate_series(1, 3);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
 FROM
     generate_series(1, 5)
@@ -854,13 +850,13 @@ FROM
     generate_series(1, 3);
 
 -- check sorted implementation
-SET enable_hashagg = FALSE;
+SET
+    enable_hashagg = FALSE;
 
-SET enable_sort = TRUE;
+SET
+    enable_sort = TRUE;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
 FROM
     generate_series(1, 5)
@@ -869,9 +865,7 @@ SELECT
 FROM
     generate_series(1, 3);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
 FROM
     generate_series(1, 5)
@@ -940,18 +934,18 @@ RESET enable_sort;
 SELECT
     a.f1
 FROM (
-    SELECT
-        'test' AS f1
-    FROM
-        varchar_tbl) a
+        SELECT
+            'test' AS f1
+        FROM
+            varchar_tbl) a
 UNION
 SELECT
     b.f1
 FROM (
-    SELECT
-        f1
-    FROM
-        varchar_tbl) b
+        SELECT
+            f1
+        FROM
+            varchar_tbl) b
 ORDER BY
     1;
 
@@ -966,66 +960,62 @@ SELECT
 -- Test that expression-index constraints can be pushed down through
 -- UNION or UNION ALL
 --
-CREATE TEMP TABLE t1 (
-    a text,
-    b text
-);
+CREATE TEMP TABLE t1 (a text, b text);
 
 CREATE INDEX t1_ab_idx ON t1 ((a || b));
 
-CREATE TEMP TABLE t2 (
-    ab text PRIMARY KEY
-);
+CREATE TEMP TABLE t2 (ab text PRIMARY KEY);
 
-INSERT INTO t1
+INSERT INTO
+    t1
 VALUES
     ('a', 'b'),
     ('x', 'y');
 
-INSERT INTO t2
+INSERT INTO
+    t2
 VALUES
     ('ab'),
     ('xy');
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = off;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        a || b AS ab
-    FROM
-        t1
-    UNION ALL
-    SELECT
-        *
-    FROM
-        t2) t
+        SELECT
+            a || b AS ab
+        FROM
+            t1
+        UNION ALL
+        SELECT
+            *
+        FROM
+            t2) t
 WHERE
     ab = 'ab';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        a || b AS ab
-    FROM
-        t1
-    UNION
-    SELECT
-        *
-    FROM
-        t2) t
+        SELECT
+            a || b AS ab
+        FROM
+            t1
+        UNION
+        SELECT
+            *
+        FROM
+            t2) t
 WHERE
     ab = 'ab';
 
@@ -1033,28 +1023,22 @@ WHERE
 -- Test that ORDER BY for UNION ALL can be pushed down to inheritance
 -- children.
 --
-CREATE TEMP TABLE t1c (
-    b text,
-    a text
-);
+CREATE TEMP TABLE t1c (b text, a text);
 
 ALTER TABLE t1c INHERIT t1;
 
-CREATE TEMP TABLE t2c (
-    PRIMARY KEY (ab)
-)
-INHERITS (
-    t2
-);
+CREATE TEMP TABLE t2c (PRIMARY KEY (ab)) INHERITS (t2);
 
-INSERT INTO t1c
+INSERT INTO
+    t1c
 VALUES
     ('v', 'w'),
     ('c', 'd'),
     ('m', 'n'),
     ('e', 'f');
 
-INSERT INTO t2c
+INSERT INTO
+    t2c
 VALUES
     ('vw'),
     ('cd'),
@@ -1063,44 +1047,46 @@ VALUES
 
 CREATE INDEX t1c_ab_idx ON t1c ((a || b));
 
-SET enable_seqscan = ON;
+SET
+    enable_seqscan = ON;
 
-SET enable_indexonlyscan = OFF;
+SET
+    enable_indexonlyscan = off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        a || b AS ab
-    FROM
-        t1
-    UNION ALL
-    SELECT
-        ab
-    FROM
-        t2) t
+        SELECT
+            a || b AS ab
+        FROM
+            t1
+        UNION ALL
+        SELECT
+            ab
+        FROM
+            t2) t
 ORDER BY
     1
-LIMIT 8;
+LIMIT
+    8;
 
 SELECT
     *
 FROM (
-    SELECT
-        a || b AS ab
-    FROM
-        t1
-    UNION ALL
-    SELECT
-        ab
-    FROM
-        t2) t
+        SELECT
+            a || b AS ab
+        FROM
+            t1
+        UNION ALL
+        SELECT
+            ab
+        FROM
+            t2) t
 ORDER BY
     1
-LIMIT 8;
+LIMIT
+    8;
 
 RESET enable_seqscan;
 
@@ -1109,76 +1095,65 @@ RESET enable_indexscan;
 RESET enable_bitmapscan;
 
 -- This simpler variant of the above test has been observed to fail differently
-CREATE TABLE events (
-    event_id int PRIMARY KEY
-);
+CREATE TABLE events (event_id int PRIMARY KEY);
 
-CREATE TABLE other_events (
-    event_id int PRIMARY KEY
-);
+CREATE TABLE other_events (event_id int PRIMARY KEY);
 
-CREATE TABLE events_child ()
-INHERITS (
-    events
-);
+CREATE TABLE events_child () inherits (events);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     event_id
 FROM (
-    SELECT
-        event_id
-    FROM
-        events
-    UNION ALL
-    SELECT
-        event_id
-    FROM
-        other_events) ss
+        SELECT
+            event_id
+        FROM
+            events
+        UNION ALL
+        SELECT
+            event_id
+        FROM
+            other_events) ss
 ORDER BY
     event_id;
 
-DROP TABLE events_child, events, other_events;
+DROP TABLE events_child,
+events,
+other_events;
 
 RESET enable_indexonlyscan;
 
 -- Test constraint exclusion of UNION ALL subqueries
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        *
-    FROM
-        tenk1 a
-    UNION ALL
-    SELECT
-        2 AS t,
-        *
-    FROM
-        tenk1 b) c
+        SELECT
+            1 AS t,
+            *
+        FROM
+            tenk1 a
+        UNION ALL
+        SELECT
+            2 AS t,
+            *
+        FROM
+            tenk1 b) c
 WHERE
     t = 2;
 
 -- Test that we push quals into UNION sub-selects only when it's safe
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        2 AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            2 AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x < 4
 ORDER BY
@@ -1187,31 +1162,29 @@ ORDER BY
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        2 AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            2 AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x < 4
 ORDER BY
     x;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        generate_series(1, 10) AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            generate_series(1, 10) AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x < 4
 ORDER BY
@@ -1220,31 +1193,29 @@ ORDER BY
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        generate_series(1, 10) AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            generate_series(1, 10) AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x < 4
 ORDER BY
     x;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        (random() * 3)::int AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            (random() * 3)::int AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x > 3
 ORDER BY
@@ -1253,13 +1224,13 @@ ORDER BY
 SELECT
     *
 FROM (
-    SELECT
-        1 AS t,
-        (random() * 3)::int AS x
-    UNION
-    SELECT
-        2 AS t,
-        4 AS x) ss
+        SELECT
+            1 AS t,
+            (random() * 3)::int AS x
+        UNION
+        SELECT
+            2 AS t,
+            4 AS x) ss
 WHERE
     x > 3
 ORDER BY
@@ -1267,18 +1238,9 @@ ORDER BY
 
 -- Test proper handling of parameterized appendrel paths when the
 -- potential join qual is expensive
-CREATE FUNCTION expensivefunc (int)
-    RETURNS int
-    LANGUAGE plpgsql
-    IMMUTABLE STRICT
-    COST 10000
-    AS $$
-BEGIN
-    RETURN $1;
-END
-$$;
+CREATE FUNCTION expensivefunc (int) returns int language plpgsql immutable strict cost 10000 AS $$begin return $1; end$$;
 
-CREATE temp TABLE t3 AS
+CREATE TEMP TABLE t3 AS
 SELECT
     generate_series(-1000, 1000) AS x;
 
@@ -1286,35 +1248,33 @@ CREATE INDEX t3i ON t3 (expensivefunc (x));
 
 ANALYZE t3;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        *
-    FROM
-        t3 a
-    UNION ALL
-    SELECT
-        *
-    FROM
-        t3 b) ss
+        SELECT
+            *
+        FROM
+            t3 a
+        UNION ALL
+        SELECT
+            *
+        FROM
+            t3 b) ss
     JOIN int4_tbl ON f1 = expensivefunc (x);
 
 SELECT
     *
 FROM (
-    SELECT
-        *
-    FROM
-        t3 a
-    UNION ALL
-    SELECT
-        *
-    FROM
-        t3 b) ss
+        SELECT
+            *
+        FROM
+            t3 a
+        UNION ALL
+        SELECT
+            *
+        FROM
+            t3 b) ss
     JOIN int4_tbl ON f1 = expensivefunc (x);
 
 DROP TABLE t3;
@@ -1322,42 +1282,43 @@ DROP TABLE t3;
 DROP FUNCTION expensivefunc (int);
 
 -- Test handling of appendrel quals that const-simplify into an AND
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM (
-    SELECT
-        *,
-        0 AS x
-    FROM
-        int8_tbl a
-    UNION ALL
-    SELECT
-        *,
-        1 AS x
-    FROM
-        int8_tbl b) ss
-WHERE (x = 0)
-    OR (q1 >= q2
+        SELECT
+            *,
+            0 AS x
+        FROM
+            int8_tbl a
+        UNION ALL
+        SELECT
+            *,
+            1 AS x
+        FROM
+            int8_tbl b) ss
+WHERE
+    (x = 0)
+    OR (
+        q1 >= q2
         AND q1 <= q2);
 
 SELECT
     *
 FROM (
-    SELECT
-        *,
-        0 AS x
-    FROM
-        int8_tbl a
-    UNION ALL
-    SELECT
-        *,
-        1 AS x
-    FROM
-        int8_tbl b) ss
-WHERE (x = 0)
-    OR (q1 >= q2
+        SELECT
+            *,
+            0 AS x
+        FROM
+            int8_tbl a
+        UNION ALL
+        SELECT
+            *,
+            1 AS x
+        FROM
+            int8_tbl b) ss
+WHERE
+    (x = 0)
+    OR (
+        q1 >= q2
         AND q1 <= q2);
-

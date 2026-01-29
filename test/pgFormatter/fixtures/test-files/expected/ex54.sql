@@ -1,28 +1,28 @@
 SELECT
-    CASE WHEN 1 = 1 THEN
-        2
-    ELSE
-        3
+    CASE
+        WHEN 1 = 1 THEN
+            2
+        ELSE
+            3
     END::text AS col1,
     col2,
     col3
 FROM
     tb1;
 
-SELECT
-    (
-        CASE WHEN 1 = 1 THEN
-            2
-        ELSE
-            3
+SELECT (
+        CASE
+            WHEN 1 = 1 THEN
+                2
+            ELSE
+                3
         END)::text AS col1,
     col2,
     col3
 FROM
     tb1;
 
-UPDATE
-    point_tbl
+UPDATE point_tbl
 SET
     f1[0] = NULL
 WHERE
@@ -31,98 +31,69 @@ RETURNING
     *;
 
 SELECT
-    'TrUe'::text::boolean AS true,
-    'fAlse'::text::boolean AS false;
+    'TrUe'::text::boolean AS TRUE,
+    'fAlse'::text::boolean AS FALSE;
 
 SELECT
-    TRUE::boolean::text AS true,
-    FALSE::boolean::text AS false;
+    TRUE::boolean::text AS TRUE,
+    FALSE::boolean::text AS FALSE;
 
-CREATE PROCEDURE testns.bar ()
-    AS '
-    SELECT
-        1;
-'
-LANGUAGE sql;
+CREATE PROCEDURE testns.bar () AS 'select 1' LANGUAGE sql;
 
 ALTER TABLE test9b
-    ALTER COLUMN b TYPE priv_testdomain1;
+ALTER COLUMN b TYPE priv_testdomain1;
 
-CREATE TYPE test7b AS (
-    a int,
-    b priv_testdomain1
-);
+CREATE TYPE test7b AS (a int, b priv_testdomain1);
 
-CREATE TYPE test8b AS (
-    a int,
-    b int
-);
+CREATE TYPE test8b AS (a int, b int);
 
 ALTER TYPE test8b
-    ADD ATTRIBUTE c priv_testdomain1;
+ADD ATTRIBUTE c priv_testdomain1;
 
-CREATE OR REPLACE PROCEDURE foo ()
-    AS $BODY$
+CREATE OR REPLACE PROCEDURE foo () AS $BODY$
 DECLARE
 BEGIN
     INSERT INTO bar (COLUMN)
-        VALUES (1);
-    COMMIT;
+    VALUES (1);
+COMMIT;
     BEGIN
         INSERT INTO bar (COLUMN)
-            VALUES (2);
-        COMMIT;
+        VALUES (2);
+    COMMIT;
         BEGIN
             INSERT INTO bar (COLUMN)
-                VALUES (3);
-            COMMIT;
-        END;
-    END;
+            VALUES (3);
+        COMMIT;
 END;
-$BODY$
-LANGUAGE plpgsql;
+END;
+END;
+$BODY$ LANGUAGE plpgsql;
 
 CREATE TEXT SEARCH PARSER addr_ts_prs (
     START = prsd_start,
     gettoken = prsd_nexttoken,
     END = prsd_end,
-    lextypes = prsd_lextype
-);
+    lextypes = prsd_lextype);
 
-CREATE FUNCTION fonction_reference (refcursor)
-    RETURNS refcursor
-    AS $$
+CREATE FUNCTION fonction_reference (refcursor) RETURNS refcursor AS $$
 BEGIN
-    OPEN $1 FOR
-        SELECT
-            col
-        FROM
-            test;
+    OPEN $1 FOR SELECT col FROM test;
     RETURN $1;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION foo ()
-    RETURNS TRIGGER
-    AS $$
+CREATE OR REPLACE FUNCTION foo () RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.role NOT IN (
-        SELECT
-            rolname
-        FROM
-            pg_authid) THEN
+    IF NEW.role NOT IN ( SELECT rolname FROM pg_authid) THEN
         RAISE EXCEPTION 'role % does not exist.', NEW.role;
     END IF;
 END;
-$$
-LANGUAGE 'plpgsql';
+$$ LANGUAGE 'plpgsql';
 
 DO $$
-DECLARE
-    xml_declaration text := '<?xml version="1.0" encoding="ISO-8859-1"?>';
-    degree_symbol text;
-    res xml[];
+DECLARE xml_declaration text := '<?xml version="1.0" encoding="ISO-8859-1"?>';
+degree_symbol text;
+res xml[];
 BEGIN
     -- Per the documentation, except when the server encoding is UTF8, xpath()
     -- may not work on non-ASCII data.  The untranslatable_character and
@@ -138,19 +109,17 @@ BEGIN
         RAISE 'expected % (%), got % (%)', degree_symbol, convert_to(degree_symbol, 'UTF8'), res[1], convert_to(res[1]::text, 'UTF8');
     END IF;
 EXCEPTION
-    -- character with byte sequence 0xc2 0xb0 in encoding "UTF8" has no equivalent in encoding "LATIN8"
-    WHEN untranslatable_character
-        -- default conversion function for encoding "UTF8" to "MULE_INTERNAL" does not exist
-        OR undefined_function
-        -- unsupported XML feature
-        OR feature_not_supported THEN
-        RAISE LOG 'skip: %', SQLERRM;
+            -- character with byte sequence 0xc2 0xb0 in encoding "UTF8" has no equivalent in encoding "LATIN8"
+        WHEN untranslatable_character
+            -- default conversion function for encoding "UTF8" to "MULE_INTERNAL" does not exist
+            OR undefined_function
+            -- unsupported XML feature
+            OR feature_not_supported THEN
+            RAISE LOG 'skip: %', SQLERRM;
 END
 $$;
 
-CREATE FUNCTION wait_for_stats ()
-    RETURNS void
-    AS $$
+CREATE FUNCTION wait_for_stats () RETURNS void AS $$
 DECLARE
     start_time timestamptz := clock_timestamp();
     updated1 bool;
@@ -211,10 +180,9 @@ BEGIN
             pg_stat_clear_snapshot();
     END LOOP;
     -- report time waited in postmaster log (where it won't change test output)
-    RAISE log 'wait_for_stats delayed % seconds', extract(epoch FROM clock_timestamp() - start_time);
-END
-$$
-LANGUAGE plpgsql;
+    raise log 'wait_for_stats delayed % seconds', extract(epoch FROM clock_timestamp() - start_time);
+    END
+$$ LANGUAGE plpgsql;
 
 DO $$
 DECLARE
@@ -222,7 +190,7 @@ DECLARE
     names text[];
     args text[];
 BEGIN
-    FOR objtype IN VALUES ('table'), ('publication relation')
+    FOR objtype IN VALUES ('table'),  ('publication relation')
     LOOP
         FOR names IN VALUES ('{eins}'), ('{eins, zwei, drei}')
         LOOP
@@ -231,41 +199,44 @@ BEGIN
                 BEGIN
                     PERFORM
                         pg_get_object_address(objtype, names, args);
-                EXCEPTION
+                    EXCEPTION
                     WHEN OTHERS THEN
                         RAISE WARNING 'error for %,%,%: %', objtype, names, args, sqlerrm;
-                END;
+                    END;
             END LOOP;
         END LOOP;
     END LOOP;
 END;
-
 $$;
 
 -- test successful cases
-WITH objects (
-    TYPE,
-    name,
-    args
-) AS (
-    VALUES ('table', '{addr_nsp, gentable}'::text[], '{}'::text[]),
-        ('index', '{addr_nsp, parttable_pkey}', '{}'),
-        ('sequence', '{addr_nsp, gentable_a_seq}', '{}'),
-        -- toast table
-        ('view', '{addr_nsp, genview}', '{}'),
-        -- large object
-        ('operator', '{+}', '{int4, int4}'),
-        -- database
-        -- tablespace
-        ('foreign-data wrapper', '{addr_fdw}', '{}'),
-        -- extension
-        -- event trigger
-        ('policy', '{addr_nsp, gentable, genpol}', '{}'),
-        ('statistics object', '{addr_nsp, gentable_stat}', '{}'))
-SELECT
-    (pg_identify_object (addr1.classid, addr1.objid, addr1.objsubid)).*,
+WITH
+    objects (TYPE, name, args) AS (
+        VALUES (
+                'table',
+                '{addr_nsp, gentable}'::TEXT[],
+                '{}'::TEXT[]),
+            ('index', '{addr_nsp, parttable_pkey}', '{}'),
+            ('sequence', '{addr_nsp, gentable_a_seq}', '{}'),
+            -- toast table
+            ('view', '{addr_nsp, genview}', '{}'),
+            -- large object
+            ('operator', '{+}', '{int4, int4}'),
+            -- database
+            -- tablespace
+            ('foreign-data wrapper', '{addr_fdw}', '{}'),
+            -- extension
+            -- event trigger
+            ('policy', '{addr_nsp, gentable, genpol}', '{}'), (
+                'statistics object',
+                '{addr_nsp, gentable_stat}',
+                '{}'))
+SELECT (
+        pg_identify_object(addr1.classid, addr1.objid, addr1.objsubid)).*,
     -- test roundtrip through pg_identify_object_as_address
-    ROW (pg_identify_object (addr1.classid, addr1.objid, addr1.objsubid)) = ROW (pg_identify_object (addr2.classid, addr 2.objid, addr2.objsubid))
+    ROW (
+        pg_identify_object(addr1.classid, addr1.objid, addr1.objsubid)) = ROW (
+        pg_identify_object(addr2.classid, addr 2.objid, addr2.objsubid))
 FROM
     objects,
     pg_get_object_address(TYPE, name, args) addr1,
@@ -291,12 +262,11 @@ DROP OWNED BY regress_addr_user;
 
 DROP USER regress_addr_user;
 
-CREATE PROCEDURE insert_data (a integer, b integer)
-LANGUAGE SQL
-AS $$
+CREATE PROCEDURE insert_data (a integer, b integer) LANGUAGE SQL AS $$
     INSERT INTO tbl
-        VALUES (a);
-    INSERT INTO tbl
-        VALUES (b);
-$$;
+    VALUES (a);
 
+INSERT INTO tbl
+    VALUES (b);
+
+$$;

@@ -1,11 +1,9 @@
 CREATE SCHEMA testxmlschema;
 
-CREATE TABLE testxmlschema.test1 (
-    a int,
-    b text
-);
+CREATE TABLE testxmlschema.test1 (a int, b text);
 
-INSERT INTO testxmlschema.test1
+INSERT INTO
+    testxmlschema.test1
 VALUES
     (1, 'one'),
     (2, 'two'),
@@ -28,14 +26,28 @@ CREATE TABLE testxmlschema.test2 (
     o testxmldomain,
     n bool,
     m bytea,
-    aaa text
-);
+    aaa text);
 
 ALTER TABLE testxmlschema.test2
-    DROP COLUMN aaa;
+DROP COLUMN aaa;
 
-INSERT INTO testxmlschema.test2
-    VALUES (55, 'abc', 'def', 98.6, 2, 999, 0, '21:07', '2009-06-08 21:07:30', '2009-06-08', NULL, 'ABC', TRUE, 'XYZ');
+INSERT INTO
+    testxmlschema.test2
+VALUES (
+        55,
+        'abc',
+        'def',
+        98.6,
+        2,
+        999,
+        0,
+        '21:07',
+        '2009-06-08 21:07:30',
+        '2009-06-08',
+        NULL,
+        'ABC',
+        TRUE,
+        'XYZ');
 
 SELECT
     table_to_xml('testxmlschema.test1', FALSE, FALSE, '');
@@ -80,22 +92,36 @@ SELECT
     table_to_xml_and_xmlschema('testxmlschema.test1', TRUE, TRUE, 'foo');
 
 SELECT
-    query_to_xml('SELECT * FROM testxmlschema.test1', FALSE, FALSE, '');
+    query_to_xml (
+        'SELECT * FROM testxmlschema.test1',
+        FALSE,
+        FALSE,
+        '');
 
 SELECT
-    query_to_xmlschema('SELECT * FROM testxmlschema.test1', FALSE, FALSE, '');
+    query_to_xmlschema (
+        'SELECT * FROM testxmlschema.test1',
+        FALSE,
+        FALSE,
+        '');
 
 SELECT
-    query_to_xml_and_xmlschema('SELECT * FROM testxmlschema.test1', TRUE, TRUE, '');
+    query_to_xml_and_xmlschema (
+        'SELECT * FROM testxmlschema.test1',
+        TRUE,
+        TRUE,
+        '');
 
-DECLARE xc CURSOR WITH HOLD FOR
-    SELECT
-        *
-    FROM
-        testxmlschema.test1
-    ORDER BY
-        1,
-        2;
+DECLARE xc CURSOR
+WITH
+    HOLD FOR
+SELECT
+    *
+FROM
+    testxmlschema.test1
+ORDER BY
+    1,
+    2;
 
 SELECT
     cursor_to_xml('xc'::refcursor, 5, FALSE, TRUE, '');
@@ -145,4 +171,3 @@ FROM
 
 SELECT
     table_to_xml('testxmlschema.test3', TRUE, TRUE, '');
-

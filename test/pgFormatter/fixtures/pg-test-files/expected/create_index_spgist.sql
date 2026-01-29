@@ -7,13 +7,15 @@ SELECT
 FROM
     tenk1;
 
-INSERT INTO quad_point_tbl
+INSERT INTO
+    quad_point_tbl
 SELECT
     '(333.0,400.0)'::point
 FROM
     generate_series(1, 1000);
 
-INSERT INTO quad_point_tbl
+INSERT INTO
+    quad_point_tbl
 VALUES
     (NULL),
     (NULL),
@@ -37,26 +39,34 @@ FROM
 WHERE
     name !~ '^[0-9]';
 
-INSERT INTO radix_text_tbl
+INSERT INTO
+    radix_text_tbl
 SELECT
     'P0123456789abcdef'
 FROM
     generate_series(1, 1000);
 
-INSERT INTO radix_text_tbl
-    VALUES ('P0123456789abcde');
+INSERT INTO
+    radix_text_tbl
+VALUES
+    ('P0123456789abcde');
 
-INSERT INTO radix_text_tbl
-    VALUES ('P0123456789abcdefF');
+INSERT INTO
+    radix_text_tbl
+VALUES
+    ('P0123456789abcdefF');
 
 CREATE INDEX sp_radix_ind ON radix_text_tbl USING spgist (t);
 
 -- get non-indexed results for comparison purposes
-SET enable_seqscan = ON;
+SET
+    enable_seqscan = ON;
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
 SELECT
     count(*)
@@ -117,7 +127,7 @@ SELECT
 FROM
     quad_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
 SELECT
     count(*)
@@ -128,7 +138,9 @@ WHERE
 
 CREATE TEMP TABLE quad_point_tbl_ord_seq1 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -136,7 +148,9 @@ FROM
 
 CREATE TEMP TABLE quad_point_tbl_ord_seq2 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -146,7 +160,9 @@ WHERE
 
 CREATE TEMP TABLE quad_point_tbl_ord_seq3 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '333,400') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '333,400') n,
     p <-> '333,400' dist,
     p
 FROM
@@ -250,18 +266,19 @@ SELECT
 FROM
     radix_text_tbl
 WHERE
-    t ^ @ 'Worth';
+    t ^@ 'Worth';
 
 -- Now check the results from plain indexscan
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -276,9 +293,7 @@ FROM
 WHERE
     p IS NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -293,9 +308,7 @@ FROM
 WHERE
     p IS NOT NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -306,9 +319,7 @@ SELECT
 FROM
     quad_point_tbl;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -323,9 +334,7 @@ FROM
 WHERE
     p <@ box '(200,200,1000,1000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -340,9 +349,7 @@ FROM
 WHERE
     box '(200,200,1000,1000)' @> p;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -357,9 +364,7 @@ FROM
 WHERE
     p << '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -374,9 +379,7 @@ FROM
 WHERE
     p >> '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -391,26 +394,22 @@ FROM
 WHERE
     p <^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     quad_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
 SELECT
     count(*)
 FROM
     quad_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -425,11 +424,11 @@ FROM
 WHERE
     p ~= '(4585, 365)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -437,7 +436,9 @@ FROM
 
 CREATE TEMP TABLE quad_point_tbl_ord_idx1 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -451,11 +452,11 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -465,7 +466,9 @@ WHERE
 
 CREATE TEMP TABLE quad_point_tbl_ord_idx2 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -481,11 +484,11 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '333,400') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '333,400') n,
     p <-> '333,400' dist,
     p
 FROM
@@ -495,7 +498,9 @@ WHERE
 
 CREATE TEMP TABLE quad_point_tbl_ord_idx3 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '333,400') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '333,400') n,
     p <-> '333,400' dist,
     p
 FROM
@@ -511,9 +516,7 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -528,9 +531,7 @@ FROM
 WHERE
     p <@ box '(200,200,1000,1000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -545,9 +546,7 @@ FROM
 WHERE
     box '(200,200,1000,1000)' @> p;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -562,9 +561,7 @@ FROM
 WHERE
     p << '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -579,9 +576,7 @@ FROM
 WHERE
     p >> '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -596,26 +591,22 @@ FROM
 WHERE
     p <^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     kd_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
 SELECT
     count(*)
 FROM
     kd_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -630,11 +621,11 @@ FROM
 WHERE
     p ~= '(4585, 365)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -642,7 +633,9 @@ FROM
 
 CREATE TEMP TABLE kd_point_tbl_ord_idx1 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -656,11 +649,11 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -670,7 +663,9 @@ WHERE
 
 CREATE TEMP TABLE kd_point_tbl_ord_idx2 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '0,0') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '0,0') n,
     p <-> '0,0' dist,
     p
 FROM
@@ -686,11 +681,11 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    row_number() OVER (ORDER BY p <-> '333,400') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '333,400') n,
     p <-> '333,400' dist,
     p
 FROM
@@ -700,7 +695,9 @@ WHERE
 
 CREATE TEMP TABLE kd_point_tbl_ord_idx3 AS
 SELECT
-    row_number() OVER (ORDER BY p <-> '333,400') n,
+    row_number() OVER (
+        ORDER BY
+            p <-> '333,400') n,
     p <-> '333,400' dist,
     p
 FROM
@@ -716,9 +713,7 @@ FROM
 WHERE
     seq.dist IS DISTINCT FROM idx.dist;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -733,9 +728,7 @@ FROM
 WHERE
     t = 'P0123456789abcdef';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -750,9 +743,7 @@ FROM
 WHERE
     t = 'P0123456789abcde';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -767,9 +758,7 @@ FROM
 WHERE
     t = 'P0123456789abcdefF';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -784,9 +773,7 @@ FROM
 WHERE
     t < 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -801,9 +788,7 @@ FROM
 WHERE
     t ~<~ 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -818,9 +803,7 @@ FROM
 WHERE
     t <= 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -835,9 +818,7 @@ FROM
 WHERE
     t ~<=~ 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -852,9 +833,7 @@ FROM
 WHERE
     t = 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -869,9 +848,7 @@ FROM
 WHERE
     t = 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -886,9 +863,7 @@ FROM
 WHERE
     t >= 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -903,9 +878,7 @@ FROM
 WHERE
     t ~>=~ 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -920,9 +893,7 @@ FROM
 WHERE
     t > 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -937,33 +908,32 @@ FROM
 WHERE
     t ~>~ 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     radix_text_tbl
 WHERE
-    t ^ @ 'Worth';
+    t ^@ 'Worth';
 
 SELECT
     count(*)
 FROM
     radix_text_tbl
 WHERE
-    t ^ @ 'Worth';
+    t ^@ 'Worth';
 
 -- Now check the results from bitmap indexscan
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -978,9 +948,7 @@ FROM
 WHERE
     p IS NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -995,9 +963,7 @@ FROM
 WHERE
     p IS NOT NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1008,9 +974,7 @@ SELECT
 FROM
     quad_point_tbl;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1025,9 +989,7 @@ FROM
 WHERE
     p <@ box '(200,200,1000,1000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1042,9 +1004,7 @@ FROM
 WHERE
     box '(200,200,1000,1000)' @> p;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1059,9 +1019,7 @@ FROM
 WHERE
     p << '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1076,9 +1034,7 @@ FROM
 WHERE
     p >> '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1093,26 +1049,22 @@ FROM
 WHERE
     p <^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     quad_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
 SELECT
     count(*)
 FROM
     quad_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1127,9 +1079,7 @@ FROM
 WHERE
     p ~= '(4585, 365)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1144,9 +1094,7 @@ FROM
 WHERE
     p <@ box '(200,200,1000,1000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1161,9 +1109,7 @@ FROM
 WHERE
     box '(200,200,1000,1000)' @> p;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1178,9 +1124,7 @@ FROM
 WHERE
     p << '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1195,9 +1139,7 @@ FROM
 WHERE
     p >> '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1212,26 +1154,22 @@ FROM
 WHERE
     p <^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     kd_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
 SELECT
     count(*)
 FROM
     kd_point_tbl
 WHERE
-    p >^ '(5000, 4000)';
+    p > ^ '(5000, 4000)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1246,9 +1184,7 @@ FROM
 WHERE
     p ~= '(4585, 365)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1263,9 +1199,7 @@ FROM
 WHERE
     t = 'P0123456789abcdef';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1280,9 +1214,7 @@ FROM
 WHERE
     t = 'P0123456789abcde';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1297,9 +1229,7 @@ FROM
 WHERE
     t = 'P0123456789abcdefF';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1314,9 +1244,7 @@ FROM
 WHERE
     t < 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1331,9 +1259,7 @@ FROM
 WHERE
     t ~<~ 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1348,9 +1274,7 @@ FROM
 WHERE
     t <= 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1365,9 +1289,7 @@ FROM
 WHERE
     t ~<=~ 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1382,9 +1304,7 @@ FROM
 WHERE
     t = 'Aztec                         Ct  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1399,9 +1319,7 @@ FROM
 WHERE
     t = 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1416,9 +1334,7 @@ FROM
 WHERE
     t >= 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1433,9 +1349,7 @@ FROM
 WHERE
     t ~>=~ 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1450,9 +1364,7 @@ FROM
 WHERE
     t > 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1467,26 +1379,23 @@ FROM
 WHERE
     t ~>~ 'Worth                         St  ';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     radix_text_tbl
 WHERE
-    t ^ @ 'Worth';
+    t ^@ 'Worth';
 
 SELECT
     count(*)
 FROM
     radix_text_tbl
 WHERE
-    t ^ @ 'Worth';
+    t ^@ 'Worth';
 
 RESET enable_seqscan;
 
 RESET enable_indexscan;
 
 RESET enable_bitmapscan;
-

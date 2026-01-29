@@ -63,47 +63,52 @@ ORDER BY
 --
 -- Check mentioning same column more than once
 --
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, COSTS OFF)
 SELECT
     count(*)
-FROM ( SELECT DISTINCT
-        two,
-        four,
-        two
-    FROM
-        tenk1) ss;
+FROM (
+        SELECT DISTINCT
+            two,
+            four,
+            two
+        FROM
+            tenk1) ss;
 
 SELECT
     count(*)
-FROM ( SELECT DISTINCT
-        two,
-        four,
-        two
-    FROM
-        tenk1) ss;
+FROM (
+        SELECT DISTINCT
+            two,
+            four,
+            two
+        FROM
+            tenk1) ss;
 
 --
 -- Also, some tests of IS DISTINCT FROM, which doesn't quite deserve its
 -- very own regression file.
 --
-CREATE TEMP TABLE disttable (
-    f1 integer
-);
+CREATE TEMP TABLE disttable (f1 integer);
 
-INSERT INTO DISTTABLE
-    VALUES (1);
+INSERT INTO
+    DISTTABLE
+VALUES
+    (1);
 
-INSERT INTO DISTTABLE
-    VALUES (2);
+INSERT INTO
+    DISTTABLE
+VALUES
+    (2);
 
-INSERT INTO DISTTABLE
-    VALUES (3);
+INSERT INTO
+    DISTTABLE
+VALUES
+    (3);
 
-INSERT INTO DISTTABLE
-    VALUES (NULL);
+INSERT INTO
+    DISTTABLE
+VALUES
+    (NULL);
 
 -- basic cases
 SELECT
@@ -155,4 +160,3 @@ SELECT
 
 SELECT
     NULL IS NOT DISTINCT FROM NULL AS "yes";
-

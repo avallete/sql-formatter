@@ -2,120 +2,142 @@
 -- CASE
 -- Test the case statement
 --
-CREATE TABLE CASE_TBL (
-    i integer,
-    f double precision
-);
+CREATE TABLE CASE_TBL (i integer, f double precision);
 
-CREATE TABLE CASE2_TBL (
-    i integer,
-    j integer
-);
+CREATE TABLE CASE2_TBL (i integer, j integer);
 
-INSERT INTO CASE_TBL
-    VALUES (1, 10.1);
+INSERT INTO
+    CASE_TBL
+VALUES
+    (1, 10.1);
 
-INSERT INTO CASE_TBL
-    VALUES (2, 20.2);
+INSERT INTO
+    CASE_TBL
+VALUES
+    (2, 20.2);
 
-INSERT INTO CASE_TBL
-    VALUES (3, -30.3);
+INSERT INTO
+    CASE_TBL
+VALUES
+    (3, -30.3);
 
-INSERT INTO CASE_TBL
-    VALUES (4, NULL);
+INSERT INTO
+    CASE_TBL
+VALUES
+    (4, NULL);
 
-INSERT INTO CASE2_TBL
-    VALUES (1, -1);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (1, -1);
 
-INSERT INTO CASE2_TBL
-    VALUES (2, -2);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (2, -2);
 
-INSERT INTO CASE2_TBL
-    VALUES (3, -3);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (3, -3);
 
-INSERT INTO CASE2_TBL
-    VALUES (2, -4);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (2, -4);
 
-INSERT INTO CASE2_TBL
-    VALUES (1, NULL);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (1, NULL);
 
-INSERT INTO CASE2_TBL
-    VALUES (NULL, -6);
+INSERT INTO
+    CASE2_TBL
+VALUES
+    (NULL, -6);
 
 --
 -- Simplest examples without tables
 --
 SELECT
     '3' AS "One",
-    CASE WHEN 1 < 2 THEN
-        3
+    CASE
+        WHEN 1 < 2 THEN
+            3
     END AS "Simple WHEN";
 
 SELECT
     '<NULL>' AS "One",
-    CASE WHEN 1 > 2 THEN
-        3
+    CASE
+        WHEN 1 > 2 THEN
+            3
     END AS "Simple default";
 
 SELECT
     '3' AS "One",
-    CASE WHEN 1 < 2 THEN
-        3
-    ELSE
-        4
+    CASE
+        WHEN 1 < 2 THEN
+            3
+        ELSE
+            4
     END AS "Simple ELSE";
 
 SELECT
     '4' AS "One",
-    CASE WHEN 1 > 2 THEN
-        3
-    ELSE
-        4
+    CASE
+        WHEN 1 > 2 THEN
+            3
+        ELSE
+            4
     END AS "ELSE default";
 
 SELECT
     '6' AS "One",
-    CASE WHEN 1 > 2 THEN
-        3
-    WHEN 4 < 5 THEN
-        6
-    ELSE
-        7
+    CASE
+        WHEN 1 > 2 THEN
+            3
+        WHEN 4 < 5 THEN
+            6
+        ELSE
+            7
     END AS "Two WHEN with default";
 
 SELECT
     '7' AS "None",
-    CASE WHEN random() < 0 THEN
-        1
+    CASE
+        WHEN random() < 0 THEN
+            1
     END AS "NULL on no matches";
 
 -- Constant-expression folding shouldn't evaluate unreachable subexpressions
 SELECT
-    CASE WHEN 1 = 0 THEN
-        1 / 0
-    WHEN 1 = 1 THEN
-        1
-    ELSE
-        2 / 0
+    CASE
+        WHEN 1 = 0 THEN
+            1 / 0
+        WHEN 1 = 1 THEN
+            1
+        ELSE
+            2 / 0
     END;
 
 SELECT
     CASE 1
-    WHEN 0 THEN
-        1 / 0
-    WHEN 1 THEN
-        1
-    ELSE
-        2 / 0
+        WHEN 0 THEN
+            1 / 0
+        WHEN 1 THEN
+            1
+        ELSE
+            2 / 0
     END;
 
 -- However we do not currently suppress folding of potentially
 -- reachable subexpressions
 SELECT
-    CASE WHEN i > 100 THEN
-        1 / 0
-    ELSE
-        0
+    CASE
+        WHEN i > 100 THEN
+            1 / 0
+        ELSE
+            0
     END
 FROM
     case_tbl;
@@ -123,10 +145,10 @@ FROM
 -- Test for cases involving untyped literals in test expression
 SELECT
     CASE 'a'
-    WHEN 'a' THEN
-        1
-    ELSE
-        2
+        WHEN 'a' THEN
+            1
+        ELSE
+            2
     END;
 
 --
@@ -134,18 +156,20 @@ SELECT
 --
 SELECT
     '' AS "Five",
-    CASE WHEN i >= 3 THEN
-        i
+    CASE
+        WHEN i >= 3 THEN
+            i
     END AS ">= 3 or Null"
 FROM
     CASE_TBL;
 
 SELECT
     '' AS "Five",
-    CASE WHEN i >= 3 THEN
-        (i + i)
-    ELSE
-        i
+    CASE
+        WHEN i >= 3 THEN
+            (i + i)
+        ELSE
+            i
     END AS "Simplest Math"
 FROM
     CASE_TBL;
@@ -153,36 +177,42 @@ FROM
 SELECT
     '' AS "Five",
     i AS "Value",
-    CASE WHEN (i < 0) THEN
-        'small'
-    WHEN (i = 0) THEN
-        'zero'
-    WHEN (i = 1) THEN
-        'one'
-    WHEN (i = 2) THEN
-        'two'
-    ELSE
-        'big'
+    CASE
+        WHEN (i < 0) THEN
+            'small'
+        WHEN (i = 0) THEN
+            'zero'
+        WHEN (i = 1) THEN
+            'one'
+        WHEN (i = 2) THEN
+            'two'
+        ELSE
+            'big'
     END AS "Category"
 FROM
     CASE_TBL;
 
 SELECT
     '' AS "Five",
-    CASE WHEN ((i < 0)
-        OR (i < 0)) THEN
-        'small'
-    WHEN ((i = 0)
-        OR (i = 0)) THEN
-        'zero'
-    WHEN ((i = 1)
-        OR (i = 1)) THEN
-        'one'
-    WHEN ((i = 2)
-        OR (i = 2)) THEN
-        'two'
-    ELSE
-        'big'
+    CASE
+        WHEN (
+            (i < 0)
+            OR (i < 0)) THEN
+            'small'
+        WHEN (
+            (i = 0)
+            OR (i = 0)) THEN
+            'zero'
+        WHEN (
+            (i = 1)
+            OR (i = 1)) THEN
+            'one'
+        WHEN (
+            (i = 2)
+            OR (i = 2)) THEN
+            'two'
+        ELSE
+            'big'
     END AS "Category"
 FROM
     CASE_TBL;
@@ -207,7 +237,7 @@ SELECT
 FROM
     CASE_TBL
 WHERE
-    NULLIF (f, i) = 2;
+    NULLIF(f, i) = 2;
 
 SELECT
     COALESCE(a.f, b.i, b.j)
@@ -225,8 +255,8 @@ WHERE
 
 SELECT
     '' AS Five,
-    NULLIF (a.i, b.i) AS "NULLIF(a.i,b.i)",
-    NULLIF (b.i, 4) AS "NULLIF(b.i,4)"
+    NULLIF(a.i, b.i) AS "NULLIF(a.i,b.i)",
+    NULLIF(b.i, 4) AS "NULLIF(b.i,4)"
 FROM
     CASE_TBL a,
     CASE2_TBL b;
@@ -243,13 +273,13 @@ WHERE
 --
 -- Examples of updates involving tables
 --
-UPDATE
-    CASE_TBL
+UPDATE CASE_TBL
 SET
-    i = CASE WHEN i >= 3 THEN
-        (- i)
-    ELSE
-        (2 * i)
+    i = CASE
+        WHEN i >= 3 THEN
+            (- i)
+        ELSE
+            (2 * i)
     END;
 
 SELECT
@@ -257,13 +287,13 @@ SELECT
 FROM
     CASE_TBL;
 
-UPDATE
-    CASE_TBL
+UPDATE CASE_TBL
 SET
-    i = CASE WHEN i >= 2 THEN
-        (2 * i)
-    ELSE
-        (3 * i)
+    i = CASE
+        WHEN i >= 2 THEN
+            (2 * i)
+        ELSE
+            (3 * i)
     END;
 
 SELECT
@@ -271,13 +301,13 @@ SELECT
 FROM
     CASE_TBL;
 
-UPDATE
-    CASE_TBL
+UPDATE CASE_TBL
 SET
-    i = CASE WHEN b.i >= 2 THEN
-        (2 * j)
-    ELSE
-        (3 * j)
+    i = CASE
+        WHEN b.i >= 2 THEN
+            (2 * j)
+        ELSE
+            (3 * j)
     END
 FROM
     CASE2_TBL b
@@ -301,124 +331,94 @@ FROM
 -- Wrap this in a single transaction so the transient '=' operator doesn't
 -- cause problems in concurrent sessions
 BEGIN;
-CREATE FUNCTION vol (text)
-    RETURNS text
-    AS '
-BEGIN
-    RETURN $1;
-END;
-'
-LANGUAGE plpgsql
-VOLATILE;
+
+CREATE FUNCTION vol (text) returns text AS 'begin return $1; end' language plpgsql volatile;
+
 SELECT
     CASE (
-        CASE vol ('bar')
-        WHEN 'foo' THEN
-            'it was foo!'
-        WHEN vol (NULL) THEN
-            'null input'
-        WHEN 'bar' THEN
-            'it was bar!'
-        END)
-    WHEN 'it was foo!' THEN
-        'foo recognized'
-    WHEN 'it was bar!' THEN
-        'bar recognized'
-    ELSE
-        'unrecognized'
+            CASE vol ('bar')
+                WHEN 'foo' THEN
+                    'it was foo!'
+                WHEN vol (NULL) THEN
+                    'null input'
+                WHEN 'bar' THEN
+                    'it was bar!'
+            END)
+        WHEN 'it was foo!' THEN
+            'foo recognized'
+        WHEN 'it was bar!' THEN
+            'bar recognized'
+        ELSE
+            'unrecognized'
     END;
+
 -- In this case, we can't inline the SQL function without confusing things.
 CREATE DOMAIN foodomain AS text;
-CREATE FUNCTION volfoo (text)
-    RETURNS foodomain
-    AS '
-BEGIN
-    RETURN $1::foodomain;
-END;
-'
-LANGUAGE plpgsql
-VOLATILE;
-CREATE FUNCTION inline_eq (foodomain, foodomain)
-    RETURNS boolean
-    AS '
-    SELECT
-        CASE $2::text
-        WHEN $1::text THEN
-            TRUE
-        ELSE
-            FALSE
-        END;
-'
-LANGUAGE sql;
+
+CREATE FUNCTION volfoo (text) returns foodomain AS 'begin return $1::foodomain; end' language plpgsql volatile;
+
+CREATE FUNCTION inline_eq (foodomain, foodomain) returns boolean AS 'SELECT CASE $2::text WHEN $1::text THEN true ELSE false END' language sql;
+
 CREATE OPERATOR = (
-    PROCEDURE = inline_eq,
-    LEFTARG = foodomain,
-    RIGHTARG = foodomain
-);
+    procedure = inline_eq,
+    leftarg = foodomain,
+    rightarg = foodomain);
+
 SELECT
     CASE volfoo ('bar')
-    WHEN 'foo'::foodomain THEN
-        'is foo'
-    ELSE
-        'is not foo'
+        WHEN 'foo'::foodomain THEN
+            'is foo'
+        ELSE
+            'is not foo'
     END;
+
 ROLLBACK;
 
 -- Test multiple evaluation of a CASE arg that is a read/write object (#14472)
 -- Wrap this in a single transaction so the transient '=' operator doesn't
 -- cause problems in concurrent sessions
 BEGIN;
-CREATE DOMAIN arrdomain AS int[];
-CREATE FUNCTION make_ad (int, int)
-    RETURNS arrdomain
-    AS '
-DECLARE
-    x arrdomain;
-BEGIN
-    x := ARRAY[$1, $2];
-RETURN x;
-END;
-'
-LANGUAGE plpgsql
-VOLATILE;
-CREATE FUNCTION ad_eq (arrdomain, arrdomain)
-    RETURNS boolean
-    AS '
-BEGIN
-    RETURN array_eq($1, $2);
-END;
-'
-LANGUAGE plpgsql;
+
+CREATE DOMAIN arrdomain AS INT[];
+
+CREATE FUNCTION make_ad (int, int) returns arrdomain AS 'declare x arrdomain;
+   begin
+     x := array[$1,$2];
+     return x;
+   end' language plpgsql volatile;
+
+CREATE FUNCTION ad_eq (arrdomain, arrdomain) returns boolean AS 'begin return array_eq($1, $2); end' language plpgsql;
+
 CREATE OPERATOR = (
-    PROCEDURE = ad_eq,
-    LEFTARG = arrdomain,
-    RIGHTARG = arrdomain
-);
+    procedure = ad_eq,
+    leftarg = arrdomain,
+    rightarg = arrdomain);
+
 SELECT
     CASE make_ad (1, 2)
-    WHEN ARRAY[2, 4]::arrdomain THEN
-        'wrong'
-    WHEN ARRAY[2, 5]::arrdomain THEN
-        'still wrong'
-    WHEN ARRAY[1, 2]::arrdomain THEN
-        'right'
+        WHEN ARRAY[2, 4]::arrdomain THEN
+            'wrong'
+        WHEN ARRAY[2, 5]::arrdomain THEN
+            'still wrong'
+        WHEN ARRAY[1, 2]::arrdomain THEN
+            'right'
     END;
+
 ROLLBACK;
 
 -- Test interaction of CASE with ArrayCoerceExpr (bug #15471)
 BEGIN;
-CREATE TYPE casetestenum AS ENUM (
-    'e',
-    'f',
-    'g'
-);
+
+CREATE TYPE casetestenum AS ENUM('e', 'f', 'g');
+
 SELECT
     CASE 'foo'::text
-    WHEN 'foo' THEN
-        ARRAY['a', 'b', 'c', 'd'] || enum_range(NULL::casetestenum)::text[]
-    ELSE
-        ARRAY['x', 'y']
+        WHEN 'foo' THEN
+            ARRAY['a', 'b', 'c', 'd'] || enum_range(NULL::casetestenum)::TEXT[]
+        ELSE
+            ARRAY['x', 'y']
     END;
+
 ROLLBACK;
 
 --
@@ -427,4 +427,3 @@ ROLLBACK;
 DROP TABLE CASE_TBL;
 
 DROP TABLE CASE2_TBL;
-

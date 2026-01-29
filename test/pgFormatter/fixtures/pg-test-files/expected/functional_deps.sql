@@ -4,15 +4,13 @@ CREATE TEMP TABLE articles (
     keywords text,
     title text UNIQUE NOT NULL,
     body text UNIQUE,
-    created date
-);
+    created date);
 
 CREATE TEMP TABLE articles_in_category (
     article_id int,
     category_id int,
     changed date,
-    PRIMARY KEY (article_id, category_id)
-);
+    PRIMARY KEY (article_id, category_id));
 
 -- test functional dependencies based on primary keys/unique constraints
 -- base tables
@@ -154,16 +152,9 @@ GROUP BY
     aic.article_id;
 
 -- example from documentation
-CREATE TEMP TABLE products (
-    product_id int,
-    name text,
-    price numeric
-);
+CREATE TEMP TABLE products (product_id int, name text, price numeric);
 
-CREATE TEMP TABLE sales (
-    product_id int,
-    units int
-);
+CREATE TEMP TABLE sales (product_id int, units int);
 
 -- OK
 SELECT
@@ -190,7 +181,7 @@ GROUP BY
     product_id;
 
 ALTER TABLE products
-    ADD PRIMARY KEY (product_id);
+ADD PRIMARY KEY (product_id);
 
 -- OK now
 SELECT
@@ -205,7 +196,7 @@ GROUP BY
 
 -- Drupal example, http://drupal.org/node/555530
 CREATE TEMP TABLE node (
-    nid serial,
+    nid SERIAL,
     vid integer NOT NULL DEFAULT '0',
     type varchar(32) NOT NULL DEFAULT '',
     title varchar(128) NOT NULL DEFAULT '',
@@ -213,8 +204,7 @@ CREATE TEMP TABLE node (
     status integer NOT NULL DEFAULT '1',
     created integer NOT NULL DEFAULT '0',
     -- snip
-    PRIMARY KEY (nid, vid)
-);
+    PRIMARY KEY (nid, vid));
 
 CREATE TEMP TABLE users (
     uid integer NOT NULL DEFAULT '0',
@@ -222,8 +212,7 @@ CREATE TEMP TABLE users (
     pass varchar(32) NOT NULL DEFAULT '',
     -- snip
     PRIMARY KEY (uid),
-    UNIQUE (name)
-);
+    UNIQUE (name));
 
 -- OK
 SELECT
@@ -281,7 +270,7 @@ GROUP BY
 
 -- fail
 ALTER TABLE articles
-    DROP CONSTRAINT articles_pkey RESTRICT;
+DROP CONSTRAINT articles_pkey RESTRICT;
 
 DROP VIEW fdv1;
 
@@ -304,11 +293,11 @@ GROUP BY
     aic.article_id;
 
 ALTER TABLE articles
-    DROP CONSTRAINT articles_pkey RESTRICT;
+DROP CONSTRAINT articles_pkey RESTRICT;
 
 -- fail
 ALTER TABLE articles_in_category
-    DROP CONSTRAINT articles_in_category_pkey RESTRICT;
+DROP CONSTRAINT articles_in_category_pkey RESTRICT;
 
 --fail
 DROP VIEW fdv2;
@@ -338,7 +327,7 @@ GROUP BY
     id;
 
 ALTER TABLE articles
-    DROP CONSTRAINT articles_pkey RESTRICT;
+DROP CONSTRAINT articles_pkey RESTRICT;
 
 -- fail
 DROP VIEW fdv3;
@@ -358,7 +347,7 @@ WHERE
             id);
 
 ALTER TABLE articles
-    DROP CONSTRAINT articles_pkey RESTRICT;
+DROP CONSTRAINT articles_pkey RESTRICT;
 
 -- fail
 DROP VIEW fdv4;
@@ -379,7 +368,7 @@ GROUP BY
 EXECUTE foo;
 
 ALTER TABLE articles
-    DROP CONSTRAINT articles_pkey RESTRICT;
+DROP CONSTRAINT articles_pkey RESTRICT;
 
 EXECUTE foo;
 

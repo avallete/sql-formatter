@@ -2,7 +2,8 @@
 -- Regular expression tests
 --
 -- Don't want to have to double backslashes in regexes
-SET standard_conforming_strings = ON;
+SET
+    standard_conforming_strings = ON;
 
 -- Test simple quantified backrefs
 SELECT
@@ -41,13 +42,22 @@ SELECT
 
 -- Test some cases that crashed in 9.2beta1 due to pmatch[] array overrun
 SELECT
-    substring('asd TO foo' FROM ' TO (([a-z0-9._]+|"([^"]+|"")+")+)');
+    substring (
+        'asd TO foo'
+        FROM
+            ' TO (([a-z0-9._]+|"([^"]+|"")+")+)');
 
 SELECT
-    substring('a' FROM '((a))+');
+    substring (
+        'a'
+        FROM
+            '((a))+');
 
 SELECT
-    substring('a' FROM '((a)+)');
+    substring (
+        'a'
+        FROM
+            '((a)+)');
 
 -- Test regexp_match()
 SELECT
@@ -157,9 +167,7 @@ SELECT
     'zyy' ~ '(?<![xy])yy+';
 
 -- Test conversion of regex patterns to indexable conditions
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -167,9 +175,7 @@ FROM
 WHERE
     proname ~ 'abc';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -177,9 +183,7 @@ FROM
 WHERE
     proname ~ '^abc';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -187,9 +191,7 @@ FROM
 WHERE
     proname ~ '^abc$';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -197,9 +199,7 @@ FROM
 WHERE
     proname ~ '^abcd*e';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -207,9 +207,7 @@ FROM
 WHERE
     proname ~ '^abc+d';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -217,9 +215,7 @@ FROM
 WHERE
     proname ~ '^(abc)(def)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -227,9 +223,7 @@ FROM
 WHERE
     proname ~ '^(abc)$';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -237,9 +231,7 @@ FROM
 WHERE
     proname ~ '^(abc)?d';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -318,7 +310,10 @@ SELECT
 
 -- Test for proper matching of non-greedy iteration (bug #11478)
 SELECT
-    regexp_matches('foo/bar/baz', '^([^/]+?)(?:/([^/]+?))(?:/([^/]+?))?$', '');
+    regexp_matches (
+        'foo/bar/baz',
+        '^([^/]+?)(?:/([^/]+?))(?:/([^/]+?))?$',
+        '');
 
 -- Test for infinite loop in cfindloop with zero-length possible match
 -- but no actual match (can only happen in the presence of backrefs)

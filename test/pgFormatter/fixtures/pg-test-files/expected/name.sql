@@ -12,30 +12,42 @@ SELECT
 --
 --
 --
-CREATE TABLE NAME_TBL (
-    f1 name
-);
+CREATE TABLE NAME_TBL (f1 name);
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQR');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES (
+        '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQR');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqr');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES (
+        '1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqr');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('asdfghjkl;');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES
+    ('asdfghjkl;');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('343f%2a');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES
+    ('343f%2a');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('d34aaasdf');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES
+    ('d34aaasdf');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES
+    ('');
 
-INSERT INTO NAME_TBL (f1)
-    VALUES ('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+INSERT INTO
+    NAME_TBL (f1)
+VALUES (
+        '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
 SELECT
     '' AS seven,
@@ -126,13 +138,12 @@ WHERE
 DROP TABLE NAME_TBL;
 
 DO $$
-DECLARE
-    r text[];
+DECLARE r text[];
 BEGIN
-    r := parse_ident('Schemax.Tabley');
-    RAISE NOTICE '%', format('%I.%I', r[1], r[2]);
-    r := parse_ident('"SchemaX"."TableY"');
-    RAISE NOTICE '%', format('%I.%I', r[1], r[2]);
+  r := parse_ident('Schemax.Tabley');
+  RAISE NOTICE '%', format('%I.%I', r[1], r[2]);
+  r := parse_ident('"SchemaX"."TableY"');
+  RAISE NOTICE '%', format('%I.%I', r[1], r[2]);
 END;
 $$;
 
@@ -144,7 +155,7 @@ SELECT
 
 -- should fail
 SELECT
-    parse_ident('foo.boo[]', STRICT => FALSE);
+    parse_ident('foo.boo[]', strict => FALSE);
 
 -- ok
 -- should fail
@@ -161,19 +172,23 @@ SELECT
     parse_ident('aaa.a%b');
 
 SELECT
-    parse_ident(E'X\rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+    parse_ident (
+        E'X\rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
 SELECT
     length(a[1]),
     length(a[2])
 FROM
-    parse_ident('"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy') AS a;
+    parse_ident (
+        '"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy') AS a;
 
 SELECT
-    parse_ident(' first . "  second  " ."   third   ". "  ' || repeat('x', 66) || '"');
+    parse_ident (
+        ' first . "  second  " ."   third   ". "  ' || repeat('x', 66) || '"');
 
 SELECT
-    parse_ident(' first . "  second  " ."   third   ". "  ' || repeat('x', 66) || '"')::name[];
+    parse_ident (
+        ' first . "  second  " ."   third   ". "  ' || repeat('x', 66) || '"')::name[];
 
 SELECT
     parse_ident(E'"c".X XXXX\002XXXXXX');
@@ -192,4 +207,3 @@ SELECT
 
 SELECT
     parse_ident('xxx.1020');
-

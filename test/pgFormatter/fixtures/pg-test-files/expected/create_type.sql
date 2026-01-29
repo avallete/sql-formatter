@@ -12,8 +12,7 @@ CREATE TYPE widget (
     output = widget_out,
     typmod_in = numerictypmodin,
     typmod_out = numerictypmodout,
-    alignment = double
-);
+    alignment = double);
 
 CREATE TYPE city_budget (
     internallength = 16,
@@ -49,29 +48,13 @@ CREATE TYPE int42;
 CREATE TYPE text_w_default;
 
 -- Make dummy I/O routines using the existing internal support for int4, text
-CREATE FUNCTION int42_in (cstring)
-    RETURNS int42
-    AS 'int4in'
-    LANGUAGE internal
-    STRICT IMMUTABLE;
+CREATE FUNCTION int42_in (cstring) RETURNS int42 AS 'int4in' LANGUAGE internal STRICT IMMUTABLE;
 
-CREATE FUNCTION int42_out (int42)
-    RETURNS cstring
-    AS 'int4out'
-    LANGUAGE internal
-    STRICT IMMUTABLE;
+CREATE FUNCTION int42_out (int42) RETURNS cstring AS 'int4out' LANGUAGE internal STRICT IMMUTABLE;
 
-CREATE FUNCTION text_w_default_in (cstring)
-    RETURNS text_w_default
-    AS 'textin'
-    LANGUAGE internal
-    STRICT IMMUTABLE;
+CREATE FUNCTION text_w_default_in (cstring) RETURNS text_w_default AS 'textin' LANGUAGE internal STRICT IMMUTABLE;
 
-CREATE FUNCTION text_w_default_out (text_w_default)
-    RETURNS cstring
-    AS 'textout'
-    LANGUAGE internal
-    STRICT IMMUTABLE;
+CREATE FUNCTION text_w_default_out (text_w_default) RETURNS cstring AS 'textout' LANGUAGE internal STRICT IMMUTABLE;
 
 CREATE TYPE int42 (
     internallength = 4,
@@ -79,23 +62,21 @@ CREATE TYPE int42 (
     output = int42_out,
     alignment = int4,
     DEFAULT = 42,
-    passedbyvalue
-);
+    passedbyvalue);
 
 CREATE TYPE text_w_default (
     internallength = variable,
     input = text_w_default_in,
     output = text_w_default_out,
     alignment = int4,
-    DEFAULT = 'zippo'
-);
+    DEFAULT = 'zippo');
 
-CREATE TABLE default_test (
-    f1 text_w_default,
-    f2 int42
-);
+CREATE TABLE default_test (f1 text_w_default, f2 int42);
 
-INSERT INTO default_test DEFAULT VALUES;
+INSERT INTO
+    default_test
+DEFAULT VALUES;
+
 SELECT
     *
 FROM
@@ -108,24 +89,14 @@ CREATE TYPE case_int42 (
     "Output" = int42_out,
     "Alignment" = int4,
     "Default" = 42,
-    "Passedbyvalue"
-);
+    "Passedbyvalue");
 
 -- Test stand-alone composite type
-CREATE TYPE default_test_row AS (
-    f1 text_w_default,
-    f2 int42
-);
+CREATE TYPE default_test_row AS (f1 text_w_default, f2 int42);
 
-CREATE FUNCTION get_default_test ()
-    RETURNS SETOF default_test_row
-    AS '
-    SELECT
-        *
-    FROM
-        default_test;
-'
-LANGUAGE SQL;
+CREATE FUNCTION get_default_test () RETURNS SETOF default_test_row AS '
+  SELECT * FROM default_test;
+' LANGUAGE SQL;
 
 SELECT
     *
@@ -158,26 +129,14 @@ CREATE TYPE not_existing_type (
     INPUT = array_in,
     OUTPUT = array_out,
     ELEMENT = int,
-    INTERNALLENGTH = 32
-);
+    INTERNALLENGTH = 32);
 
 -- Check dependency transfer of opaque functions when creating a new type
-CREATE FUNCTION base_fn_in (cstring)
-    RETURNS opaque
-    AS 'boolin'
-    LANGUAGE internal
-    IMMUTABLE STRICT;
+CREATE FUNCTION base_fn_in (cstring) RETURNS opaque AS 'boolin' LANGUAGE internal IMMUTABLE STRICT;
 
-CREATE FUNCTION base_fn_out (opaque)
-    RETURNS opaque
-    AS 'boolout'
-    LANGUAGE internal
-    IMMUTABLE STRICT;
+CREATE FUNCTION base_fn_out (opaque) RETURNS opaque AS 'boolout' LANGUAGE internal IMMUTABLE STRICT;
 
-CREATE TYPE base_type (
-    INPUT = base_fn_in,
-    OUTPUT = base_fn_out
-);
+CREATE TYPE base_type (INPUT = base_fn_in, OUTPUT = base_fn_out);
 
 DROP FUNCTION base_fn_in (cstring);
 
@@ -192,14 +151,10 @@ DROP TYPE base_type CASCADE;
 
 -- Check usage of typmod with a user-defined type
 -- (we have borrowed numeric's typmod functions)
-CREATE TEMP TABLE mytab (
-    foo widget (42, 13, 7)
-);
+CREATE TEMP TABLE mytab (foo widget (42, 13, 7));
 
 -- should fail
-CREATE TEMP TABLE mytab (
-    foo widget (42, 13)
-);
+CREATE TEMP TABLE mytab (foo widget (42, 13));
 
 SELECT
     format_type(atttypid, atttypmod)
@@ -210,7 +165,8 @@ WHERE
     AND attnum > 0;
 
 -- might as well exercise the widget type while we're here
-INSERT INTO mytab
+INSERT INTO
+    mytab
 VALUES
     ('(1,2,3)'),
     ('(-44,5.5,12)');
@@ -227,4 +183,3 @@ SELECT
 -- this behavior difference is intentional
 SELECT
     format_type('bpchar'::regtype, -1);
-

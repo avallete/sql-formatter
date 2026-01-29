@@ -102,7 +102,8 @@ SELECT
 -- OK, uppercase and lower case both OK
 -- handling of unicode surrogate pairs
 SELECT
-    octet_length((jsonb '{ "a":  "\ud83d\ude04\ud83d\udc36" }' -> 'a')::text) AS correct_in_utf8;
+    octet_length ( (
+            jsonb '{ "a":  "\ud83d\ude04\ud83d\udc36" }' -> 'a')::text) AS correct_in_utf8;
 
 SELECT
     jsonb '{ "a":  "\ud83d\ud83d" }' -> 'a';
@@ -150,4 +151,3 @@ SELECT
 
 SELECT
     jsonb '{ "a":  "null \\u0000 escape" }' ->> 'a' AS not_an_escape;
-

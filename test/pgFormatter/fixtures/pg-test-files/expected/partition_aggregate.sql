@@ -3,35 +3,38 @@
 -- Test partitionwise aggregation on partitioned tables
 --
 -- Enable partitionwise aggregate, which by default is disabled.
-SET enable_partitionwise_aggregate TO TRUE;
+SET
+    enable_partitionwise_aggregate TO TRUE;
 
 -- Enable partitionwise join, which by default is disabled.
-SET enable_partitionwise_join TO TRUE;
+SET
+    enable_partitionwise_join TO TRUE;
 
 -- Disable parallel plans.
-SET max_parallel_workers_per_gather TO 0;
+SET
+    max_parallel_workers_per_gather TO 0;
 
 --
 -- Tests for list partitioned tables.
 --
-CREATE TABLE pagg_tab (
-    a int,
-    b int,
-    c text,
-    d int
-)
-PARTITION BY LIST (c);
+CREATE TABLE pagg_tab (a int, b int, c text, d int)
+PARTITION BY
+    LIST (c);
 
-CREATE TABLE pagg_tab_p1 PARTITION OF pagg_tab
-FOR VALUES IN ('0000', '0001', '0002', '0003');
+CREATE TABLE pagg_tab_p1 PARTITION OF pagg_tab FOR
+VALUES
+    IN ('0000', '0001', '0002', '0003');
 
-CREATE TABLE pagg_tab_p2 PARTITION OF pagg_tab
-FOR VALUES IN ('0004', '0005', '0006', '0007');
+CREATE TABLE pagg_tab_p2 PARTITION OF pagg_tab FOR
+VALUES
+    IN ('0004', '0005', '0006', '0007');
 
-CREATE TABLE pagg_tab_p3 PARTITION OF pagg_tab
-FOR VALUES IN ('0008', '0009', '0010', '0011');
+CREATE TABLE pagg_tab_p3 PARTITION OF pagg_tab FOR
+VALUES
+    IN ('0008', '0009', '0010', '0011');
 
-INSERT INTO pagg_tab
+INSERT INTO
+    pagg_tab
 SELECT
     i % 20,
     i % 30,
@@ -43,9 +46,7 @@ FROM
 ANALYZE pagg_tab;
 
 -- When GROUP BY clause matches; full aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     sum(a),
@@ -83,9 +84,7 @@ ORDER BY
     3;
 
 -- When GROUP BY clause does not match; partial aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -123,9 +122,7 @@ ORDER BY
     3;
 
 -- Check with multiple columns in GROUP BY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     c,
@@ -137,9 +134,7 @@ GROUP BY
     c;
 
 -- Check with multiple columns in GROUP BY, order in GROUP BY is reversed
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     c,
@@ -151,9 +146,7 @@ GROUP BY
     a;
 
 -- Check with multiple columns in GROUP BY, order in target-list is reversed
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     a,
@@ -165,9 +158,7 @@ GROUP BY
     c;
 
 -- Test when input relation for grouping is dummy
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     sum(a)
@@ -188,9 +179,7 @@ WHERE
 GROUP BY
     c;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     sum(a)
@@ -212,12 +201,11 @@ GROUP BY
     c;
 
 -- Test GroupAggregate paths by disabling hash aggregates.
-SET enable_hashagg TO FALSE;
+SET
+    enable_hashagg TO FALSE;
 
 -- When GROUP BY clause matches full aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     sum(a),
@@ -251,9 +239,7 @@ ORDER BY
     3;
 
 -- When GROUP BY clause does not match; partial aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -287,9 +273,7 @@ ORDER BY
     3;
 
 -- Test partitionwise grouping without any aggregates
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c
 FROM
@@ -308,9 +292,7 @@ GROUP BY
 ORDER BY
     1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a
 FROM
@@ -336,16 +318,14 @@ ORDER BY
 RESET enable_hashagg;
 
 -- ROLLUP, partitionwise aggregation does not apply
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
     sum(a)
 FROM
     pagg_tab
 GROUP BY
-    ROLLUP (c)
+    rollup (c)
 ORDER BY
     1,
     2;
@@ -354,12 +334,13 @@ ORDER BY
 -- Full aggregation; since all the rows that belong to the same group come
 -- from the same partition, having an ORDER BY within the aggregate doesn't
 -- make any difference.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     c,
-    sum(b ORDER BY a)
+    sum (
+        b
+        ORDER BY
+            a)
 FROM
     pagg_tab
 GROUP BY
@@ -371,12 +352,13 @@ ORDER BY
 -- Since GROUP BY clause does not match with PARTITION KEY; we need to do
 -- partial aggregation. However, ORDERED SET are not partial safe and thus
 -- partitionwise aggregation plan is not generated.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
-    sum(b ORDER BY a)
+    sum (
+        b
+        ORDER BY
+            a)
 FROM
     pagg_tab
 GROUP BY
@@ -386,44 +368,54 @@ ORDER BY
     2;
 
 -- JOIN query
-CREATE TABLE pagg_tab1 (
-    x int,
-    y int
-)
-PARTITION BY RANGE (x);
+CREATE TABLE pagg_tab1 (x int, y int)
+PARTITION BY
+    RANGE (x);
 
-CREATE TABLE pagg_tab1_p1 PARTITION OF pagg_tab1
-FOR VALUES FROM (0) TO (10);
+CREATE TABLE pagg_tab1_p1 PARTITION OF pagg_tab1 FOR
+VALUES
+FROM
+    (0) TO (10);
 
-CREATE TABLE pagg_tab1_p2 PARTITION OF pagg_tab1
-FOR VALUES FROM (10) TO (20);
+CREATE TABLE pagg_tab1_p2 PARTITION OF pagg_tab1 FOR
+VALUES
+FROM
+    (10) TO (20);
 
-CREATE TABLE pagg_tab1_p3 PARTITION OF pagg_tab1
-FOR VALUES FROM (20) TO (30);
+CREATE TABLE pagg_tab1_p3 PARTITION OF pagg_tab1 FOR
+VALUES
+FROM
+    (20) TO (30);
 
-CREATE TABLE pagg_tab2 (
-    x int,
-    y int
-)
-PARTITION BY RANGE (y);
+CREATE TABLE pagg_tab2 (x int, y int)
+PARTITION BY
+    RANGE (y);
 
-CREATE TABLE pagg_tab2_p1 PARTITION OF pagg_tab2
-FOR VALUES FROM (0) TO (10);
+CREATE TABLE pagg_tab2_p1 PARTITION OF pagg_tab2 FOR
+VALUES
+FROM
+    (0) TO (10);
 
-CREATE TABLE pagg_tab2_p2 PARTITION OF pagg_tab2
-FOR VALUES FROM (10) TO (20);
+CREATE TABLE pagg_tab2_p2 PARTITION OF pagg_tab2 FOR
+VALUES
+FROM
+    (10) TO (20);
 
-CREATE TABLE pagg_tab2_p3 PARTITION OF pagg_tab2
-FOR VALUES FROM (20) TO (30);
+CREATE TABLE pagg_tab2_p3 PARTITION OF pagg_tab2 FOR
+VALUES
+FROM
+    (20) TO (30);
 
-INSERT INTO pagg_tab1
+INSERT INTO
+    pagg_tab1
 SELECT
     i % 30,
     i % 20
 FROM
     generate_series(0, 299, 2) i;
 
-INSERT INTO pagg_tab2
+INSERT INTO
+    pagg_tab2
 SELECT
     i % 20,
     i % 30
@@ -435,9 +427,7 @@ ANALYZE pagg_tab1;
 ANALYZE pagg_tab2;
 
 -- When GROUP BY clause matches; full aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     t1.x,
     sum(t1.y),
@@ -471,9 +461,7 @@ ORDER BY
     3;
 
 -- Check with whole-row reference; partitionwise aggregation does not apply
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     t1.x,
     sum(t1.y),
@@ -507,9 +495,7 @@ ORDER BY
     3;
 
 -- GROUP BY having other matching key
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     t2.y,
     sum(t1.y),
@@ -528,11 +514,10 @@ ORDER BY
 
 -- When GROUP BY clause does not match; partial aggregation is performed for each partition.
 -- Also test GroupAggregate paths by disabling hash aggregates.
-SET enable_hashagg TO FALSE;
+SET
+    enable_hashagg TO FALSE;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     t1.y,
     sum(t1.x),
@@ -575,9 +560,7 @@ RESET enable_hashagg;
 -- aggregation
 -- LEFT JOIN, should produce partial partitionwise aggregation plan as
 -- GROUP BY is on nullable column
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     b.y,
     sum(a.y)
@@ -602,9 +585,7 @@ ORDER BY
 
 -- RIGHT JOIN, should produce full partitionwise aggregation plan as
 -- GROUP BY is on non-nullable column
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     b.y,
     sum(a.y)
@@ -629,9 +610,7 @@ ORDER BY
 
 -- FULL JOIN, should produce partial partitionwise aggregation plan as
 -- GROUP BY is on nullable column
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a.x,
     sum(b.x)
@@ -658,20 +637,18 @@ ORDER BY
 -- should produce full partitionwise aggregation plan as GROUP BY is on
 -- non-nullable columns.
 -- But right now we are unable to do partitionwise join in this case.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a.x,
     b.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x < 20) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x < 20) a
     LEFT JOIN (
         SELECT
             *
@@ -694,12 +671,12 @@ SELECT
     b.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x < 20) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x < 20) a
     LEFT JOIN (
         SELECT
             *
@@ -721,20 +698,18 @@ ORDER BY
 -- should produce partial partitionwise aggregation plan as GROUP BY is on
 -- nullable columns.
 -- But right now we are unable to do partitionwise join in this case.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a.x,
     b.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x < 20) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x < 20) a
     FULL JOIN (
         SELECT
             *
@@ -757,12 +732,12 @@ SELECT
     b.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x < 20) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x < 20) a
     FULL JOIN (
         SELECT
             *
@@ -781,21 +756,19 @@ ORDER BY
     2;
 
 -- Empty join relation because of empty outer side, no partitionwise agg plan
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a.x,
     a.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x = 1
-        AND x = 2) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x = 1
+            AND x = 2) a
     LEFT JOIN pagg_tab2 b ON a.x = b.y
 GROUP BY
     a.x,
@@ -809,13 +782,13 @@ SELECT
     a.y,
     count(*)
 FROM (
-    SELECT
-        *
-    FROM
-        pagg_tab1
-    WHERE
-        x = 1
-        AND x = 2) a
+        SELECT
+            *
+        FROM
+            pagg_tab1
+        WHERE
+            x = 1
+            AND x = 2) a
     LEFT JOIN pagg_tab2 b ON a.x = b.y
 GROUP BY
     a.x,
@@ -825,23 +798,27 @@ ORDER BY
     2;
 
 -- Partition by multiple columns
-CREATE TABLE pagg_tab_m (
-    a int,
-    b int,
-    c int
-)
-PARTITION BY RANGE (a, ((a + b) / 2));
+CREATE TABLE pagg_tab_m (a int, b int, c int)
+PARTITION BY
+    RANGE (a, ((a + b) / 2));
 
-CREATE TABLE pagg_tab_m_p1 PARTITION OF pagg_tab_m
-FOR VALUES FROM (0, 0) TO (10, 10);
+CREATE TABLE pagg_tab_m_p1 PARTITION OF pagg_tab_m FOR
+VALUES
+FROM
+    (0, 0) TO (10, 10);
 
-CREATE TABLE pagg_tab_m_p2 PARTITION OF pagg_tab_m
-FOR VALUES FROM (10, 10) TO (20, 20);
+CREATE TABLE pagg_tab_m_p2 PARTITION OF pagg_tab_m FOR
+VALUES
+FROM
+    (10, 10) TO (20, 20);
 
-CREATE TABLE pagg_tab_m_p3 PARTITION OF pagg_tab_m
-FOR VALUES FROM (20, 20) TO (30, 30);
+CREATE TABLE pagg_tab_m_p3 PARTITION OF pagg_tab_m FOR
+VALUES
+FROM
+    (20, 20) TO (30, 30);
 
-INSERT INTO pagg_tab_m
+INSERT INTO
+    pagg_tab_m
 SELECT
     i % 30,
     i % 40,
@@ -852,9 +829,7 @@ FROM
 ANALYZE pagg_tab_m;
 
 -- Partial aggregation as GROUP BY clause does not match with PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -888,9 +863,7 @@ ORDER BY
     3;
 
 -- Full aggregation as GROUP BY clause matches with PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -926,9 +899,7 @@ ORDER BY
     3;
 
 -- Full aggregation as PARTITION KEY is part of GROUP BY clause
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     c,
@@ -970,50 +941,54 @@ ORDER BY
     3;
 
 -- Test with multi-level partitioning scheme
-CREATE TABLE pagg_tab_ml (
-    a int,
-    b int,
-    c text
-)
-PARTITION BY RANGE (a);
+CREATE TABLE pagg_tab_ml (a int, b int, c text)
+PARTITION BY
+    RANGE (a);
 
-CREATE TABLE pagg_tab_ml_p1 PARTITION OF pagg_tab_ml
-FOR VALUES FROM (0) TO (10);
+CREATE TABLE pagg_tab_ml_p1 PARTITION OF pagg_tab_ml FOR
+VALUES
+FROM
+    (0) TO (10);
 
-CREATE TABLE pagg_tab_ml_p2 PARTITION OF pagg_tab_ml
-FOR VALUES FROM (10) TO (20)
-PARTITION BY LIST (c);
+CREATE TABLE pagg_tab_ml_p2 PARTITION OF pagg_tab_ml FOR
+VALUES
+FROM
+    (10) TO (20)
+PARTITION BY
+    LIST (c);
 
-CREATE TABLE pagg_tab_ml_p2_s1 PARTITION OF pagg_tab_ml_p2
-FOR VALUES IN ('0000', '0001');
+CREATE TABLE pagg_tab_ml_p2_s1 PARTITION OF pagg_tab_ml_p2 FOR
+VALUES
+    IN ('0000', '0001');
 
-CREATE TABLE pagg_tab_ml_p2_s2 PARTITION OF pagg_tab_ml_p2
-FOR VALUES IN ('0002', '0003');
+CREATE TABLE pagg_tab_ml_p2_s2 PARTITION OF pagg_tab_ml_p2 FOR
+VALUES
+    IN ('0002', '0003');
 
 -- This level of partitioning has different column positions than the parent
-CREATE TABLE pagg_tab_ml_p3 (
-    b int,
-    c text,
-    a int
-)
-PARTITION BY RANGE (b);
+CREATE TABLE pagg_tab_ml_p3 (b int, c text, a int)
+PARTITION BY
+    RANGE (b);
 
-CREATE TABLE pagg_tab_ml_p3_s1 (
-    c text,
-    a int,
-    b int
-);
+CREATE TABLE pagg_tab_ml_p3_s1 (c text, a int, b int);
 
-CREATE TABLE pagg_tab_ml_p3_s2 PARTITION OF pagg_tab_ml_p3
-FOR VALUES FROM (5) TO (10);
+CREATE TABLE pagg_tab_ml_p3_s2 PARTITION OF pagg_tab_ml_p3 FOR
+VALUES
+FROM
+    (5) TO (10);
 
-ALTER TABLE pagg_tab_ml_p3 ATTACH PARTITION pagg_tab_ml_p3_s1
-FOR VALUES FROM (0) TO (5);
+ALTER TABLE pagg_tab_ml_p3 ATTACH PARTITION pagg_tab_ml_p3_s1 FOR
+VALUES
+FROM
+    (0) TO (5);
 
-ALTER TABLE pagg_tab_ml ATTACH PARTITION pagg_tab_ml_p3
-FOR VALUES FROM (20) TO (30);
+ALTER TABLE pagg_tab_ml ATTACH PARTITION pagg_tab_ml_p3 FOR
+VALUES
+FROM
+    (20) TO (30);
 
-INSERT INTO pagg_tab_ml
+INSERT INTO
+    pagg_tab_ml
 SELECT
     i % 30,
     i % 10,
@@ -1024,15 +999,14 @@ FROM
 ANALYZE pagg_tab_ml;
 
 -- For Parallel Append
-SET max_parallel_workers_per_gather TO 2;
+SET
+    max_parallel_workers_per_gather TO 2;
 
 -- Full aggregation at level 1 as GROUP BY clause matches with PARTITION KEY
 -- for level 1 only. For subpartitions, GROUP BY clause does not match with
 -- PARTITION KEY, but still we do not see a partial aggregation as array_agg()
 -- is not partial agg safe.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1066,9 +1040,7 @@ ORDER BY
     3;
 
 -- Without ORDER BY clause, to test Gather at top-most path
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1084,9 +1056,7 @@ HAVING
 -- Full aggregation at level 1 as GROUP BY clause matches with PARTITION KEY
 -- for level 1 only. For subpartitions, GROUP BY clause does not match with
 -- PARTITION KEY, thus we will have a partial aggregation for them.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1119,9 +1089,7 @@ ORDER BY
 
 -- Partial aggregation at all levels as GROUP BY clause does not match with
 -- PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     b,
     sum(a),
@@ -1151,9 +1119,7 @@ ORDER BY
     3;
 
 -- Full aggregation at all levels as GROUP BY clause matches with PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1189,16 +1155,16 @@ ORDER BY
     3;
 
 -- Parallelism within partitionwise aggregates
-SET min_parallel_table_scan_size TO '8kB';
+SET
+    min_parallel_table_scan_size TO '8kB';
 
-SET parallel_setup_cost TO 0;
+SET
+    parallel_setup_cost TO 0;
 
 -- Full aggregation at level 1 as GROUP BY clause matches with PARTITION KEY
 -- for level 1 only. For subpartitions, GROUP BY clause does not match with
 -- PARTITION KEY, thus we will have a partial aggregation for them.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1231,9 +1197,7 @@ ORDER BY
 
 -- Partial aggregation at all levels as GROUP BY clause does not match with
 -- PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     b,
     sum(a),
@@ -1263,9 +1227,7 @@ ORDER BY
     3;
 
 -- Full aggregation at all levels as GROUP BY clause matches with PARTITION KEY
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     a,
     sum(b),
@@ -1308,24 +1270,30 @@ ORDER BY
 -- for each partition and then Append over it turns out to be same and this
 -- wins as we add it first. This parallel_setup_cost plays a vital role in
 -- costing such plans.
-SET parallel_setup_cost TO 10;
+SET
+    parallel_setup_cost TO 10;
 
-CREATE TABLE pagg_tab_para (
-    x int,
-    y int
-)
-PARTITION BY RANGE (x);
+CREATE TABLE pagg_tab_para (x int, y int)
+PARTITION BY
+    RANGE (x);
 
-CREATE TABLE pagg_tab_para_p1 PARTITION OF pagg_tab_para
-FOR VALUES FROM (0) TO (10);
+CREATE TABLE pagg_tab_para_p1 PARTITION OF pagg_tab_para FOR
+VALUES
+FROM
+    (0) TO (10);
 
-CREATE TABLE pagg_tab_para_p2 PARTITION OF pagg_tab_para
-FOR VALUES FROM (10) TO (20);
+CREATE TABLE pagg_tab_para_p2 PARTITION OF pagg_tab_para FOR
+VALUES
+FROM
+    (10) TO (20);
 
-CREATE TABLE pagg_tab_para_p3 PARTITION OF pagg_tab_para
-FOR VALUES FROM (20) TO (30);
+CREATE TABLE pagg_tab_para_p3 PARTITION OF pagg_tab_para FOR
+VALUES
+FROM
+    (20) TO (30);
 
-INSERT INTO pagg_tab_para
+INSERT INTO
+    pagg_tab_para
 SELECT
     i % 30,
     i % 20
@@ -1335,9 +1303,7 @@ FROM
 ANALYZE pagg_tab_para;
 
 -- When GROUP BY clause matches; full aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     x,
     sum(y),
@@ -1371,9 +1337,7 @@ ORDER BY
     3;
 
 -- When GROUP BY clause does not match; partial aggregation is performed for each partition.
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     y,
     sum(x),
@@ -1407,15 +1371,17 @@ ORDER BY
     3;
 
 -- Test when parent can produce parallel paths but not any (or some) of its children
-ALTER TABLE pagg_tab_para_p1 SET (parallel_workers = 0);
+ALTER TABLE pagg_tab_para_p1
+SET
+    (parallel_workers = 0);
 
-ALTER TABLE pagg_tab_para_p3 SET (parallel_workers = 0);
+ALTER TABLE pagg_tab_para_p3
+SET
+    (parallel_workers = 0);
 
 ANALYZE pagg_tab_para;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     x,
     sum(y),
@@ -1448,13 +1414,13 @@ ORDER BY
     2,
     3;
 
-ALTER TABLE pagg_tab_para_p2 SET (parallel_workers = 0);
+ALTER TABLE pagg_tab_para_p2
+SET
+    (parallel_workers = 0);
 
 ANALYZE pagg_tab_para;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     x,
     sum(y),
@@ -1492,9 +1458,7 @@ RESET min_parallel_table_scan_size;
 
 RESET parallel_setup_cost;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     x,
     sum(y),
@@ -1526,4 +1490,3 @@ ORDER BY
     1,
     2,
     3;
-

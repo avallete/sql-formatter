@@ -11,177 +11,122 @@
 -- into the standard integer_ops opfamily.
 CREATE TYPE int8alias1;
 
-CREATE FUNCTION int8alias1in (cstring)
-    RETURNS int8alias1 STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8in';
+CREATE FUNCTION int8alias1in (cstring) returns int8alias1 strict immutable language internal AS 'int8in';
 
-CREATE FUNCTION int8alias1out (int8alias1)
-    RETURNS cstring STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8out';
+CREATE FUNCTION int8alias1out (int8alias1) returns cstring strict immutable language internal AS 'int8out';
 
 CREATE TYPE int8alias1 (
     input = int8alias1in,
     output = int8alias1out,
-    LIKE = int8
-);
+    LIKE = int8);
 
 CREATE TYPE int8alias2;
 
-CREATE FUNCTION int8alias2in (cstring)
-    RETURNS int8alias2 STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8in';
+CREATE FUNCTION int8alias2in (cstring) returns int8alias2 strict immutable language internal AS 'int8in';
 
-CREATE FUNCTION int8alias2out (int8alias2)
-    RETURNS cstring STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8out';
+CREATE FUNCTION int8alias2out (int8alias2) returns cstring strict immutable language internal AS 'int8out';
 
 CREATE TYPE int8alias2 (
     input = int8alias2in,
     output = int8alias2out,
-    LIKE = int8
-);
+    LIKE = int8);
 
-CREATE CAST (int8 AS int8alias1) WITHOUT FUNCTION;
+CREATE CAST (int8 AS int8alias1) WITHOUT function;
 
-CREATE CAST (int8 AS int8alias2) WITHOUT FUNCTION;
+CREATE CAST (int8 AS int8alias2) WITHOUT function;
 
-CREATE CAST (int8alias1 AS int8) WITHOUT FUNCTION;
+CREATE CAST (int8alias1 AS int8) WITHOUT function;
 
-CREATE CAST (int8alias2 AS int8) WITHOUT FUNCTION;
+CREATE CAST (int8alias2 AS int8) WITHOUT function;
 
-CREATE FUNCTION int8alias1eq (int8alias1, int8alias1)
-    RETURNS bool STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8eq';
+CREATE FUNCTION int8alias1eq (int8alias1, int8alias1) returns bool strict immutable language internal AS 'int8eq';
 
 CREATE OPERATOR = (
-    PROCEDURE = int8alias1eq,
-    LEFTARG = int8alias1,
-    RIGHTARG = int8alias1,
+    procedure = int8alias1eq,
+    leftarg = int8alias1,
+    rightarg = int8alias1,
     commutator = =,
-    RESTRICT = eqsel,
+    restrict = eqsel,
     JOIN = eqjoinsel,
-    MERGES
-);
+    merges);
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD OPERATOR 3 = (int8alias1, int8alias1);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD operator 3 = (int8alias1, int8alias1);
 
-CREATE FUNCTION int8alias2eq (int8alias2, int8alias2)
-    RETURNS bool STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8eq';
+CREATE FUNCTION int8alias2eq (int8alias2, int8alias2) returns bool strict immutable language internal AS 'int8eq';
 
 CREATE OPERATOR = (
-    PROCEDURE = int8alias2eq,
-    LEFTARG = int8alias2,
-    RIGHTARG = int8alias2,
+    procedure = int8alias2eq,
+    leftarg = int8alias2,
+    rightarg = int8alias2,
     commutator = =,
-    RESTRICT = eqsel,
+    restrict = eqsel,
     JOIN = eqjoinsel,
-    MERGES
-);
+    merges);
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD OPERATOR 3 = (int8alias2, int8alias2);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD operator 3 = (int8alias2, int8alias2);
 
-CREATE FUNCTION int8alias1eq (int8, int8alias1)
-    RETURNS bool STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8eq';
+CREATE FUNCTION int8alias1eq (int8, int8alias1) returns bool strict immutable language internal AS 'int8eq';
 
 CREATE OPERATOR = (
-    PROCEDURE = int8alias1eq,
-    LEFTARG = int8,
-    RIGHTARG = int8alias1,
-    RESTRICT = eqsel,
+    procedure = int8alias1eq,
+    leftarg = int8,
+    rightarg = int8alias1,
+    restrict = eqsel,
     JOIN = eqjoinsel,
-    MERGES
-);
+    merges);
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD OPERATOR 3 = (int8, int8alias1);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD operator 3 = (int8, int8alias1);
 
-CREATE FUNCTION int8alias1eq (int8alias1, int8alias2)
-    RETURNS bool STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8eq';
+CREATE FUNCTION int8alias1eq (int8alias1, int8alias2) returns bool strict immutable language internal AS 'int8eq';
 
 CREATE OPERATOR = (
-    PROCEDURE = int8alias1eq,
-    LEFTARG = int8alias1,
-    RIGHTARG = int8alias2,
-    RESTRICT = eqsel,
+    procedure = int8alias1eq,
+    leftarg = int8alias1,
+    rightarg = int8alias2,
+    restrict = eqsel,
     JOIN = eqjoinsel,
-    MERGES
-);
+    merges);
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD OPERATOR 3 = (int8alias1, int8alias2);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD operator 3 = (int8alias1, int8alias2);
 
-CREATE FUNCTION int8alias1lt (int8alias1, int8alias1)
-    RETURNS bool STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'int8lt';
+CREATE FUNCTION int8alias1lt (int8alias1, int8alias1) returns bool strict immutable language internal AS 'int8lt';
 
 CREATE OPERATOR < (
-    PROCEDURE = int8alias1lt,
-    LEFTARG = int8alias1,
-    RIGHTARG = int8alias1
-);
+    procedure = int8alias1lt,
+    leftarg = int8alias1,
+    rightarg = int8alias1);
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD OPERATOR 1 < (int8alias1, int8alias1);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD operator 1 < (int8alias1, int8alias1);
 
-CREATE FUNCTION int8alias1cmp (int8, int8alias1)
-    RETURNS int STRICT IMMUTABLE
-    LANGUAGE internal
-    AS 'btint8cmp';
+CREATE FUNCTION int8alias1cmp (int8, int8alias1) returns int strict immutable language internal AS 'btint8cmp';
 
-ALTER OPERATOR family integer_ops
-    USING btree
-        ADD FUNCTION 1 int8alias1cmp (int8, int8alias1);
+ALTER OPERATOR FAMILY integer_ops USING btree
+ADD function 1 int8alias1cmp (int8, int8alias1);
 
-CREATE TABLE ec0 (
-    ff int8 PRIMARY KEY,
-    f1 int8,
-    f2 int8
-);
+CREATE TABLE ec0 (ff int8 PRIMARY KEY, f1 int8, f2 int8);
 
-CREATE TABLE ec1 (
-    ff int8 PRIMARY KEY,
-    f1 int8alias1,
-    f2 int8alias2
-);
+CREATE TABLE ec1 (ff int8 PRIMARY KEY, f1 int8alias1, f2 int8alias2);
 
-CREATE TABLE ec2 (
-    xf int8 PRIMARY KEY,
-    x1 int8alias1,
-    x2 int8alias2
-);
+CREATE TABLE ec2 (xf int8 PRIMARY KEY, x1 int8alias1, x2 int8alias2);
 
 -- for the moment we only want to look at nestloop plans
-SET enable_hashjoin = OFF;
+SET
+    enable_hashjoin = off;
 
-SET enable_mergejoin = OFF;
+SET
+    enable_mergejoin = off;
 
 --
 -- Note that for cases where there's a missing operator, we don't care so
 -- much whether the plan is ideal as that we don't fail or generate an
 -- outright incorrect plan.
 --
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -190,9 +135,7 @@ WHERE
     ff = f1
     AND f1 = '42'::int8;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -201,9 +144,7 @@ WHERE
     ff = f1
     AND f1 = '42'::int8alias1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -212,9 +153,7 @@ WHERE
     ff = f1
     AND f1 = '42'::int8alias1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -223,9 +162,7 @@ WHERE
     ff = f1
     AND f1 = '42'::int8alias2;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -235,9 +172,7 @@ WHERE
     ff = x1
     AND ff = '42'::int8;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -247,9 +182,7 @@ WHERE
     ff = x1
     AND ff = '42'::int8alias1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -259,9 +192,7 @@ WHERE
     ff = x1
     AND '42'::int8 = x1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -271,9 +202,7 @@ WHERE
     ff = x1
     AND x1 = '42'::int8alias1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -291,26 +220,23 @@ CREATE UNIQUE INDEX ec1_expr3 ON ec1 ((ff + 3 + 1));
 
 CREATE UNIQUE INDEX ec1_expr4 ON ec1 ((ff + 4));
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -320,26 +246,23 @@ WHERE
     ss1.x = ec1.f1
     AND ec1.ff = 42::int8;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -350,44 +273,40 @@ WHERE
     AND ec1.ff = 42::int8
     AND ec1.ff = ec1.f1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
         FROM
-            ec1) AS ss1,
-    (
+            ec1) AS ss1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -399,48 +318,46 @@ WHERE
     AND ec1.ff = 42::int8;
 
 -- let's try that as a mergejoin
-SET enable_mergejoin = ON;
+SET
+    enable_mergejoin = ON;
 
-SET enable_nestloop = OFF;
+SET
+    enable_nestloop = off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
         FROM
-            ec1) AS ss1,
-    (
+            ec1) AS ss1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -452,32 +369,31 @@ WHERE
     AND ec1.ff = 42::int8;
 
 -- check partially indexed scan
-SET enable_nestloop = ON;
+SET
+    enable_nestloop = ON;
 
-SET enable_mergejoin = OFF;
+SET
+    enable_mergejoin = off;
 
 DROP INDEX ec1_expr3;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -488,30 +404,29 @@ WHERE
     AND ec1.ff = 42::int8;
 
 -- let's try that as a mergejoin
-SET enable_mergejoin = ON;
+SET
+    enable_mergejoin = ON;
 
-SET enable_nestloop = OFF;
+SET
+    enable_nestloop = off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    ec1,
-    (
+    ec1, (
         SELECT
             ff + 1 AS x
         FROM (
-            SELECT
-                ff + 2 AS ff
-            FROM
-                ec1
-            UNION ALL
-            SELECT
-                ff + 3 AS ff
-            FROM
-                ec1) ss0
+                SELECT
+                    ff + 2 AS ff
+                FROM
+                    ec1
+                UNION ALL
+                SELECT
+                    ff + 3 AS ff
+                FROM
+                    ec1) ss0
         UNION ALL
         SELECT
             ff + 4 AS x
@@ -522,25 +437,28 @@ WHERE
     AND ec1.ff = 42::int8;
 
 -- check effects of row-level security
-SET enable_nestloop = ON;
+SET
+    enable_nestloop = ON;
 
-SET enable_mergejoin = OFF;
+SET
+    enable_mergejoin = off;
 
-ALTER TABLE ec1 ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ec1 enable ROW level security;
 
-CREATE POLICY p1 ON ec1
-    USING (f1 < '5'::int8alias1);
+CREATE POLICY p1 ON ec1 USING (f1 < '5'::int8alias1);
 
 CREATE USER regress_user_ectest;
 
-GRANT SELECT ON ec0 TO regress_user_ectest;
+GRANT
+SELECT
+    ON ec0 TO regress_user_ectest;
 
-GRANT SELECT ON ec1 TO regress_user_ectest;
+GRANT
+SELECT
+    ON ec1 TO regress_user_ectest;
 
 -- without any RLS, we'll treat {a.ff, b.ff, 43} as an EquivalenceClass
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -550,14 +468,12 @@ WHERE
     a.ff = b.ff
     AND a.ff = 43::bigint::int8alias1;
 
-SET session AUTHORIZATION regress_user_ectest;
+SET SESSION AUTHORIZATION regress_user_ectest;
 
 -- with RLS active, the non-leakproof a.ff = 43 clause is not treated
 -- as a suitable source for an EquivalenceClass; currently, this is true
 -- even though the RLS clause has nothing to do directly with the EC
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -567,18 +483,24 @@ WHERE
     a.ff = b.ff
     AND a.ff = 43::bigint::int8alias1;
 
-RESET session AUTHORIZATION;
+RESET SESSION AUTHORIZATION;
 
-REVOKE SELECT ON ec0 FROM regress_user_ectest;
+REVOKE
+SELECT
+    ON ec0
+FROM
+    regress_user_ectest;
 
-REVOKE SELECT ON ec1 FROM regress_user_ectest;
+REVOKE
+SELECT
+    ON ec1
+FROM
+    regress_user_ectest;
 
 DROP USER regress_user_ectest;
 
 -- check that X=X is converted to X IS NOT NULL when appropriate
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -588,9 +510,7 @@ WHERE
     AND unique2 = unique2;
 
 -- this could be converted, but isn't at present
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -598,4 +518,3 @@ FROM
 WHERE
     unique1 = unique1
     OR unique2 = unique2;
-

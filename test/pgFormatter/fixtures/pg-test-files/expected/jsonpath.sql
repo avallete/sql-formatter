@@ -84,10 +84,10 @@ SELECT
     '1 * 2 + 4 % -3 != false'::jsonpath;
 
 SELECT
-    '"\b\f\r\n\t\v\"\'' \\ "'::jsonpath;
+    '"\b\f\r\n\t\v\"\''\\"'::jsonpath;
 
 SELECT
-    '''\b\f\r\n\t\v\"\''\\'' '::jsonpath;
+    '''\b\f\r\n\t\v\"\''\\'''::jsonpath;
 
 SELECT
     '"\x50\u0067\u{53}\u{051}\u{00004C}"'::jsonpath;
@@ -493,4 +493,3 @@ SELECT
 
 SELECT
     '(1.).e3'::jsonpath;
-

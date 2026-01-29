@@ -10,7 +10,9 @@ CREATE SCHEMA temp_func_test;
 
 GRANT ALL ON SCHEMA temp_func_test TO public;
 
-SET search_path TO temp_func_test, public;
+SET
+    search_path TO temp_func_test,
+    public;
 
 --
 -- Make sanity checks on the pg_proc entries created by CREATE FUNCTION
@@ -18,30 +20,11 @@ SET search_path TO temp_func_test, public;
 --
 -- ARGUMENT and RETURN TYPES
 --
-CREATE FUNCTION functest_A_1 (text, date)
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1 = ''abcd''
-        AND $2 > ''2001-01-01'';
-';
+CREATE FUNCTION functest_A_1 (text, date) RETURNS bool LANGUAGE 'sql' AS 'SELECT $1 = ''abcd'' AND $2 > ''2001-01-01''';
 
-CREATE FUNCTION functest_A_2 (text[])
-    RETURNS int
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1[0]::int;
-';
+CREATE FUNCTION functest_A_2 (TEXT[]) RETURNS int LANGUAGE 'sql' AS 'SELECT $1[0]::int';
 
-CREATE FUNCTION functest_A_3 ()
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        FALSE;
-';
+CREATE FUNCTION functest_A_3 () RETURNS bool LANGUAGE 'sql' AS 'SELECT false';
 
 SELECT
     proname,
@@ -50,47 +33,23 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_A_1'::regproc, 'functest_A_2'::regproc, 'functest_A_3'::regproc)
+    oid IN (
+        'functest_A_1'::regproc,
+        'functest_A_2'::regproc,
+        'functest_A_3'::regproc)
 ORDER BY
     proname;
 
 --
 -- IMMUTABLE | STABLE | VOLATILE
 --
-CREATE FUNCTION functest_B_1 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1 > 0;
-';
+CREATE FUNCTION functest_B_1 (int) RETURNS bool LANGUAGE 'sql' AS 'SELECT $1 > 0';
 
-CREATE FUNCTION functest_B_2 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    IMMUTABLE
-    AS '
-    SELECT
-        $1 > 0;
-';
+CREATE FUNCTION functest_B_2 (int) RETURNS bool LANGUAGE 'sql' IMMUTABLE AS 'SELECT $1 > 0';
 
-CREATE FUNCTION functest_B_3 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    STABLE
-    AS '
-    SELECT
-        $1 = 0;
-';
+CREATE FUNCTION functest_B_3 (int) RETURNS bool LANGUAGE 'sql' STABLE AS 'SELECT $1 = 0';
 
-CREATE FUNCTION functest_B_4 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    VOLATILE
-    AS '
-    SELECT
-        $1 < 0;
-';
+CREATE FUNCTION functest_B_4 (int) RETURNS bool LANGUAGE 'sql' VOLATILE AS 'SELECT $1 < 0';
 
 SELECT
     proname,
@@ -98,7 +57,11 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_B_1'::regproc, 'functest_B_2'::regproc, 'functest_B_3'::regproc, 'functest_B_4'::regproc)
+    oid IN (
+        'functest_B_1'::regproc,
+        'functest_B_2'::regproc,
+        'functest_B_3'::regproc,
+        'functest_B_4'::regproc)
 ORDER BY
     proname;
 
@@ -113,38 +76,22 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_B_1'::regproc, 'functest_B_2'::regproc, 'functest_B_3'::regproc, 'functest_B_4'::regproc)
+    oid IN (
+        'functest_B_1'::regproc,
+        'functest_B_2'::regproc,
+        'functest_B_3'::regproc,
+        'functest_B_4'::regproc)
 ORDER BY
     proname;
 
 --
 -- SECURITY DEFINER | INVOKER
 --
-CREATE FUNCTION functest_C_1 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1 > 0;
-';
+CREATE FUNCTION functest_C_1 (int) RETURNS bool LANGUAGE 'sql' AS 'SELECT $1 > 0';
 
-CREATE FUNCTION functest_C_2 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    SECURITY DEFINER
-    AS '
-    SELECT
-        $1 = 0;
-';
+CREATE FUNCTION functest_C_2 (int) RETURNS bool LANGUAGE 'sql' SECURITY DEFINER AS 'SELECT $1 = 0';
 
-CREATE FUNCTION functest_C_3 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    SECURITY INVOKER
-    AS '
-    SELECT
-        $1 < 0;
-';
+CREATE FUNCTION functest_C_3 (int) RETURNS bool LANGUAGE 'sql' SECURITY INVOKER AS 'SELECT $1 < 0';
 
 SELECT
     proname,
@@ -152,7 +99,10 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_C_1'::regproc, 'functest_C_2'::regproc, 'functest_C_3'::regproc)
+    oid IN (
+        'functest_C_1'::regproc,
+        'functest_C_2'::regproc,
+        'functest_C_3'::regproc)
 ORDER BY
     proname;
 
@@ -169,29 +119,19 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_C_1'::regproc, 'functest_C_2'::regproc, 'functest_C_3'::regproc)
+    oid IN (
+        'functest_C_1'::regproc,
+        'functest_C_2'::regproc,
+        'functest_C_3'::regproc)
 ORDER BY
     proname;
 
 --
 -- LEAKPROOF
 --
-CREATE FUNCTION functest_E_1 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1 > 100;
-';
+CREATE FUNCTION functest_E_1 (int) RETURNS bool LANGUAGE 'sql' AS 'SELECT $1 > 100';
 
-CREATE FUNCTION functest_E_2 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    LEAKPROOF
-    AS '
-    SELECT
-        $1 > 100;
-';
+CREATE FUNCTION functest_E_2 (int) RETURNS bool LANGUAGE 'sql' LEAKPROOF AS 'SELECT $1 > 100';
 
 SELECT
     proname,
@@ -238,20 +178,15 @@ ALTER FUNCTION functest_E_2 (int) OWNER TO regress_unpriv_user;
 
 SET SESSION AUTHORIZATION regress_unpriv_user;
 
-SET search_path TO temp_func_test, public;
+SET
+    search_path TO temp_func_test,
+    public;
 
 ALTER FUNCTION functest_E_1 (int) NOT LEAKPROOF;
 
 ALTER FUNCTION functest_E_2 (int) LEAKPROOF;
 
-CREATE FUNCTION functest_E_3 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    LEAKPROOF
-    AS '
-    SELECT
-        $1 < 200;
-';
+CREATE FUNCTION functest_E_3 (int) RETURNS bool LANGUAGE 'sql' LEAKPROOF AS 'SELECT $1 < 200';
 
 -- fail
 RESET SESSION AUTHORIZATION;
@@ -259,40 +194,13 @@ RESET SESSION AUTHORIZATION;
 --
 -- CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
 --
-CREATE FUNCTION functest_F_1 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    AS '
-    SELECT
-        $1 > 50;
-';
+CREATE FUNCTION functest_F_1 (int) RETURNS bool LANGUAGE 'sql' AS 'SELECT $1 > 50';
 
-CREATE FUNCTION functest_F_2 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    CALLED ON NULL INPUT
-    AS '
-    SELECT
-        $1 = 50;
-';
+CREATE FUNCTION functest_F_2 (int) RETURNS bool LANGUAGE 'sql' CALLED ON NULL INPUT AS 'SELECT $1 = 50';
 
-CREATE FUNCTION functest_F_3 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    RETURNS NULL ON NULL INPUT
-    AS '
-    SELECT
-        $1 < 50;
-';
+CREATE FUNCTION functest_F_3 (int) RETURNS bool LANGUAGE 'sql' RETURNS NULL ON NULL INPUT AS 'SELECT $1 < 50';
 
-CREATE FUNCTION functest_F_4 (int)
-    RETURNS bool
-    LANGUAGE 'sql'
-    STRICT
-    AS '
-    SELECT
-        $1 = 50;
-';
+CREATE FUNCTION functest_F_4 (int) RETURNS bool LANGUAGE 'sql' STRICT AS 'SELECT $1 = 50';
 
 SELECT
     proname,
@@ -300,7 +208,11 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_F_1'::regproc, 'functest_F_2'::regproc, 'functest_F_3'::regproc, 'functest_F_4'::regproc)
+    oid IN (
+        'functest_F_1'::regproc,
+        'functest_F_2'::regproc,
+        'functest_F_3'::regproc,
+        'functest_F_4'::regproc)
 ORDER BY
     proname;
 
@@ -317,7 +229,11 @@ SELECT
 FROM
     pg_proc
 WHERE
-    oid IN ('functest_F_1'::regproc, 'functest_F_2'::regproc, 'functest_F_3'::regproc, 'functest_F_4'::regproc)
+    oid IN (
+        'functest_F_1'::regproc,
+        'functest_F_2'::regproc,
+        'functest_F_3'::regproc,
+        'functest_F_4'::regproc)
 ORDER BY
     proname;
 
@@ -335,29 +251,11 @@ SELECT
     pg_get_functiondef('functest_F_2'::regproc);
 
 -- information_schema tests
-CREATE FUNCTION functest_IS_1 (a int, b int DEFAULT 1, c text DEFAULT 'foo')
-    RETURNS int
-    LANGUAGE SQL
-    AS '
-    SELECT
-        $1 + $2;
-';
+CREATE FUNCTION functest_IS_1 (a int, b int DEFAULT 1, c text DEFAULT 'foo') RETURNS int LANGUAGE SQL AS 'SELECT $1 + $2';
 
-CREATE FUNCTION functest_IS_2 (out a int, b int DEFAULT 1)
-    RETURNS int
-    LANGUAGE SQL
-    AS '
-    SELECT
-        $1;
-';
+CREATE FUNCTION functest_IS_2 (OUT a int, b int DEFAULT 1) RETURNS int LANGUAGE SQL AS 'SELECT $1';
 
-CREATE FUNCTION functest_IS_3 (a int DEFAULT 1, out b int)
-    RETURNS int
-    LANGUAGE SQL
-    AS '
-    SELECT
-        $1;
-';
+CREATE FUNCTION functest_IS_3 (a int DEFAULT 1, OUT b int) RETURNS int LANGUAGE SQL AS 'SELECT $1';
 
 SELECT
     routine_name,
@@ -374,17 +272,12 @@ ORDER BY
     1,
     2;
 
-DROP FUNCTION functest_IS_1 (int, int, text), functest_IS_2 (int), functest_IS_3 (int);
+DROP FUNCTION functest_IS_1 (int, int, text),
+functest_IS_2 (int),
+functest_IS_3 (int);
 
 -- overload
-CREATE FUNCTION functest_B_2 (bigint)
-    RETURNS bool
-    LANGUAGE 'sql'
-    IMMUTABLE
-    AS '
-    SELECT
-        $1 > 0;
-';
+CREATE FUNCTION functest_B_2 (bigint) RETURNS bool LANGUAGE 'sql' IMMUTABLE AS 'SELECT $1 > 0';
 
 DROP FUNCTION functest_b_1;
 
@@ -395,100 +288,47 @@ DROP FUNCTION functest_b_2;
 
 -- error, ambiguous
 -- CREATE OR REPLACE tests
-CREATE FUNCTION functest1 (a int)
-    RETURNS int
-    LANGUAGE SQL
-    AS '
-    SELECT
-        $1;
-';
+CREATE FUNCTION functest1 (a int) RETURNS int LANGUAGE SQL AS 'SELECT $1';
 
-CREATE OR REPLACE FUNCTION functest1 (a int)
-    RETURNS int
-    LANGUAGE SQL
+CREATE OR REPLACE FUNCTION functest1 (a int) RETURNS int LANGUAGE SQL
 WINDOW
-AS '
-    SELECT
-        $1;
-';
+    AS 'SELECT $1';
 
-CREATE OR REPLACE PROCEDURE functest1 (a int)
-LANGUAGE SQL
-AS '
-    SELECT
-        $1;
-';
+CREATE OR REPLACE PROCEDURE functest1 (a int) LANGUAGE SQL AS 'SELECT $1';
 
 DROP FUNCTION functest1 (a int);
 
 -- Check behavior of VOID-returning SQL functions
-CREATE FUNCTION voidtest1 (a int)
-    RETURNS VOID
-    LANGUAGE SQL
-    AS $$
-    SELECT
-        a + 1
-$$;
+CREATE FUNCTION voidtest1 (a int) RETURNS VOID LANGUAGE SQL AS $$ SELECT a + 1 $$;
 
 SELECT
     voidtest1 (42);
 
-CREATE FUNCTION voidtest2 (a int, b int)
-    RETURNS VOID
-    LANGUAGE SQL
-    AS $$
-    SELECT
-        voidtest1 (a + b)
-$$;
+CREATE FUNCTION voidtest2 (a int, b int) RETURNS VOID LANGUAGE SQL AS $$ SELECT voidtest1(a + b) $$;
 
 SELECT
     voidtest2 (11, 22);
 
 -- currently, we can inline voidtest2 but not voidtest1
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-)
+EXPLAIN (VERBOSE, costs off)
 SELECT
     voidtest2 (11, 22);
 
-CREATE TEMP TABLE sometable (
-    f1 int
-);
+CREATE TEMP TABLE sometable (f1 int);
 
-CREATE FUNCTION voidtest3 (a int)
-    RETURNS VOID
-    LANGUAGE SQL
-    AS $$
-    INSERT INTO sometable
-        VALUES (a + 1)
-$$;
+CREATE FUNCTION voidtest3 (a int) RETURNS VOID LANGUAGE SQL AS $$ INSERT INTO sometable VALUES(a + 1) $$;
 
 SELECT
     voidtest3 (17);
 
-CREATE FUNCTION voidtest4 (a int)
-    RETURNS VOID
-    LANGUAGE SQL
-    AS $$
-    INSERT INTO sometable
-        VALUES (a - 1)
-    RETURNING
-        f1
-$$;
+CREATE FUNCTION voidtest4 (a int) RETURNS VOID LANGUAGE SQL AS $$ INSERT INTO sometable VALUES(a - 1) RETURNING f1 $$;
 
 SELECT
     voidtest4 (39);
 
 TABLE sometable;
 
-CREATE FUNCTION voidtest5 (a int)
-    RETURNS SETOF VOID
-    LANGUAGE SQL
-    AS $$
-    SELECT
-        generate_series(1, a)
-$$ STABLE;
+CREATE FUNCTION voidtest5 (a int) RETURNS SETOF VOID LANGUAGE SQL AS $$ SELECT generate_series(1, a) $$ STABLE;
 
 SELECT
     *
@@ -501,4 +341,3 @@ DROP SCHEMA temp_func_test CASCADE;
 DROP USER regress_unpriv_user;
 
 RESET search_path;
-

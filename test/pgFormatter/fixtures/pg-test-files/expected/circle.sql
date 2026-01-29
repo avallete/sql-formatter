@@ -2,53 +2,78 @@
 -- CIRCLE
 --
 -- avoid bit-exact output here because operations may not be bit-exact.
-SET extra_float_digits = 0;
+SET
+    extra_float_digits = 0;
 
-CREATE TABLE CIRCLE_TBL (
-    f1 circle
-);
+CREATE TABLE CIRCLE_TBL (f1 circle);
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(5,1),3>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(5,1),3>');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(1,2),100>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(1,2),100>');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('1,3,5');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('1,3,5');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('((1,2),3)');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('((1,2),3)');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(100,200),10>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(100,200),10>');
 
-INSERT INTO CIRCLE_TBL
-    VALUES (' < ( 100 , 1 ) , 115 > ');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    (' < ( 100 , 1 ) , 115 > ');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(3,5),0>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(3,5),0>');
 
 -- Zero radius
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(3,5),NaN>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(3,5),NaN>');
 
 -- NaN radius
 -- bad values
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(-100,0),-100>');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(-100,0),-100>');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(100,200),10');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(100,200),10');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('<(100,200),10> x');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('<(100,200),10> x');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('1abc,3,5');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('1abc,3,5');
 
-INSERT INTO CIRCLE_TBL
-    VALUES ('(3,(1,2),3)');
+INSERT INTO
+    CIRCLE_TBL
+VALUES
+    ('(3,(1,2),3)');
 
 SELECT
     *
@@ -97,10 +122,10 @@ SELECT
 FROM
     CIRCLE_TBL c1,
     CIRCLE_TBL c2
-WHERE (c1.f1 < c2.f1)
+WHERE
+    (c1.f1 < c2.f1)
     AND ((c1.f1 <-> c2.f1) > 0)
 ORDER BY
     distance,
     area(c1.f1),
     area(c2.f1);
-

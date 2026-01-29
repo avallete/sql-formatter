@@ -2,47 +2,68 @@
 -- INT8
 -- Test int8 64-bit integers.
 --
-CREATE TABLE INT8_TBL (
-    q1 int8,
-    q2 int8
-);
+CREATE TABLE INT8_TBL (q1 int8, q2 int8);
 
-INSERT INTO INT8_TBL
-    VALUES ('  123   ', '  456');
+INSERT INTO
+    INT8_TBL
+VALUES
+    ('  123   ', '  456');
 
-INSERT INTO INT8_TBL
-    VALUES ('123   ', '4567890123456789');
+INSERT INTO
+    INT8_TBL
+VALUES
+    ('123   ', '4567890123456789');
 
-INSERT INTO INT8_TBL
-    VALUES ('4567890123456789', '123');
+INSERT INTO
+    INT8_TBL
+VALUES
+    ('4567890123456789', '123');
 
-INSERT INTO INT8_TBL
-    VALUES (+4567890123456789, '4567890123456789');
+INSERT INTO
+    INT8_TBL
+VALUES
+    (+ 4567890123456789, '4567890123456789');
 
-INSERT INTO INT8_TBL
-    VALUES ('+4567890123456789', '-4567890123456789');
+INSERT INTO
+    INT8_TBL
+VALUES
+    ('+4567890123456789', '-4567890123456789');
 
 -- bad inputs
-INSERT INTO INT8_TBL (q1)
-    VALUES ('      ');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('      ');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('xxx');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('xxx');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('3908203590239580293850293850329485');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('3908203590239580293850293850329485');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('-1204982019841029840928340329840934');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('-1204982019841029840928340329840934');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('- 123');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('- 123');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('  345     5');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('  345     5');
 
-INSERT INTO INT8_TBL (q1)
-    VALUES ('');
+INSERT INTO
+    INT8_TBL (q1)
+VALUES
+    ('');
 
 SELECT
     *
@@ -304,7 +325,8 @@ FROM
     INT8_TBL
 WHERE
     q1 < 1000
-    OR (q2 > 0
+    OR (
+        q2 > 0
         AND q2 < 1000);
 
 SELECT
@@ -319,14 +341,14 @@ FROM
 SELECT
     '' AS five,
     q1,
-    float8(q1)
+    float8 (q1)
 FROM
     INT8_TBL;
 
 SELECT
     '' AS five,
     q2,
-    float8(q2)
+    float8 (q2)
 FROM
     INT8_TBL;
 
@@ -504,7 +526,9 @@ FROM
 
 SELECT
     '' AS to_char_16,
-    to_char(q2, E'99999 "text" 9999 "9999" 999 "\\"text between quote marks\\"" 9999')
+    to_char (
+        q2,
+        E'99999 "text" 9999 "9999" 999 "\\"text between quote marks\\"" 9999')
 FROM
     INT8_TBL;
 
@@ -677,24 +701,32 @@ FROM
 SELECT
     *
 FROM
-    generate_series('+4567890123456789'::int8, '+4567890123456799'::int8);
+    generate_series (
+        '+4567890123456789'::int8,
+        '+4567890123456799'::int8);
 
 SELECT
     *
 FROM
-    generate_series('+4567890123456789'::int8, '+4567890123456799'::int8, 0);
+    generate_series (
+        '+4567890123456789'::int8,
+        '+4567890123456799'::int8,
+        0);
 
 SELECT
     *
 FROM
-    generate_series('+4567890123456789'::int8, '+4567890123456799'::int8, 2);
+    generate_series (
+        '+4567890123456789'::int8,
+        '+4567890123456799'::int8,
+        2);
 
 -- corner case
 SELECT
-    (- 1::int8 << 63)::text;
+    (-1::int8 << 63)::text;
 
 SELECT
-    ((- 1::int8 << 63) + 1)::text;
+    ((-1::int8 << 63) + 1)::text;
 
 -- check sane handling of INT64_MIN overflow cases
 SELECT
@@ -729,24 +761,25 @@ SELECT
     x,
     x::int8 AS int8_value
 FROM (
-    VALUES (-2.5::float8),
-        (-1.5::float8),
-        (-0.5::float8),
-        (0.0::float8),
-        (0.5::float8),
-        (1.5::float8),
-        (2.5::float8)) t (x);
+        VALUES
+            (-2.5::float8),
+            (-1.5::float8),
+            (-0.5::float8),
+            (0.0::float8),
+            (0.5::float8),
+            (1.5::float8),
+            (2.5::float8)) t (x);
 
 -- check rounding when casting from numeric
 SELECT
     x,
     x::int8 AS int8_value
 FROM (
-    VALUES (-2.5::numeric),
-        (-1.5::numeric),
-        (-0.5::numeric),
-        (0.0::numeric),
-        (0.5::numeric),
-        (1.5::numeric),
-        (2.5::numeric)) t (x);
-
+        VALUES
+            (-2.5::numeric),
+            (-1.5::numeric),
+            (-0.5::numeric),
+            (0.0::numeric),
+            (0.5::numeric),
+            (1.5::numeric),
+            (2.5::numeric)) t (x);

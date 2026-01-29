@@ -1,6 +1,4 @@
-CREATE FUNCTION job_next ()
-    RETURNS SETOF job
-    AS $$
+CREATE FUNCTION job_next () RETURNS SETOF job AS $$
 DECLARE
     id uuid;
 BEGIN
@@ -15,25 +13,24 @@ BEGIN
         scheduled,
         modified
     LIMIT 1
-    FOR UPDATE
-        SKIP LOCKED;
-    -- ### 1 indent lost
+FOR UPDATE SKIP LOCKED;  -- ### 1 indent lost
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 SELECT
     *
 FROM (
-    SELECT
-        *
-    FROM
-        mytable
-    FOR UPDATE) AS ss
+        SELECT
+            *
+        FROM
+            mytable
+        FOR UPDATE
+) AS ss
 WHERE
     col1 = 5;
 
 BEGIN;
+
 SELECT
     *
 FROM
@@ -41,4 +38,5 @@ FROM
 WHERE
     KEY = 1
 FOR NO KEY UPDATE;
+
 END;

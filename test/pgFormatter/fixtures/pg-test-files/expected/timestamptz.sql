@@ -1,9 +1,7 @@
 --
 -- TIMESTAMPTZ
 --
-CREATE TABLE TIMESTAMPTZ_TBL (
-    d1 timestamp(2) with time zone
-);
+CREATE TABLE TIMESTAMPTZ_TBL (d1 timestamp(2) with time zone);
 
 -- Test shorthand input values
 -- We can't just "select" the results since they aren't constants; test for
@@ -13,209 +11,321 @@ CREATE TABLE TIMESTAMPTZ_TBL (
 -- NOTE: it is possible for this part of the test to fail if the transaction
 -- block is entered exactly at local midnight; then 'now' and 'today' have
 -- the same values and the counts will come out different.
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('now');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('now');
 
 SELECT
     pg_sleep(0.1);
 
 BEGIN;
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('now');
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('today');
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('yesterday');
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('tomorrow');
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('tomorrow EST');
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('tomorrow zulu');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('now');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('today');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('yesterday');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('tomorrow');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('tomorrow EST');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('tomorrow zulu');
+
 SELECT
     count(*) AS One
 FROM
     TIMESTAMPTZ_TBL
 WHERE
     d1 = timestamp with time zone 'today';
+
 SELECT
     count(*) AS One
 FROM
     TIMESTAMPTZ_TBL
 WHERE
     d1 = timestamp with time zone 'tomorrow';
+
 SELECT
     count(*) AS One
 FROM
     TIMESTAMPTZ_TBL
 WHERE
     d1 = timestamp with time zone 'yesterday';
+
 SELECT
     count(*) AS One
 FROM
     TIMESTAMPTZ_TBL
 WHERE
-    d1 = timestamp(2)
-    with time zone 'now';
+    d1 = timestamp(2) with time zone 'now';
+
 COMMIT;
 
 DELETE FROM TIMESTAMPTZ_TBL;
 
 -- verify uniform transaction time within transaction block
 BEGIN;
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('now');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('now');
+
 SELECT
     pg_sleep(0.1);
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('now');
+
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('now');
+
 SELECT
     pg_sleep(0.1);
+
 SELECT
     count(*) AS two
 FROM
     TIMESTAMPTZ_TBL
 WHERE
-    d1 = timestamp(2)
-    with time zone 'now';
+    d1 = timestamp(2) with time zone 'now';
+
 COMMIT;
 
 DELETE FROM TIMESTAMPTZ_TBL;
 
 -- Special values
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('-infinity');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('-infinity');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('infinity');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('infinity');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('epoch');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('epoch');
 
 -- Obsolete special values
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('invalid');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('invalid');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('undefined');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('undefined');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('current');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('current');
 
 -- Postgres v6.0 standard output format
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01 1997 PST');
 
 -- Variations on Postgres v6.1 standard output format
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01.000001 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01.000001 1997 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01.999999 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01.999999 1997 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01.4 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01.4 1997 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01.5 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01.5 1997 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mon Feb 10 17:32:01.6 1997 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mon Feb 10 17:32:01.6 1997 PST');
 
 -- ISO 8601 format
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-01-02');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-01-02');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-01-02 03:04:05');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-01-02 03:04:05');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-02-10 17:32:01-08');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-02-10 17:32:01-08');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-02-10 17:32:01-0800');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-02-10 17:32:01-0800');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-02-10 17:32:01 -08:00');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-02-10 17:32:01 -08:00');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('19970210 173201 -0800');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('19970210 173201 -0800');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-06-10 17:32:01 -07:00');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-06-10 17:32:01 -07:00');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2001-09-22T18:19:20');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2001-09-22T18:19:20');
 
 -- POSIX format (note that the timezone abbrev is just decoration here)
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2000-03-15 08:14:01 GMT+8');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2000-03-15 08:14:01 GMT+8');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2000-03-15 13:14:02 GMT-1');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2000-03-15 13:14:02 GMT-1');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2000-03-15 12:14:03 GMT-2');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2000-03-15 12:14:03 GMT-2');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2000-03-15 03:14:04 PST+8');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2000-03-15 03:14:04 PST+8');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('2000-03-15 02:14:05 MST+7:00');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('2000-03-15 02:14:05 MST+7:00');
 
 -- Variations for acceptable input formats
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 10 17:32:01 1997 -0800');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 10 17:32:01 1997 -0800');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 10 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 10 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 10 5:32PM 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 10 5:32PM 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997/02/10 17:32:01-0800');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997/02/10 17:32:01-0800');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-02-10 17:32:01 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-02-10 17:32:01 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb-10-1997 17:32:01 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb-10-1997 17:32:01 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('02-10-1997 17:32:01 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('02-10-1997 17:32:01 PST');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('19970210 173201 PST');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('19970210 173201 PST');
 
-SET datestyle TO ymd;
+SET
+    datestyle TO ymd;
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('97FEB10 5:32:01PM UTC');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('97FEB10 5:32:01PM UTC');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('97/02/10 17:32:01 UTC');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('97/02/10 17:32:01 UTC');
 
 RESET datestyle;
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997.041 17:32:01 UTC');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997.041 17:32:01 UTC');
 
 -- timestamps at different timezones
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('19970210 173201 America/New_York');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('19970210 173201 America/New_York');
 
 SELECT
     '19970210 173201' AT TIME ZONE 'America/New_York';
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('19970710 173201 America/New_York');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('19970710 173201 America/New_York');
 
 SELECT
     '19970710 173201' AT TIME ZONE 'America/New_York';
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('19970710 173201 America/Does_not_exist');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('19970710 173201 America/Does_not_exist');
 
 SELECT
     '19970710 173201' AT TIME ZONE 'America/Does_not_exist';
@@ -238,108 +348,176 @@ SELECT
 
 -- non-DST
 -- Check date conversion and date arithmetic
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('1997-06-10 18:32:01 PDT');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('1997-06-10 18:32:01 PDT');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 10 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 10 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 11 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 11 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 12 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 12 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 13 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 13 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 14 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 14 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 15 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 15 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 0097 BC');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 0097 BC');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 0097');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 0097');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 0597');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 0597');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1097');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1097');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1697');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1697');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1797');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1797');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1897');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1897');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 2097');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 2097');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 28 17:32:01 1996');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 28 17:32:01 1996');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 29 17:32:01 1996');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 29 17:32:01 1996');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mar 01 17:32:01 1996');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mar 01 17:32:01 1996');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 30 17:32:01 1996');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 30 17:32:01 1996');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 31 17:32:01 1996');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 31 17:32:01 1996');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Jan 01 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Jan 01 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 28 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 28 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 29 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 29 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Mar 01 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Mar 01 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 30 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 30 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 31 17:32:01 1997');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 31 17:32:01 1997');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 31 17:32:01 1999');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 31 17:32:01 1999');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Jan 01 17:32:01 2000');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Jan 01 17:32:01 2000');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Dec 31 17:32:01 2000');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Dec 31 17:32:01 2000');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Jan 01 17:32:01 2001');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Jan 01 17:32:01 2001');
 
 -- Currently unsupported syntax and ranges
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 -0097');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 -0097');
 
-INSERT INTO TIMESTAMPTZ_TBL
-    VALUES ('Feb 16 17:32:01 5097 BC');
+INSERT INTO
+    TIMESTAMPTZ_TBL
+VALUES
+    ('Feb 16 17:32:01 5097 BC');
 
 -- Alternative field order that we've historically supported (sort of)
 -- with regular and POSIXy timezone specs
@@ -438,21 +616,32 @@ WHERE
 
 SELECT
     '' AS date_trunc_week,
-    date_trunc('week', timestamp with time zone '2004-02-29 15:44:17.71393') AS week_trunc;
+    date_trunc (
+        'week',
+        timestamp with time zone '2004-02-29 15:44:17.71393') AS week_trunc;
 
 SELECT
     '' AS date_trunc_at_tz,
-    date_trunc('day', timestamp with time zone '2001-02-16 20:38:40+00', 'Australia/Sydney') AS sydney_trunc;
+    date_trunc (
+        'day',
+        timestamp with time zone '2001-02-16 20:38:40+00',
+        'Australia/Sydney') AS sydney_trunc;
 
 -- zone name
 SELECT
     '' AS date_trunc_at_tz,
-    date_trunc('day', timestamp with time zone '2001-02-16 20:38:40+00', 'GMT') AS gmt_trunc;
+    date_trunc (
+        'day',
+        timestamp with time zone '2001-02-16 20:38:40+00',
+        'GMT') AS gmt_trunc;
 
 -- fixed-offset abbreviation
 SELECT
     '' AS date_trunc_at_tz,
-    date_trunc('day', timestamp with time zone '2001-02-16 20:38:40+00', 'VET') AS vet_trunc;
+    date_trunc (
+        'day',
+        timestamp with time zone '2001-02-16 20:38:40+00',
+        'VET') AS vet_trunc;
 
 -- variable-offset abbreviation
 -- Test casting within a BETWEEN qualifier
@@ -462,17 +651,17 @@ SELECT
 FROM
     TIMESTAMPTZ_TBL
 WHERE
-    d1 BETWEEN timestamp with time zone '1902-01-01' AND timestamp with time zone '2038-01-01';
+    d1 BETWEEN timestamp with time zone '1902-01-01' AND timestamp with time zone  '2038-01-01';
 
 SELECT
     '' AS "54",
     d1 AS timestamptz,
-    date_part('year', d1) AS year,
-    date_part('month', d1) AS month,
-    date_part('day', d1) AS day,
-    date_part('hour', d1) AS hour,
-    date_part('minute', d1) AS minute,
-    date_part('second', d1) AS second
+    date_part('year', d1) AS YEAR,
+    date_part('month', d1) AS MONTH,
+    date_part('day', d1) AS DAY,
+    date_part('hour', d1) AS HOUR,
+    date_part('minute', d1) AS MINUTE,
+    date_part('second', d1) AS SECOND
 FROM
     TIMESTAMPTZ_TBL
 WHERE
@@ -503,13 +692,17 @@ WHERE
 -- TO_CHAR()
 SELECT
     '' AS to_char_1,
-    to_char(d1, 'DAY Day day DY Dy dy MONTH Month month RM MON Mon mon')
+    to_char (
+        d1,
+        'DAY Day day DY Dy dy MONTH Month month RM MON Mon mon')
 FROM
     TIMESTAMPTZ_TBL;
 
 SELECT
     '' AS to_char_2,
-    to_char(d1, 'FMDAY FMDay FMday FMMONTH FMMonth FMmonth FMRM')
+    to_char (
+        d1,
+        'FMDAY FMDay FMday FMMONTH FMMonth FMmonth FMRM')
 FROM
     TIMESTAMPTZ_TBL;
 
@@ -521,7 +714,9 @@ FROM
 
 SELECT
     '' AS to_char_4,
-    to_char(d1, 'FMY,YYY FMYYYY FMYYY FMYY FMY FMCC FMQ FMMM FMWW FMDDD FMDD FMD FMJ')
+    to_char (
+        d1,
+        'FMY,YYY FMYYYY FMYYY FMYY FMY FMCC FMQ FMMM FMWW FMDDD FMDD FMD FMJ')
 FROM
     TIMESTAMPTZ_TBL;
 
@@ -533,7 +728,9 @@ FROM
 
 SELECT
     '' AS to_char_6,
-    to_char(d1, E'"HH:MI:SS is" HH:MI:SS "\\"text between quote marks\\""')
+    to_char (
+        d1,
+        E'"HH:MI:SS is" HH:MI:SS "\\"text between quote marks\\""')
 FROM
     TIMESTAMPTZ_TBL;
 
@@ -551,7 +748,9 @@ FROM
 
 SELECT
     '' AS to_char_9,
-    to_char(d1, 'YYYY A.D. YYYY a.d. YYYY bc HH:MI:SS P.M. HH:MI:SS p.m. HH:MI:SS pm')
+    to_char (
+        d1,
+        'YYYY A.D. YYYY a.d. YYYY bc HH:MI:SS P.M. HH:MI:SS p.m. HH:MI:SS pm')
 FROM
     TIMESTAMPTZ_TBL;
 
@@ -568,55 +767,64 @@ FROM
     TIMESTAMPTZ_TBL;
 
 -- Check OF, TZH, TZM with various zone offsets, particularly fractional hours
-SET timezone = '00:00';
+SET
+    timezone = '00:00';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '+02:00';
+SET
+    timezone = '+02:00';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '-13:00';
+SET
+    timezone = '-13:00';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '-00:30';
+SET
+    timezone = '-00:30';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '00:30';
+SET
+    timezone = '00:30';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '-04:30';
+SET
+    timezone = '-04:30';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '04:30';
+SET
+    timezone = '04:30';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '-04:15';
+SET
+    timezone = '-04:15';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
     to_char(now(), 'TZH:TZM') AS "TZH:TZM";
 
-SET timezone = '04:15';
+SET
+    timezone = '04:15';
 
 SELECT
     to_char(now(), 'OF') AS "OF",
@@ -624,29 +832,38 @@ SELECT
 
 RESET timezone;
 
-CREATE TABLE TIMESTAMPTZ_TST (
-    a int,
-    b timestamptz
-);
+CREATE TABLE TIMESTAMPTZ_TST (a int, b timestamptz);
 
 -- Test year field value with len > 4
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (1, 'Sat Mar 12 23:58:48 1000 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (1, 'Sat Mar 12 23:58:48 1000 IST');
 
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (2, 'Sat Mar 12 23:58:48 10000 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (2, 'Sat Mar 12 23:58:48 10000 IST');
 
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (3, 'Sat Mar 12 23:58:48 100000 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (3, 'Sat Mar 12 23:58:48 100000 IST');
 
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (3, '10000 Mar 12 23:58:48 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (3, '10000 Mar 12 23:58:48 IST');
 
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (4, '100000312 23:58:48 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (4, '100000312 23:58:48 IST');
 
-INSERT INTO TIMESTAMPTZ_TST
-    VALUES (4, '1000000312 23:58:48 IST');
+INSERT INTO
+    TIMESTAMPTZ_TST
+VALUES
+    (4, '1000000312 23:58:48 IST');
 
 --Verify data
 SELECT
@@ -660,7 +877,8 @@ ORDER BY
 DROP TABLE TIMESTAMPTZ_TST;
 
 -- test timestamptz constructors
-SET TimeZone TO 'America/New_York';
+SET
+    TimeZone TO 'America/New_York';
 
 -- numeric timezone
 SELECT
@@ -672,24 +890,24 @@ SELECT
 SELECT
     make_timestamptz(1973, 07, 15, 08, 15, 55.33, '-2');
 
-WITH tzs (
-    tz
-) AS (
-    VALUES ('+1'),
-        ('+1:'),
-        ('+1:0'),
-        ('+100'),
-        ('+1:00'),
-        ('+01:00'),
-        ('+10'),
-        ('+1000'),
-        ('+10:'),
-        ('+10:0'),
-        ('+10:00'),
-        ('+10:00:'),
-        ('+10:00:1'),
-        ('+10:00:01'),
-        ('+10:00:10'))
+WITH
+    tzs (tz) AS (
+        VALUES
+            ('+1'),
+            ('+1:'),
+            ('+1:0'),
+            ('+100'),
+            ('+1:00'),
+            ('+01:00'),
+            ('+10'),
+            ('+1000'),
+            ('+10:'),
+            ('+10:0'),
+            ('+10:00'),
+            ('+10:00:'),
+            ('+10:00:1'),
+            ('+10:00:01'),
+            ('+10:00:10'))
 SELECT
     make_timestamptz(2010, 2, 27, 3, 45, 00, tz),
     tz
@@ -743,7 +961,8 @@ RESET TimeZone;
 -- These tests rely on the knowledge that MSK (Europe/Moscow standard time)
 -- moved forwards in Mar 2011 and backwards again in Oct 2014.
 --
-SET TimeZone TO 'UTC';
+SET
+    TimeZone TO 'UTC';
 
 SELECT
     '2011-03-27 00:00:00 Europe/Moscow'::timestamptz;
@@ -947,7 +1166,8 @@ SELECT
 SELECT
     to_timestamp('NaN'::float);
 
-SET TimeZone TO 'Europe/Moscow';
+SET
+    TimeZone TO 'Europe/Moscow';
 
 SELECT
     '2011-03-26 21:00:00 UTC'::timestamptz;
@@ -1062,16 +1282,14 @@ SELECT
 --
 -- Test that AT TIME ZONE isn't misoptimized when using an index (bug #14504)
 --
-CREATE temp TABLE tmptz (
-    f1 timestamptz PRIMARY KEY
-);
+CREATE TEMP TABLE tmptz (f1 timestamptz PRIMARY KEY);
 
-INSERT INTO tmptz
-    VALUES ('2017-01-18 00:00+00');
+INSERT INTO
+    tmptz
+VALUES
+    ('2017-01-18 00:00+00');
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1085,4 +1303,3 @@ FROM
     tmptz
 WHERE
     f1 at time zone 'utc' = '2017-01-18 00:00';
-

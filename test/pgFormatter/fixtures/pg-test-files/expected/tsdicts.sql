@@ -1,10 +1,9 @@
 --Test text search dictionaries and configurations
 -- Test ISpell dictionary with ispell affix file
 CREATE TEXT SEARCH DICTIONARY ispell (
-    TEMPLATE = ispell,
+    Template = ispell,
     DictFile = ispell_sample,
-    AffFile = ispell_sample
-);
+    AffFile = ispell_sample);
 
 SELECT
     ts_lexize('ispell', 'skies');
@@ -53,10 +52,9 @@ SELECT
 
 -- Test ISpell dictionary with hunspell affix file
 CREATE TEXT SEARCH DICTIONARY hunspell (
-    TEMPLATE = ispell,
+    Template = ispell,
     DictFile = ispell_sample,
-    AffFile = hunspell_sample
-);
+    AffFile = hunspell_sample);
 
 SELECT
     ts_lexize('hunspell', 'skies');
@@ -105,10 +103,9 @@ SELECT
 
 -- Test ISpell dictionary with hunspell affix file with FLAG long parameter
 CREATE TEXT SEARCH DICTIONARY hunspell_long (
-    TEMPLATE = ispell,
+    Template = ispell,
     DictFile = hunspell_sample_long,
-    AffFile = hunspell_sample_long
-);
+    AffFile = hunspell_sample_long);
 
 SELECT
     ts_lexize('hunspell_long', 'skies');
@@ -166,10 +163,9 @@ SELECT
 
 -- Test ISpell dictionary with hunspell affix file with FLAG num parameter
 CREATE TEXT SEARCH DICTIONARY hunspell_num (
-    TEMPLATE = ispell,
+    Template = ispell,
     DictFile = hunspell_sample_num,
-    AffFile = hunspell_sample_num
-);
+    AffFile = hunspell_sample_num);
 
 SELECT
     ts_lexize('hunspell_num', 'skies');
@@ -223,10 +219,7 @@ SELECT
     ts_lexize('hunspell_num', 'footballyklubber');
 
 -- Synonym dictionary
-CREATE TEXT SEARCH DICTIONARY synonym (
-    TEMPLATE = synonym,
-    Synonyms = synonym_sample
-);
+CREATE TEXT SEARCH DICTIONARY synonym (Template = synonym, Synonyms = synonym_sample);
 
 SELECT
     ts_lexize('synonym', 'PoStGrEs');
@@ -241,48 +234,65 @@ SELECT
 -- More tests in configuration checks because ts_lexize()
 -- cannot pass more than one word to thesaurus.
 CREATE TEXT SEARCH DICTIONARY thesaurus (
-    TEMPLATE = thesaurus,
+    Template = thesaurus,
     DictFile = thesaurus_sample,
-    Dictionary = english_stem
-);
+    Dictionary = english_stem);
 
 SELECT
     ts_lexize('thesaurus', 'one');
 
 -- Test ispell dictionary in configuration
 CREATE TEXT SEARCH CONFIGURATION ispell_tst (
-    COPY = english
-);
+    COPY = english);
 
 ALTER TEXT SEARCH CONFIGURATION ispell_tst
-    ALTER MAPPING FOR word, numword, asciiword, hword, numhword, asciihword, hword_part, hword_numpart, hword_asciipart WITH ispell,
+ALTER MAPPING FOR word,
+numword,
+asciiword,
+hword,
+numhword,
+asciihword,
+hword_part,
+hword_numpart,
+hword_asciipart
+WITH
+    ispell,
     english_stem;
 
 SELECT
-    to_tsvector('ispell_tst', 'Booking the skies after rebookings for footballklubber from a foot');
+    to_tsvector (
+        'ispell_tst',
+        'Booking the skies after rebookings for footballklubber from a foot');
 
 SELECT
     to_tsquery('ispell_tst', 'footballklubber');
 
 SELECT
-    to_tsquery('ispell_tst', 'footballyklubber:b & rebookings:A & sky');
+    to_tsquery (
+        'ispell_tst',
+        'footballyklubber:b & rebookings:A & sky');
 
 -- Test ispell dictionary with hunspell affix in configuration
 CREATE TEXT SEARCH CONFIGURATION hunspell_tst (
-    COPY = ispell_tst
-);
+    COPY = ispell_tst);
 
 ALTER TEXT SEARCH CONFIGURATION hunspell_tst
-    ALTER MAPPING REPLACE ispell WITH hunspell;
+ALTER MAPPING REPLACE ispell
+WITH
+    hunspell;
 
 SELECT
-    to_tsvector('hunspell_tst', 'Booking the skies after rebookings for footballklubber from a foot');
+    to_tsvector (
+        'hunspell_tst',
+        'Booking the skies after rebookings for footballklubber from a foot');
 
 SELECT
     to_tsquery('hunspell_tst', 'footballklubber');
 
 SELECT
-    to_tsquery('hunspell_tst', 'footballyklubber:b & rebookings:A & sky');
+    to_tsquery (
+        'hunspell_tst',
+        'footballyklubber:b & rebookings:A & sky');
 
 SELECT
     to_tsquery('hunspell_tst', 'footballyklubber:b <-> sky');
@@ -292,47 +302,68 @@ SELECT
 
 -- Test ispell dictionary with hunspell affix with FLAG long in configuration
 ALTER TEXT SEARCH CONFIGURATION hunspell_tst
-    ALTER MAPPING REPLACE hunspell WITH hunspell_long;
+ALTER MAPPING REPLACE hunspell
+WITH
+    hunspell_long;
 
 SELECT
-    to_tsvector('hunspell_tst', 'Booking the skies after rebookings for footballklubber from a foot');
+    to_tsvector (
+        'hunspell_tst',
+        'Booking the skies after rebookings for footballklubber from a foot');
 
 SELECT
     to_tsquery('hunspell_tst', 'footballklubber');
 
 SELECT
-    to_tsquery('hunspell_tst', 'footballyklubber:b & rebookings:A & sky');
+    to_tsquery (
+        'hunspell_tst',
+        'footballyklubber:b & rebookings:A & sky');
 
 -- Test ispell dictionary with hunspell affix with FLAG num in configuration
 ALTER TEXT SEARCH CONFIGURATION hunspell_tst
-    ALTER MAPPING REPLACE hunspell_long WITH hunspell_num;
+ALTER MAPPING REPLACE hunspell_long
+WITH
+    hunspell_num;
 
 SELECT
-    to_tsvector('hunspell_tst', 'Booking the skies after rebookings for footballklubber from a foot');
+    to_tsvector (
+        'hunspell_tst',
+        'Booking the skies after rebookings for footballklubber from a foot');
 
 SELECT
     to_tsquery('hunspell_tst', 'footballklubber');
 
 SELECT
-    to_tsquery('hunspell_tst', 'footballyklubber:b & rebookings:A & sky');
+    to_tsquery (
+        'hunspell_tst',
+        'footballyklubber:b & rebookings:A & sky');
 
 -- Test synonym dictionary in configuration
 CREATE TEXT SEARCH CONFIGURATION synonym_tst (
-    COPY = english
-);
+    COPY = english);
 
 ALTER TEXT SEARCH CONFIGURATION synonym_tst
-    ALTER MAPPING FOR asciiword, hword_asciipart, asciihword WITH synonym,
+ALTER MAPPING FOR asciiword,
+hword_asciipart,
+asciihword
+WITH
+    synonym,
     english_stem;
 
 SELECT
-    to_tsvector('synonym_tst', 'Postgresql is often called as postgres or pgsql and pronounced as postgre');
+    to_tsvector (
+        'synonym_tst',
+        'Postgresql is often called as postgres or pgsql and pronounced as postgre');
 
 SELECT
-    to_tsvector('synonym_tst', 'Most common mistake is to write Gogle instead of Google');
+    to_tsvector (
+        'synonym_tst',
+        'Most common mistake is to write Gogle instead of Google');
 
 SELECT
-    to_tsvector('synonym_tst', 'Indexes or indices - Which is right plural form of index?');
+    to_tsvector (
+        'synonym_tst',
+        'Indexes or indices - Which is right plural form of index?');
 
 SELECT
     to_tsquery('synonym_tst', 'Index & indices');
@@ -340,27 +371,34 @@ SELECT
 -- test thesaurus in configuration
 -- see thesaurus_sample.ths to understand 'odd' resulting tsvector
 CREATE TEXT SEARCH CONFIGURATION thesaurus_tst (
-    COPY = synonym_tst
-);
+    COPY = synonym_tst);
 
 ALTER TEXT SEARCH CONFIGURATION thesaurus_tst
-    ALTER MAPPING FOR asciiword, hword_asciipart, asciihword WITH synonym,
+ALTER MAPPING FOR asciiword,
+hword_asciipart,
+asciihword
+WITH
+    synonym,
     thesaurus,
     english_stem;
 
 SELECT
-    to_tsvector('thesaurus_tst', 'one postgres one two one two three one');
+    to_tsvector (
+        'thesaurus_tst',
+        'one postgres one two one two three one');
 
 SELECT
-    to_tsvector('thesaurus_tst', 'Supernovae star is very new star and usually called supernovae (abbreviation SN)');
+    to_tsvector (
+        'thesaurus_tst',
+        'Supernovae star is very new star and usually called supernovae (abbreviation SN)');
 
 SELECT
-    to_tsvector('thesaurus_tst', 'Booking tickets is looking like a booking a tickets');
+    to_tsvector (
+        'thesaurus_tst',
+        'Booking tickets is looking like a booking a tickets');
 
 -- invalid: non-lowercase quoted identifiers
 CREATE TEXT SEARCH DICTIONARY tsdict_case (
-    TEMPLATE = ispell,
+    Template = ispell,
     "DictFile" = ispell_sample,
-    "AffFile" = ispell_sample
-);
-
+    "AffFile" = ispell_sample);

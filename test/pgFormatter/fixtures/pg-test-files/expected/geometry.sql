@@ -3,7 +3,8 @@
 --
 -- Back off displayed precision a little bit to reduce platform-to-platform
 -- variation in results.
-SET extra_float_digits TO -3;
+SET
+    extra_float_digits TO -3;
 
 --
 -- Points
@@ -37,7 +38,8 @@ SELECT
     (@@ f1) AS center
 FROM
     POLYGON_TBL
-WHERE (# f1) > 2;
+WHERE
+    (# f1) > 2;
 
 -- "is horizontal" function
 SELECT
@@ -46,7 +48,7 @@ SELECT
 FROM
     POINT_TBL p1
 WHERE
-    ishorizontal(p1.f1, point '(0,0)');
+    ishorizontal (p1.f1, point '(0,0)');
 
 -- "is horizontal" operator
 SELECT
@@ -55,7 +57,7 @@ SELECT
 FROM
     POINT_TBL p1
 WHERE
-    p1.f1 ? - point '(0,0)';
+    p1.f1 ?- point '(0,0)';
 
 -- "is vertical" function
 SELECT
@@ -64,7 +66,7 @@ SELECT
 FROM
     POINT_TBL p1
 WHERE
-    isvertical(p1.f1, point '(5.1,34.5)');
+    isvertical (p1.f1, point '(5.1,34.5)');
 
 -- "is vertical" operator
 SELECT
@@ -276,7 +278,7 @@ SELECT
 FROM
     LINE_TBL
 WHERE
-    ? - s;
+    ?- s;
 
 -- Same as line
 SELECT
@@ -296,7 +298,7 @@ FROM
     LINE_TBL l1,
     LINE_TBL l2
 WHERE
-    l1.s ?| | l2.s;
+    l1.s ?|| l2.s;
 
 -- Perpendicular to line
 SELECT
@@ -306,7 +308,7 @@ FROM
     LINE_TBL l1,
     LINE_TBL l2
 WHERE
-    l1.s ? - | l2.s;
+    l1.s ?-| l2.s;
 
 -- Distance to line
 SELECT
@@ -334,7 +336,7 @@ FROM
     LINE_TBL l1,
     LINE_TBL l2
 WHERE
-    l1.s ? # l2.s;
+    l1.s ?# l2.s;
 
 -- Intersect with box
 SELECT
@@ -344,7 +346,7 @@ FROM
     LINE_TBL l,
     BOX_TBL b
 WHERE
-    l.s ? # b.f1;
+    l.s ?# b.f1;
 
 -- Intersection point with line
 SELECT
@@ -407,7 +409,7 @@ SELECT
 FROM
     LSEG_TBL
 WHERE
-    ? - s;
+    ?- s;
 
 -- Center
 SELECT
@@ -491,7 +493,7 @@ FROM
     LSEG_TBL l1,
     LSEG_TBL l2
 WHERE
-    l1.s ?| | l2.s;
+    l1.s ?|| l2.s;
 
 -- Perpendicular with line segment
 SELECT
@@ -501,7 +503,7 @@ FROM
     LSEG_TBL l1,
     LSEG_TBL l2
 WHERE
-    l1.s ? - | l2.s;
+    l1.s ?-| l2.s;
 
 -- Distance to line
 SELECT
@@ -538,7 +540,7 @@ FROM
     LSEG_TBL l,
     LINE_TBL l1
 WHERE
-    l.s ? # l1.s;
+    l.s ?# l1.s;
 
 -- Intersect with box
 SELECT
@@ -548,7 +550,7 @@ FROM
     LSEG_TBL l,
     BOX_TBL b
 WHERE
-    l.s ? # b.f1;
+    l.s ?# b.f1;
 
 -- Intersection point with line segment
 SELECT
@@ -670,7 +672,7 @@ FROM
     POINT_TBL;
 
 SELECT
-    bound_box (a.f1, b.f1)
+    bound_box(a.f1, b.f1)
 FROM
     BOX_TBL a,
     BOX_TBL b;
@@ -688,7 +690,7 @@ FROM
 SELECT
     b1.f1,
     b2.f1,
-    b1.f1 >^ b2.f1
+    b1.f1 > ^ b2.f1
 FROM
     BOX_TBL b1,
     BOX_TBL b2;
@@ -1099,7 +1101,8 @@ SELECT
     circle(f1)
 FROM
     POLYGON_TBL
-WHERE (# f1) >= 3;
+WHERE
+    (# f1) >= 3;
 
 SELECT
     '' AS twentyfour,
@@ -1109,7 +1112,8 @@ SELECT
 FROM
     CIRCLE_TBL c1,
     POINT_TBL p1
-WHERE (p1.f1 <-> c1.f1) > 0
+WHERE
+    (p1.f1 <-> c1.f1) > 0
 ORDER BY
     distance,
     area(c1.f1),
@@ -1419,4 +1423,3 @@ SELECT
 FROM
     CIRCLE_TBL c,
     POLYGON_TBL p;
-

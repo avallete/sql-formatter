@@ -2,7 +2,8 @@
 -- Test for facilities of security label
 --
 -- initial setups
-SET client_min_messages TO 'warning';
+SET
+    client_min_messages TO 'warning';
 
 DROP ROLE IF EXISTS regress_seclabel_user1;
 
@@ -10,19 +11,15 @@ DROP ROLE IF EXISTS regress_seclabel_user2;
 
 RESET client_min_messages;
 
-CREATE USER regress_seclabel_user1 WITH CREATEROLE;
+CREATE USER regress_seclabel_user1
+WITH
+    CREATEROLE;
 
 CREATE USER regress_seclabel_user2;
 
-CREATE TABLE seclabel_tbl1 (
-    a int,
-    b text
-);
+CREATE TABLE seclabel_tbl1 (a int, b text);
 
-CREATE TABLE seclabel_tbl2 (
-    x int,
-    y text
-);
+CREATE TABLE seclabel_tbl2 (x int, y text);
 
 CREATE VIEW seclabel_view1 AS
 SELECT
@@ -30,13 +27,7 @@ SELECT
 FROM
     seclabel_tbl2;
 
-CREATE FUNCTION seclabel_four ()
-    RETURNS integer
-    AS $$
-    SELECT
-        4
-$$
-LANGUAGE sql;
+CREATE FUNCTION seclabel_four () RETURNS integer AS $$SELECT 4$$ language sql;
 
 CREATE DOMAIN seclabel_domain AS text;
 
@@ -85,4 +76,3 @@ DROP TABLE seclabel_tbl2;
 DROP USER regress_seclabel_user1;
 
 DROP USER regress_seclabel_user2;
-

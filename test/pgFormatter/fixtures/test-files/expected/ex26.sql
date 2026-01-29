@@ -1,6 +1,8 @@
 PREPARE demo AS
-INSERT INTO demo
-    VALUES (1, 2, 3, 4);
+INSERT INTO
+    demo
+VALUES
+    (1, 2, 3, 4);
 
 PREPARE demo AS
 SELECT
@@ -11,8 +13,7 @@ WHERE
     id IN (1, 2, 3, 4);
 
 PREPARE demo AS
-UPDATE
-    demo
+UPDATE demo
 SET
     lbl = 'unknown'
 WHERE
@@ -20,5 +21,5 @@ WHERE
 
 PREPARE demo AS
 DELETE FROM demo
-WHERE id IN (1, 2, 3, 4);
-
+WHERE
+    id IN (1, 2, 3, 4);

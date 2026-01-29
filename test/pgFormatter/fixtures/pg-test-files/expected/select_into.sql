@@ -26,7 +26,10 @@ CREATE SCHEMA selinto_schema;
 
 CREATE USER regress_selinto_user;
 
-ALTER DEFAULT PRIVILEGES FOR ROLE regress_selinto_user REVOKE INSERT ON TABLES FROM regress_selinto_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE regress_selinto_user
+REVOKE INSERT ON TABLES
+FROM
+    regress_selinto_user;
 
 GRANT ALL ON SCHEMA selinto_schema TO public;
 
@@ -50,11 +53,7 @@ WHERE
     relname LIKE '%b%';
 
 -- Error
-CREATE TABLE selinto_schema.tmp3 (
-    a,
-    b,
-    c
-) AS
+CREATE TABLE selinto_schema.tmp3 (a, b, c) AS
 SELECT
     oid,
     relname,
@@ -67,7 +66,8 @@ WHERE
 -- Error
 RESET SESSION AUTHORIZATION;
 
-ALTER DEFAULT PRIVILEGES FOR ROLE regress_selinto_user GRANT INSERT ON TABLES TO regress_selinto_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE regress_selinto_user
+GRANT INSERT ON TABLES TO regress_selinto_user;
 
 SET SESSION AUTHORIZATION regress_selinto_user;
 
@@ -89,11 +89,7 @@ WHERE
     relname LIKE '%b%';
 
 -- OK
-CREATE TABLE selinto_schema.tmp3 (
-    a,
-    b,
-    c
-) AS
+CREATE TABLE selinto_schema.tmp3 (a, b, c) AS
 SELECT
     oid,
     relname,
@@ -111,19 +107,14 @@ DROP SCHEMA selinto_schema CASCADE;
 DROP USER regress_selinto_user;
 
 -- Tests for WITH NO DATA and column name consistency
-CREATE TABLE ctas_base (
-    i int,
-    j int
-);
+CREATE TABLE ctas_base (i int, j int);
 
-INSERT INTO ctas_base
-    VALUES (1, 2);
+INSERT INTO
+    ctas_base
+VALUES
+    (1, 2);
 
-CREATE TABLE ctas_nodata (
-    ii,
-    jj,
-    kk
-) AS
+CREATE TABLE ctas_nodata (ii, jj, kk) AS
 SELECT
     i,
     j
@@ -131,22 +122,17 @@ FROM
     ctas_base;
 
 -- Error
-CREATE TABLE ctas_nodata (
-    ii,
-    jj,
-    kk
-) AS
+CREATE TABLE ctas_nodata (ii, jj, kk) AS
 SELECT
     i,
     j
 FROM
-    ctas_base WITH NO DATA;
+    ctas_base
+WITH
+    NO DATA;
 
 -- Error
-CREATE TABLE ctas_nodata (
-    ii,
-    jj
-) AS
+CREATE TABLE ctas_nodata (ii, jj) AS
 SELECT
     i,
     j
@@ -154,20 +140,17 @@ FROM
     ctas_base;
 
 -- OK
-CREATE TABLE ctas_nodata_2 (
-    ii,
-    jj
-) AS
+CREATE TABLE ctas_nodata_2 (ii, jj) AS
 SELECT
     i,
     j
 FROM
-    ctas_base WITH NO DATA;
+    ctas_base
+WITH
+    NO DATA;
 
 -- OK
-CREATE TABLE ctas_nodata_3 (
-    ii
-) AS
+CREATE TABLE ctas_nodata_3 (ii) AS
 SELECT
     i,
     j
@@ -175,14 +158,14 @@ FROM
     ctas_base;
 
 -- OK
-CREATE TABLE ctas_nodata_4 (
-    ii
-) AS
+CREATE TABLE ctas_nodata_4 (ii) AS
 SELECT
     i,
     j
 FROM
-    ctas_base WITH NO DATA;
+    ctas_base
+WITH
+    NO DATA;
 
 -- OK
 SELECT
@@ -219,16 +202,9 @@ DROP TABLE ctas_nodata_4;
 -- CREATE TABLE AS/SELECT INTO as last command in a SQL function
 -- have been known to cause problems
 --
-CREATE FUNCTION make_table ()
-    RETURNS VOID
-    AS $$
-    CREATE TABLE created_table AS
-    SELECT
-        *
-    FROM
-        int8_tbl;
-$$
-LANGUAGE SQL;
+CREATE FUNCTION make_table () RETURNS VOID AS $$
+  CREATE TABLE created_table AS SELECT * FROM int8_tbl;
+$$ LANGUAGE SQL;
 
 SELECT
     make_table ();
@@ -242,41 +218,40 @@ FROM
 -- WITH NO DATA, but hide the outputs since they won't be stable.
 DO $$
 BEGIN
-    EXECUTE 'EXPLAIN ANALYZE SELECT * INTO TABLE easi FROM int8_tbl';
-    EXECUTE 'EXPLAIN ANALYZE CREATE TABLE easi2 AS SELECT * FROM int8_tbl WITH NO DATA';
-END
-$$;
+	EXECUTE 'EXPLAIN ANALYZE SELECT * INTO TABLE easi FROM int8_tbl';
+	EXECUTE 'EXPLAIN ANALYZE CREATE TABLE easi2 AS SELECT * FROM int8_tbl WITH NO DATA';
+END$$;
 
 DROP TABLE created_table;
 
-DROP TABLE easi, easi2;
+DROP TABLE easi,
+easi2;
 
 --
 -- Disallowed uses of SELECT ... INTO.  All should fail
 --
 DECLARE foo CURSOR FOR
-    SELECT
-        1 INTO b;
+SELECT
+    1 INTO b;
 
 COPY (
     SELECT
         1 INTO frak
     UNION
     SELECT
-        2)
-TO 'blob';
+        2) TO 'blob';
 
 SELECT
     *
 FROM (
-    SELECT
-        1 INTO f) bar;
+        SELECT
+            1 INTO f) bar;
 
 CREATE VIEW foo AS
 SELECT
     1 INTO b;
 
-INSERT INTO b
+INSERT INTO
+    b
 SELECT
     1 INTO f;
-

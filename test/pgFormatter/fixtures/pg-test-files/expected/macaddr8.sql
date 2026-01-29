@@ -80,76 +80,115 @@ SELECT
 -- test converting a MAC address to modified EUI-64 for inclusion
 -- in an ipv6 address
 SELECT
-    macaddr8_set7bit ('00:08:2b:01:02:03'::macaddr8);
+    macaddr8_set7bit('00:08:2b:01:02:03'::macaddr8);
 
-CREATE TABLE macaddr8_data (
-    a int,
-    b macaddr8
-);
+CREATE TABLE macaddr8_data (a int, b macaddr8);
 
-INSERT INTO macaddr8_data
-    VALUES (1, '08:00:2b:01:02:03');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (1, '08:00:2b:01:02:03');
 
-INSERT INTO macaddr8_data
-    VALUES (2, '08-00-2b-01-02-03');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (2, '08-00-2b-01-02-03');
 
-INSERT INTO macaddr8_data
-    VALUES (3, '08002b:010203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (3, '08002b:010203');
 
-INSERT INTO macaddr8_data
-    VALUES (4, '08002b-010203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (4, '08002b-010203');
 
-INSERT INTO macaddr8_data
-    VALUES (5, '0800.2b01.0203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (5, '0800.2b01.0203');
 
-INSERT INTO macaddr8_data
-    VALUES (6, '0800-2b01-0203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (6, '0800-2b01-0203');
 
-INSERT INTO macaddr8_data
-    VALUES (7, '08002b010203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (7, '08002b010203');
 
-INSERT INTO macaddr8_data
-    VALUES (8, '0800:2b01:0203');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (8, '0800:2b01:0203');
 
-INSERT INTO macaddr8_data
-    VALUES (9, 'not even close');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (9, 'not even close');
 
 -- invalid
-INSERT INTO macaddr8_data
-    VALUES (10, '08:00:2b:01:02:04');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (10, '08:00:2b:01:02:04');
 
-INSERT INTO macaddr8_data
-    VALUES (11, '08:00:2b:01:02:02');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (11, '08:00:2b:01:02:02');
 
-INSERT INTO macaddr8_data
-    VALUES (12, '08:00:2a:01:02:03');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (12, '08:00:2a:01:02:03');
 
-INSERT INTO macaddr8_data
-    VALUES (13, '08:00:2c:01:02:03');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (13, '08:00:2c:01:02:03');
 
-INSERT INTO macaddr8_data
-    VALUES (14, '08:00:2a:01:02:04');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (14, '08:00:2a:01:02:04');
 
-INSERT INTO macaddr8_data
-    VALUES (15, '08:00:2b:01:02:03:04:05');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (15, '08:00:2b:01:02:03:04:05');
 
-INSERT INTO macaddr8_data
-    VALUES (16, '08-00-2b-01-02-03-04-05');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (16, '08-00-2b-01-02-03-04-05');
 
-INSERT INTO macaddr8_data
-    VALUES (17, '08002b:0102030405');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (17, '08002b:0102030405');
 
-INSERT INTO macaddr8_data
-    VALUES (18, '08002b-0102030405');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (18, '08002b-0102030405');
 
-INSERT INTO macaddr8_data
-    VALUES (19, '0800.2b01.0203.0405');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (19, '0800.2b01.0203.0405');
 
-INSERT INTO macaddr8_data
-    VALUES (20, '08002b01:02030405');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (20, '08002b01:02030405');
 
-INSERT INTO macaddr8_data
-    VALUES (21, '08002b0102030405');
+INSERT INTO
+    macaddr8_data
+VALUES
+    (21, '08002b0102030405');
 
 SELECT
     *
@@ -160,7 +199,7 @@ ORDER BY
 
 CREATE INDEX macaddr8_data_btree ON macaddr8_data USING btree (b);
 
-CREATE INDEX macaddr8_data_hash ON macaddr8_data USING HASH (b);
+CREATE INDEX macaddr8_data_hash ON macaddr8_data USING hash (b);
 
 SELECT
     a,
@@ -316,4 +355,3 @@ FROM
     macaddr8_data;
 
 DROP TABLE macaddr8_data;
-

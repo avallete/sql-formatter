@@ -1,46 +1,40 @@
-CREATE OR REPLACE FUNCTION loader_os (OUT o_rc integer, OUT o_err character varying, IN i_acctoken character varying, IN i_os text)
-    RETURNS record
-    AS $$
--- Description1
--- Description2
+CREATE OR REPLACE FUNCTION loader_os (
+    OUT o_rc INTEGER,
+    OUT o_err CHARACTER VARYING,
+    IN i_acctoken CHARACTER VARYING,
+    IN i_os TEXT) RETURNS record AS $$
+  -- Description1
+  -- Description2
 DECLARE
-    v_os bigint;
-    v_id bigint;
+  v_os BIGINT;
+  v_id BIGINT;
 BEGIN
-    SELECT
-        * INTO o_rc,
-        o_err
-    FROM
-        loader_add i_acctoken;
-    -- Description3
-    IF o_rc != 0 THEN
-        o_err = '(): ' || o_err;
-    END IF;
-    SELECT
-        ost_id INTO STRICT v_os
-    FROM
-        os_form
-    WHERE
-        UPPER(ost_form) = UPPER(i_os);
-    SELECT
-        os_id INTO v_id
-    FROM
-        os_get (v_os);
-    UPDATE
-        mbile
-    SET
-        os_id = 1
-    WHERE
-        id = v_id;
-    UPDATE
-        mbsim
-    SET
-        reg_id = 2
-    WHERE
-        id = v_id;
+  SELECT * INTO o_rc, o_err
+  FROM loader_add i_acctoken;
+  
+  -- Description3
+  IF o_rc != 0 THEN
+    o_err = '(): ' || o_err;
+  END IF;
+  
+  SELECT ost_id INTO STRICT v_os
+  FROM os_form
+  WHERE UPPER(ost_form) = UPPER(i_os);
+
+  SELECT os_id INTO v_id
+  FROM os_get(v_os);
+
+  UPDATE
+    mbile
+  SET os_id = 1
+  WHERE id = v_id;
+
+  UPDATE
+    mbsim
+  SET reg_id = 2
+  WHERE id = v_id;
 END
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 SELECT
     ligne.numligne,
@@ -55,22 +49,21 @@ SELECT
     compte.numcompte,
     devise.devise_uuid,
     devise.code,
-    CASE WHEN ligne.typemvt IS NULL THEN
-    (
-        SELECT
-            typemvt_uuid
-        FROM
-            typemvt
-        WHERE
-            upper(typemvt.code) = 'PRELEVEMENT')
-    ELSE
-        (
-            SELECT
-                typemvt_uuid
-            FROM
-                typemvt
-            WHERE
-                upper(typemvt.code) = upper(ligne.typemvt))
+    CASE
+        WHEN ligne.typemvt IS NULL THEN (
+                SELECT
+                    typemvt_uuid
+                FROM
+                    typemvt
+                WHERE
+                    upper(typemvt.code) = 'PRELEVEMENT')
+        ELSE (
+                SELECT
+                    typemvt_uuid
+                FROM
+                    typemvt
+                WHERE
+                    upper(typemvt.code) = upper(ligne.typemvt))
     END,
     ligne.ligne_uuid,
     analytique.analytique_uuid
@@ -81,13 +74,15 @@ FROM
     devise,
     analytique
 WHERE
-    ligne_uuid = :ligne_uuid
+    ligne_uuid =:ligne_uuid
     AND devise.defaut = 'O'
     AND upper(analytique.groupe) = 'DIVERS';
 
-CREATE OR REPLACE FUNCTION loader_os (OUT o_rc integer, OUT o_err character varying, IN i_acctoken character varying, IN i_os text)
-    RETURNS record
-    AS $$
+CREATE OR REPLACE FUNCTION loader_os (
+    OUT o_rc integer,
+    OUT o_err character varying,
+    IN i_acctoken character varying,
+    IN i_os text) RETURNS record AS $$
 DECLARE
     v_os bigint;
     v_id bigint;
@@ -98,5 +93,4 @@ BEGIN ATOMIC
     FROM
         loader_add i_acctoken;
 END
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
