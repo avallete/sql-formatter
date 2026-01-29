@@ -44,6 +44,8 @@ export enum TokenType {
   CUSTOM_PARAMETER = 'CUSTOM_PARAMETER',
   DELIMITER = 'DELIMITER',
   EOF = 'EOF',
+  // psql meta-commands like \d, \set, \c
+  PSQL_COMMAND = 'PSQL_COMMAND',
 }
 
 /** Struct to store the most basic cohesive unit of language grammar */

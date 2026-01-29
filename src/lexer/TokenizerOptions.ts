@@ -105,6 +105,8 @@ export interface TokenizerOptions {
   operatorKeyword?: boolean;
   // True to support underscores in number literals (e.g., 1_000_000)
   underscoresInNumbers?: boolean;
+  // True to support psql meta-commands like \d, \set, \c
+  psqlMetaCommands?: boolean;
   // Allows custom modifications on the token array.
   // Called after the whole input string has been split into tokens.
   // The result of this will be the output of the tokenizer.

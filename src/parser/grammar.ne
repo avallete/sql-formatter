@@ -388,3 +388,10 @@ comment -> %DISABLE_COMMENT {%
     precedingWhitespace: token.precedingWhitespace,
   })
 %}
+comment -> %PSQL_COMMAND {%
+  ([token]) => ({
+    type: NodeType.psql_command,
+    text: token.text,
+    precedingWhitespace: token.precedingWhitespace,
+  })
+%}

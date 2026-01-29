@@ -25,6 +25,7 @@ export enum NodeType {
   line_comment = 'line_comment',
   block_comment = 'block_comment',
   disable_comment = 'disable_comment',
+  psql_command = 'psql_command',
 }
 
 interface BaseNode {
@@ -185,7 +186,13 @@ export interface DisableCommentNode extends BaseNode {
   precedingWhitespace: string;
 }
 
-export type CommentNode = LineCommentNode | BlockCommentNode | DisableCommentNode;
+export interface PsqlCommandNode extends BaseNode {
+  type: NodeType.psql_command;
+  text: string;
+  precedingWhitespace: string;
+}
+
+export type CommentNode = LineCommentNode | BlockCommentNode | DisableCommentNode | PsqlCommandNode;
 
 export type AstNode =
   | ClauseNode
@@ -210,4 +217,5 @@ export type AstNode =
   | CommaNode
   | LineCommentNode
   | BlockCommentNode
-  | DisableCommentNode;
+  | DisableCommentNode
+  | PsqlCommandNode;

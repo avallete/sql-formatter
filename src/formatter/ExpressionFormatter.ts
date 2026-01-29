@@ -28,6 +28,7 @@ import {
   CaseExpressionNode,
   CaseWhenNode,
   CaseElseNode,
+  PsqlCommandNode,
   DataTypeNode,
   ParameterizedDataTypeNode,
   DisableCommentNode,
@@ -140,6 +141,8 @@ export default class ExpressionFormatter {
         return this.formatBlockComment(node);
       case NodeType.disable_comment:
         return this.formatBlockComment(node);
+      case NodeType.psql_command:
+        return this.formatPsqlCommand(node);
       case NodeType.data_type:
         return this.formatDataType(node);
       case NodeType.keyword:
@@ -393,6 +396,8 @@ export default class ExpressionFormatter {
     comments.forEach(com => {
       if (com.type === NodeType.line_comment) {
         this.formatLineComment(com);
+      } else if (com.type === NodeType.psql_command) {
+        this.formatPsqlCommand(com);
       } else {
         this.formatBlockComment(com);
       }
@@ -406,6 +411,18 @@ export default class ExpressionFormatter {
       this.layout.add(WS.NO_NEWLINE, WS.SPACE, node.text, WS.MANDATORY_NEWLINE, WS.INDENT);
     } else {
       // comment is the first item in code - no need to add preceding spaces
+      this.layout.add(node.text, WS.MANDATORY_NEWLINE, WS.INDENT);
+    }
+  }
+
+  // psql meta-commands like \d, \set, \c - preserve as-is on their own line
+  private formatPsqlCommand(node: PsqlCommandNode) {
+    if (isMultiline(node.precedingWhitespace || '')) {
+      this.layout.add(WS.NEWLINE, WS.INDENT, node.text, WS.MANDATORY_NEWLINE, WS.INDENT);
+    } else if (this.layout.getLayoutItems().length > 0) {
+      this.layout.add(WS.NEWLINE, WS.INDENT, node.text, WS.MANDATORY_NEWLINE, WS.INDENT);
+    } else {
+      // psql command is the first item in code
       this.layout.add(node.text, WS.MANDATORY_NEWLINE, WS.INDENT);
     }
   }

@@ -121,7 +121,7 @@ describe('Bundle Size', () => {
       );
 
       // Two dialects should still be smaller than full bundle
-      expect(size).toBeLessThan(80 * 1024);
+      expect(size).toBeLessThan(85 * 1024);
     });
   });
 

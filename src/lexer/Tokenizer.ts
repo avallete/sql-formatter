@@ -45,6 +45,11 @@ export default class Tokenizer {
         regex: regex.lineComment(cfg.lineCommentTypes ?? ['--']),
       },
       {
+        type: TokenType.PSQL_COMMAND,
+        // Match backslash command at start of input or after newline, command name, and rest of line
+        regex: cfg.psqlMetaCommands ? /(?<=^|\n)\\[a-zA-Z_]+[^\n]*/uy : undefined,
+      },
+      {
         type: TokenType.QUOTED_IDENTIFIER,
         regex: regex.string(cfg.identTypes),
       },

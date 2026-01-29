@@ -283,6 +283,7 @@ export const postgresql: DialectOptions = {
     nestedBlockComments: true,
     extraParens: ['[]'],
     underscoresInNumbers: true,
+    psqlMetaCommands: true,
     stringTypes: [
       '$$',
       { quote: "''-qq", prefixes: ['U&'] },
