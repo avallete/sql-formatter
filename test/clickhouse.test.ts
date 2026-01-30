@@ -1711,30 +1711,34 @@ describe('ClickhouseFormatter', () => {
 
   // https://clickhouse.com/docs/sql-reference/statements/describe-table
   describe('DESCRIBE TABLE statements', () => {
-    expect(format('DESCRIBE TABLE table1;')).toBe(dedent`
-      DESCRIBE TABLE table1;
-    `);
-    expect(format('DESC TABLE table1;')).toBe(dedent`
-      DESC TABLE table1;
-    `);
+    it('formats DESCRIBE TABLE and DESC TABLE', () => {
+      expect(format('DESCRIBE TABLE table1;')).toBe(dedent`
+        DESCRIBE TABLE table1;
+      `);
+      expect(format('DESC TABLE table1;')).toBe(dedent`
+        DESC TABLE table1;
+      `);
+    });
   });
 
   // https://clickhouse.com/docs/sql-reference/statements/parallel_with
   describe('PARALLEL WITH statements', () => {
-    expect(
-      format(`
+    it('formats PARALLEL WITH', () => {
+      expect(
+        format(`
         CREATE TABLE table1(x Int32) ENGINE = MergeTree ORDER BY tuple()
         PARALLEL WITH
         CREATE TABLE table2(y String) ENGINE = MergeTree ORDER BY tuple();
       `)
-    ).toBe(dedent`
-      CREATE TABLE table1 (x Int32) ENGINE = MergeTree
-      ORDER BY
-        tuple()
-      PARALLEL WITH
-      CREATE TABLE table2 (y String) ENGINE = MergeTree
-      ORDER BY
-        tuple();
-    `);
+      ).toBe(dedent`
+        CREATE TABLE table1 (x Int32) ENGINE = MergeTree
+        ORDER BY
+          tuple()
+        PARALLEL WITH
+        CREATE TABLE table2 (y String) ENGINE = MergeTree
+        ORDER BY
+          tuple();
+      `);
+    });
   });
 });

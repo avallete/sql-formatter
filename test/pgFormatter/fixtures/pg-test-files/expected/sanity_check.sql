@@ -7,7 +7,7 @@ VACUUM;
 -- of other backends (to avoid timing-dependent behavior).
 --
 -- temporarily disable fancy output, so catalog changes create less diff noise
-a \t
+\a\t
 SELECT
     relname,
     relhasindex
@@ -21,7 +21,7 @@ ORDER BY
     relname;
 
 -- restore normal output mode
-a \t
+\a\t
 --
 -- another sanity check: every system catalog that has OIDs should have
 -- a unique index on OID.  This ensures that the OIDs will be unique,
@@ -34,8 +34,9 @@ SELECT
 FROM
     pg_class c
     LEFT JOIN pg_namespace n ON n.oid = relnamespace
-    JOIN pg_attribute a ON (attrelid = c.oid
-            AND attname = 'oid')
+    JOIN pg_attribute a ON (
+        attrelid = c.oid
+        AND attname = 'oid')
 WHERE
     relkind = 'r'
     AND c.oid < 16384
@@ -61,4 +62,3 @@ FROM
 WHERE
     relkind IN ('v', 'c', 'f', 'p', 'I')
     AND relfilenode <> 0;
-

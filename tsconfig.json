@@ -14,6 +14,6 @@
     // Report error when not all code paths in function return a value.
     "noImplicitReturns": true
   },
-  "include": ["src", "test", "static"],
+  "include": ["src", "test", "static", "vitest.config.ts"],
   "exclude": ["node_modules"]
 }

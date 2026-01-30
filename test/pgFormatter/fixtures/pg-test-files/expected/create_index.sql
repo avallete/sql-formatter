@@ -65,7 +65,8 @@ CREATE INDEX bt_f8_index ON bt_f8_heap USING btree (seqno float8_ops);
 --
 CREATE INDEX onek2_u1_prtl ON onek2 USING btree (unique1 int4_ops)
 WHERE
-    unique1 < 20 OR unique1 > 980;
+    unique1 < 20
+    OR unique1 > 980;
 
 CREATE INDEX onek2_u2_prtl ON onek2 USING btree (unique2 int4_ops)
 WHERE
@@ -73,7 +74,8 @@ WHERE
 
 CREATE INDEX onek2_stu1_prtl ON onek2 USING btree (stringu1 name_ops)
 WHERE
-    onek2.stringu1 >= 'J' AND onek2.stringu1 < 'K';
+    onek2.stringu1 >= 'J'
+    AND onek2.stringu1 < 'K';
 
 --
 -- GiST (rtree-equivalent opclasses only)
@@ -84,8 +86,10 @@ CREATE INDEX gpolygonind ON polygon_tbl USING gist (f1);
 
 CREATE INDEX gcircleind ON circle_tbl USING gist (f1);
 
-INSERT INTO POINT_TBL (f1)
-    VALUES (NULL);
+INSERT INTO
+    POINT_TBL (f1)
+VALUES
+    (NULL);
 
 CREATE INDEX gpointind ON point_tbl USING gist (f1);
 
@@ -95,11 +99,15 @@ SELECT
 FROM
     slow_emp4000;
 
-INSERT INTO gpolygon_tbl
-    VALUES ('(1000,0,0,1000)');
+INSERT INTO
+    gpolygon_tbl
+VALUES
+    ('(1000,0,0,1000)');
 
-INSERT INTO gpolygon_tbl
-    VALUES ('(0,1000,1000,1000)');
+INSERT INTO
+    gpolygon_tbl
+VALUES
+    ('(0,1000,1000,1000)');
 
 CREATE TEMP TABLE gcircle_tbl AS
 SELECT
@@ -115,11 +123,14 @@ CREATE INDEX ggcircleind ON gcircle_tbl USING gist (f1);
 -- Test GiST indexes
 --
 -- get non-indexed results for comparison purposes
-SET enable_seqscan = ON;
+SET
+    enable_seqscan = ON;
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
 SELECT
     *
@@ -128,7 +139,7 @@ FROM
 WHERE
     home_base @ '(200,200),(2000,1000)'::box
 ORDER BY
-    (home_base[0])[0];
+    (home_base[0]) [0];
 
 SELECT
     count(*)
@@ -151,7 +162,7 @@ FROM
 WHERE
     f1 ~ '((1,1),(2,2),(2,1))'::polygon
 ORDER BY
-    (poly_center(f1))[0];
+    (poly_center (f1)) [0];
 
 SELECT
     *
@@ -230,7 +241,7 @@ SELECT
 FROM
     point_tbl p
 WHERE
-    p.f1 >^ '(0.0, 0.0)';
+    p.f1 > ^ '(0.0, 0.0)';
 
 SELECT
     count(*)
@@ -277,27 +288,30 @@ FROM
     gpolygon_tbl
 ORDER BY
     f1 <-> '(0,0)'::point
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
-    circle_center(f1),
+    circle_center (f1),
     round(radius(f1)) AS radius
 FROM
     gcircle_tbl
 ORDER BY
     f1 <-> '(200,300)'::point
-LIMIT 10;
+LIMIT
+    10;
 
 -- Now check the results from plain indexscan
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -305,7 +319,7 @@ FROM
 WHERE
     home_base @ '(200,200),(2000,1000)'::box
 ORDER BY
-    (home_base[0])[0];
+    (home_base[0]) [0];
 
 SELECT
     *
@@ -314,11 +328,9 @@ FROM
 WHERE
     home_base @ '(200,200),(2000,1000)'::box
 ORDER BY
-    (home_base[0])[0];
+    (home_base[0]) [0];
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -333,9 +345,7 @@ FROM
 WHERE
     home_base && '(1000,1000,0,0)'::box;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -350,9 +360,7 @@ FROM
 WHERE
     home_base IS NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -360,7 +368,7 @@ FROM
 WHERE
     f1 ~ '((1,1),(2,2),(2,1))'::polygon
 ORDER BY
-    (poly_center(f1))[0];
+    (poly_center (f1)) [0];
 
 SELECT
     *
@@ -369,11 +377,9 @@ FROM
 WHERE
     f1 ~ '((1,1),(2,2),(2,1))'::polygon
 ORDER BY
-    (poly_center(f1))[0];
+    (poly_center (f1)) [0];
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -392,9 +398,7 @@ WHERE
 ORDER BY
     area(f1);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -409,9 +413,7 @@ FROM
 WHERE
     f1 && '(1000,1000,0,0)'::polygon;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -426,9 +428,7 @@ FROM
 WHERE
     f1 && '<(500,500),500>'::circle;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -443,9 +443,7 @@ FROM
 WHERE
     f1 <@ box '(0,0,100,100)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -460,9 +458,7 @@ FROM
 WHERE
     box '(0,0,100,100)' @> f1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -477,9 +473,7 @@ FROM
 WHERE
     f1 <@ polygon '(0,0),(0,100),(100,100),(50,50),(100,0),(0,0)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -494,9 +488,7 @@ FROM
 WHERE
     f1 <@ circle '<(50,50),50>';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -511,9 +503,7 @@ FROM
 WHERE
     p.f1 << '(0.0, 0.0)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -528,9 +518,7 @@ FROM
 WHERE
     p.f1 >> '(0.0, 0.0)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -545,26 +533,22 @@ FROM
 WHERE
     p.f1 <^ '(0.0, 0.0)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     point_tbl p
 WHERE
-    p.f1 >^ '(0.0, 0.0)';
+    p.f1 > ^ '(0.0, 0.0)';
 
 SELECT
     count(*)
 FROM
     point_tbl p
 WHERE
-    p.f1 >^ '(0.0, 0.0)';
+    p.f1 > ^ '(0.0, 0.0)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -579,9 +563,7 @@ FROM
 WHERE
     p.f1 ~= '(-5, -12)';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -596,9 +578,7 @@ FROM
 ORDER BY
     f1 <-> '0,1';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -613,9 +593,7 @@ FROM
 WHERE
     f1 IS NULL;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -634,9 +612,7 @@ WHERE
 ORDER BY
     f1 <-> '0,1';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -655,16 +631,15 @@ WHERE
 ORDER BY
     f1 <-> '0,1';
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
     gpolygon_tbl
 ORDER BY
     f1 <-> '(0,0)'::point
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
     *
@@ -672,39 +647,41 @@ FROM
     gpolygon_tbl
 ORDER BY
     f1 <-> '(0,0)'::point
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
-    circle_center(f1),
+    circle_center (f1),
     round(radius(f1)) AS radius
 FROM
     gcircle_tbl
 ORDER BY
     f1 <-> '(200,300)'::point
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
-    circle_center(f1),
+    circle_center (f1),
     round(radius(f1)) AS radius
 FROM
     gcircle_tbl
 ORDER BY
     f1 <-> '(200,300)'::point
-LIMIT 10;
+LIMIT
+    10;
 
 -- Now check the results from bitmap indexscan
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -734,17 +711,18 @@ RESET enable_bitmapscan;
 --
 -- Note: GIN currently supports only bitmap scans, not plain indexscans
 --
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
 CREATE INDEX intarrayidx ON array_index_op_test USING gin (i);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -900,9 +878,7 @@ ORDER BY
 
 CREATE INDEX textarrayidx ON array_index_op_test USING gin (t);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1021,7 +997,8 @@ ORDER BY
     seqno;
 
 -- And try it with a multicolumn GIN index
-DROP INDEX intarrayidx, textarrayidx;
+DROP INDEX intarrayidx,
+textarrayidx;
 
 CREATE INDEX botharrayidx ON array_index_op_test USING gin (i, t);
 
@@ -1118,11 +1095,10 @@ RESET enable_bitmapscan;
 -- Try a GIN index with a lot of items with same key. (GIN creates a posting
 -- tree when there are enough duplicates)
 --
-CREATE TABLE array_gin_test (
-    a int[]
-);
+CREATE TABLE array_gin_test (a INT[]);
 
-INSERT INTO array_gin_test
+INSERT INTO
+    array_gin_test
 SELECT
     ARRAY[1, g % 5, g]
 FROM
@@ -1142,38 +1118,41 @@ DROP TABLE array_gin_test;
 --
 -- Test GIN index's reloptions
 --
-CREATE INDEX gin_relopts_test ON array_index_op_test USING gin (i) WITH (FASTUPDATE = ON, GIN_PENDING_LIST_LIMIT = 128);
+CREATE INDEX gin_relopts_test ON array_index_op_test USING gin (i)
+WITH
+    (FASTUPDATE = ON, GIN_PENDING_LIST_LIMIT = 128);
 
 \d+ gin_relopts_test
 --
 -- HASH
 --
-CREATE INDEX hash_i4_index ON hash_i4_heap USING HASH (random int4_ops);
+CREATE INDEX hash_i4_index ON hash_i4_heap USING hash (random int4_ops);
 
-CREATE INDEX hash_name_index ON hash_name_heap USING HASH (random name_ops);
+CREATE INDEX hash_name_index ON hash_name_heap USING hash (random name_ops);
 
-CREATE INDEX hash_txt_index ON hash_txt_heap USING HASH (random text_ops);
+CREATE INDEX hash_txt_index ON hash_txt_heap USING hash (random text_ops);
 
-CREATE INDEX hash_f8_index ON hash_f8_heap USING HASH (random float8_ops) WITH (fillfactor = 60);
+CREATE INDEX hash_f8_index ON hash_f8_heap USING hash (random float8_ops)
+WITH
+    (fillfactor = 60);
 
-CREATE UNLOGGED TABLE unlogged_hash_table (
-    id int4
-);
+CREATE UNLOGGED TABLE unlogged_hash_table (id int4);
 
-CREATE INDEX unlogged_hash_index ON unlogged_hash_table USING HASH (id int4_ops);
+CREATE INDEX unlogged_hash_index ON unlogged_hash_table USING hash (id int4_ops);
 
 DROP TABLE unlogged_hash_table;
 
 -- CREATE INDEX hash_ovfl_index ON hash_ovfl_heap USING hash (x int4_ops);
 -- Test hash index build tuplesorting.  Force hash tuplesort using low
 -- maintenance_work_mem setting and fillfactor:
-SET maintenance_work_mem = '1MB';
+SET
+    maintenance_work_mem = '1MB';
 
-CREATE INDEX hash_tuplesort_idx ON tenk1 USING HASH (stringu1 name_ops) WITH (fillfactor = 10);
+CREATE INDEX hash_tuplesort_idx ON tenk1 USING hash (stringu1 name_ops)
+WITH
+    (fillfactor = 10);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1195,90 +1174,108 @@ RESET maintenance_work_mem;
 --
 -- Test functional index
 --
-CREATE TABLE func_index_heap (
-    f1 text,
-    f2 text
-);
+CREATE TABLE func_index_heap (f1 text, f2 text);
 
-CREATE UNIQUE INDEX func_index_index ON func_index_heap (textcat(f1, f2));
+CREATE UNIQUE INDEX func_index_index ON func_index_heap (textcat (f1, f2));
 
-INSERT INTO func_index_heap
-    VALUES ('ABC', 'DEF');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('ABC', 'DEF');
 
-INSERT INTO func_index_heap
-    VALUES ('AB', 'CDEFG');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('AB', 'CDEFG');
 
-INSERT INTO func_index_heap
-    VALUES ('QWE', 'RTY');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('QWE', 'RTY');
 
 -- this should fail because of unique index:
-INSERT INTO func_index_heap
-    VALUES ('ABCD', 'EF');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('ABCD', 'EF');
 
 -- but this shouldn't:
-INSERT INTO func_index_heap
-    VALUES ('QWERTY');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('QWERTY');
 
 --
 -- Same test, expressional index
 --
 DROP TABLE func_index_heap;
 
-CREATE TABLE func_index_heap (
-    f1 text,
-    f2 text
-);
+CREATE TABLE func_index_heap (f1 text, f2 text);
 
 CREATE UNIQUE INDEX func_index_index ON func_index_heap ((f1 || f2) text_ops);
 
-INSERT INTO func_index_heap
-    VALUES ('ABC', 'DEF');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('ABC', 'DEF');
 
-INSERT INTO func_index_heap
-    VALUES ('AB', 'CDEFG');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('AB', 'CDEFG');
 
-INSERT INTO func_index_heap
-    VALUES ('QWE', 'RTY');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('QWE', 'RTY');
 
 -- this should fail because of unique index:
-INSERT INTO func_index_heap
-    VALUES ('ABCD', 'EF');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('ABCD', 'EF');
 
 -- but this shouldn't:
-INSERT INTO func_index_heap
-    VALUES ('QWERTY');
+INSERT INTO
+    func_index_heap
+VALUES
+    ('QWERTY');
 
 --
 -- Test unique index with included columns
 --
-CREATE TABLE covering_index_heap (
-    f1 int,
-    f2 int,
-    f3 text
-);
+CREATE TABLE covering_index_heap (f1 int, f2 int, f3 text);
 
 CREATE UNIQUE INDEX covering_index_index ON covering_index_heap (f1, f2) INCLUDE (f3);
 
-INSERT INTO covering_index_heap
-    VALUES (1, 1, 'AAA');
+INSERT INTO
+    covering_index_heap
+VALUES
+    (1, 1, 'AAA');
 
-INSERT INTO covering_index_heap
-    VALUES (1, 2, 'AAA');
+INSERT INTO
+    covering_index_heap
+VALUES
+    (1, 2, 'AAA');
 
 -- this should fail because of unique index on f1,f2:
-INSERT INTO covering_index_heap
-    VALUES (1, 2, 'BBB');
+INSERT INTO
+    covering_index_heap
+VALUES
+    (1, 2, 'BBB');
 
 -- and this shouldn't:
-INSERT INTO covering_index_heap
-    VALUES (1, 4, 'AAA');
+INSERT INTO
+    covering_index_heap
+VALUES
+    (1, 4, 'AAA');
 
 -- Try to build index on table that already contains data
 CREATE UNIQUE INDEX covering_pkey ON covering_index_heap (f1, f2) INCLUDE (f3);
 
 -- Try to use existing covering index as primary key
 ALTER TABLE covering_index_heap
-    ADD CONSTRAINT covering_pkey PRIMARY KEY USING INDEX covering_pkey;
+ADD CONSTRAINT covering_pkey PRIMARY KEY USING INDEX covering_pkey;
 
 DROP TABLE covering_index_heap;
 
@@ -1299,21 +1296,22 @@ WHERE
 --
 -- Unfortunately this only tests about half the code paths because there are
 -- no concurrent updates happening to the table at the same time.
-CREATE TABLE concur_heap (
-    f1 text,
-    f2 text
-);
+CREATE TABLE concur_heap (f1 text, f2 text);
 
 -- empty table
 CREATE INDEX CONCURRENTLY concur_index1 ON concur_heap (f2, f1);
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS concur_index1 ON concur_heap (f2, f1);
 
-INSERT INTO concur_heap
-    VALUES ('a', 'b');
+INSERT INTO
+    concur_heap
+VALUES
+    ('a', 'b');
 
-INSERT INTO concur_heap
-    VALUES ('b', 'b');
+INSERT INTO
+    concur_heap
+VALUES
+    ('b', 'b');
 
 -- unique index
 CREATE UNIQUE INDEX CONCURRENTLY concur_index2 ON concur_heap (f1);
@@ -1321,8 +1319,10 @@ CREATE UNIQUE INDEX CONCURRENTLY concur_index2 ON concur_heap (f1);
 CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS concur_index2 ON concur_heap (f1);
 
 -- check if constraint is set up properly to be enforced
-INSERT INTO concur_heap
-    VALUES ('b', 'x');
+INSERT INTO
+    concur_heap
+VALUES
+    ('b', 'x');
 
 -- check if constraint is enforced properly at build time
 CREATE UNIQUE INDEX CONCURRENTLY concur_index3 ON concur_heap (f2);
@@ -1341,25 +1341,28 @@ CREATE INDEX CONCURRENTLY ON concur_heap ((f2 || f1));
 
 -- You can't do a concurrent index build in a transaction
 BEGIN;
+
 CREATE INDEX CONCURRENTLY concur_index7 ON concur_heap (f1);
+
 COMMIT;
 
 -- But you can do a regular index build in a transaction
 BEGIN;
+
 CREATE INDEX std_index ON concur_heap (f2);
+
 COMMIT;
 
 -- Failed builds are left invalid by VACUUM FULL, fixed by REINDEX
-VACUUM
-    FULL concur_heap;
+VACUUM FULL concur_heap;
 
 REINDEX TABLE concur_heap;
 
 DELETE FROM concur_heap
-WHERE f1 = 'b';
+WHERE
+    f1 = 'b';
 
-VACUUM
-    FULL concur_heap;
+VACUUM FULL concur_heap;
 
 \d concur_heap
 REINDEX TABLE concur_heap;
@@ -1375,10 +1378,13 @@ DROP INDEX CONCURRENTLY IF EXISTS "concur_index2";
 
 -- notice
 -- failures
-DROP INDEX CONCURRENTLY "concur_index2", "concur_index3";
+DROP INDEX CONCURRENTLY "concur_index2",
+"concur_index3";
 
 BEGIN;
+
 DROP INDEX CONCURRENTLY "concur_index5";
+
 ROLLBACK;
 
 -- successes
@@ -1398,14 +1404,11 @@ DROP TABLE concur_heap;
 --
 -- Test ADD CONSTRAINT USING INDEX
 --
-CREATE TABLE cwi_test (
-    a int,
-    b varchar(10),
-    c char
-);
+CREATE TABLE cwi_test (a int, b varchar(10), c char);
 
 -- add some data so that all tests have something to work with.
-INSERT INTO cwi_test
+INSERT INTO
+    cwi_test
 VALUES
     (1, 2),
     (3, 4),
@@ -1414,15 +1417,15 @@ VALUES
 CREATE UNIQUE INDEX cwi_uniq_idx ON cwi_test (a, b);
 
 ALTER TABLE cwi_test
-    ADD PRIMARY KEY USING INDEX cwi_uniq_idx;
+ADD PRIMARY KEY USING INDEX cwi_uniq_idx;
 
 \d cwi_test
 \d cwi_uniq_idx
 CREATE UNIQUE INDEX cwi_uniq2_idx ON cwi_test (b, a);
 
 ALTER TABLE cwi_test
-    DROP CONSTRAINT cwi_uniq_idx,
-    ADD CONSTRAINT cwi_replaced_pkey PRIMARY KEY USING INDEX cwi_uniq2_idx;
+DROP CONSTRAINT cwi_uniq_idx,
+ADD CONSTRAINT cwi_replaced_pkey PRIMARY KEY USING INDEX cwi_uniq2_idx;
 
 \d cwi_test
 \d cwi_replaced_pkey
@@ -1432,24 +1435,21 @@ DROP INDEX cwi_replaced_pkey;
 DROP TABLE cwi_test;
 
 -- ADD CONSTRAINT USING INDEX is forbidden on partitioned tables
-CREATE TABLE cwi_test (
-    a int
-)
-PARTITION BY HASH (a);
+CREATE TABLE cwi_test (a int)
+PARTITION BY
+    hash (a);
 
 CREATE UNIQUE INDEX ON cwi_test (a);
 
 ALTER TABLE cwi_test
-    ADD PRIMARY KEY USING INDEX cwi_test_a_idx;
+ADD PRIMARY KEY USING index cwi_test_a_idx;
 
 DROP TABLE cwi_test;
 
 --
 -- Check handling of indexes on system columns
 --
-CREATE TABLE syscol_table (
-    a int
-);
+CREATE TABLE syscol_table (a INT);
 
 -- System columns cannot be indexed
 CREATE INDEX ON syscolcol_table (ctid);
@@ -1473,18 +1473,22 @@ SELECT
 FROM
     onek;
 
-INSERT INTO onek_with_null (unique1, unique2)
+INSERT INTO
+    onek_with_null (unique1, unique2)
 VALUES
     (NULL, -1),
     (NULL, NULL);
 
 CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2, unique1);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
 SELECT
     count(*)
@@ -1584,7 +1588,7 @@ WHERE
 
 DROP INDEX onek_nulltest;
 
-CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2 DESC nulls LAST, unique1);
+CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2 DESC NULLS LAST, unique1);
 
 SELECT
     count(*)
@@ -1634,7 +1638,7 @@ WHERE
 
 DROP INDEX onek_nulltest;
 
-CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2 nulls FIRST, unique1);
+CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2 NULLS FIRST, unique1);
 
 SELECT
     count(*)
@@ -1687,11 +1691,14 @@ DROP INDEX onek_nulltest;
 -- Check initial-positioning logic too
 CREATE UNIQUE INDEX onek_nulltest ON onek_with_null (unique2);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
 SELECT
     unique1,
@@ -1700,7 +1707,8 @@ FROM
     onek_with_null
 ORDER BY
     unique2
-LIMIT 2;
+LIMIT
+    2;
 
 SELECT
     unique1,
@@ -1711,7 +1719,8 @@ WHERE
     unique2 >= -1
 ORDER BY
     unique2
-LIMIT 2;
+LIMIT
+    2;
 
 SELECT
     unique1,
@@ -1722,7 +1731,8 @@ WHERE
     unique2 >= 0
 ORDER BY
     unique2
-LIMIT 2;
+LIMIT
+    2;
 
 SELECT
     unique1,
@@ -1731,7 +1741,8 @@ FROM
     onek_with_null
 ORDER BY
     unique2 DESC
-LIMIT 2;
+LIMIT
+    2;
 
 SELECT
     unique1,
@@ -1742,7 +1753,8 @@ WHERE
     unique2 >= -1
 ORDER BY
     unique2 DESC
-LIMIT 2;
+LIMIT
+    2;
 
 SELECT
     unique1,
@@ -1753,7 +1765,8 @@ WHERE
     unique2 < 999
 ORDER BY
     unique2 DESC
-LIMIT 2;
+LIMIT
+    2;
 
 RESET enable_seqscan;
 
@@ -1766,16 +1779,15 @@ DROP TABLE onek_with_null;
 --
 -- Check bitmap index path planning
 --
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
     tenk1
 WHERE
     thousand = 42
-    AND (tenthous = 1
+    AND (
+        tenthous = 1
         OR tenthous = 3
         OR tenthous = 42);
 
@@ -1785,20 +1797,20 @@ FROM
     tenk1
 WHERE
     thousand = 42
-    AND (tenthous = 1
+    AND (
+        tenthous = 1
         OR tenthous = 3
         OR tenthous = 42);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
     tenk1
 WHERE
     hundred = 42
-    AND (thousand = 42
+    AND (
+        thousand = 42
         OR thousand = 99);
 
 SELECT
@@ -1807,7 +1819,8 @@ FROM
     tenk1
 WHERE
     hundred = 42
-    AND (thousand = 42
+    AND (
+        thousand = 42
         OR thousand = 99);
 
 --
@@ -1824,9 +1837,7 @@ CREATE INDEX dupindexcols_i ON dupindexcols (f1, id, f1 text_pattern_ops);
 
 ANALYZE dupindexcols;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     count(*)
 FROM
@@ -1851,9 +1862,7 @@ WHERE
 VACUUM tenk1;
 
 -- ensure we get consistent plans here
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     unique1
 FROM
@@ -1872,9 +1881,7 @@ WHERE
 ORDER BY
     unique1;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     thousand,
     tenthous
@@ -1897,11 +1904,10 @@ WHERE
 ORDER BY
     thousand;
 
-SET enable_indexonlyscan = OFF;
+SET
+    enable_indexonlyscan = OFF;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     thousand,
     tenthous
@@ -1929,28 +1935,20 @@ RESET enable_indexonlyscan;
 --
 -- Check elimination of constant-NULL subexpressions
 --
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     tenk1
-WHERE (thousand, tenthous) IN ((1, 1001), (NULL, NULL));
+WHERE
+    (thousand, tenthous) IN ((1, 1001), (NULL, NULL));
 
 --
 -- Check matching of boolean index columns to WHERE conditions and sort keys
 --
-CREATE temp TABLE boolindex (
-    b bool,
-    i int,
-    UNIQUE (b, i),
-    junk float
-);
+CREATE TEMP TABLE boolindex (b bool, i int, UNIQUE (b, i), junk float);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1958,11 +1956,10 @@ FROM
 ORDER BY
     b,
     i
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1971,11 +1968,10 @@ WHERE
     b
 ORDER BY
     i
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1984,11 +1980,10 @@ WHERE
     b = TRUE
 ORDER BY
     i DESC
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1997,11 +1992,10 @@ WHERE
     NOT b
 ORDER BY
     i
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -2010,11 +2004,10 @@ WHERE
     b IS TRUE
 ORDER BY
     i DESC
-LIMIT 10;
+LIMIT
+    10;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -2023,18 +2016,16 @@ WHERE
     b IS FALSE
 ORDER BY
     i DESC
-LIMIT 10;
+LIMIT
+    10;
 
 --
 -- REINDEX (VERBOSE)
 --
-CREATE TABLE reindex_verbose (
-    id integer PRIMARY KEY
-);
+CREATE TABLE reindex_verbose (id integer PRIMARY KEY);
 
 \set VERBOSITY terse \\ -- suppress machine-dependent details
-REINDEX (VERBOSE)
-TABLE reindex_verbose;
+REINDEX (VERBOSE) TABLE reindex_verbose;
 
 \set VERBOSITY default
 DROP TABLE reindex_verbose;
@@ -2042,9 +2033,7 @@ DROP TABLE reindex_verbose;
 --
 -- REINDEX CONCURRENTLY
 --
-CREATE TABLE concur_reindex_tab (
-    c1 int
-);
+CREATE TABLE concur_reindex_tab (c1 int);
 
 -- REINDEX
 REINDEX TABLE concur_reindex_tab;
@@ -2054,7 +2043,7 @@ REINDEX TABLE CONCURRENTLY concur_reindex_tab;
 
 -- notice
 ALTER TABLE concur_reindex_tab
-    ADD COLUMN c2 text;
+ADD COLUMN c2 text;
 
 -- add toast index
 -- Normal index with integer column
@@ -2071,27 +2060,33 @@ CREATE INDEX concur_reindex_ind4 ON concur_reindex_tab (c1, c1, c2);
 
 -- Create table for check on foreign key dependence switch with indexes swapped
 ALTER TABLE concur_reindex_tab
-    ADD PRIMARY KEY USING INDEX concur_reindex_ind1;
+ADD PRIMARY KEY USING INDEX concur_reindex_ind1;
 
-CREATE TABLE concur_reindex_tab2 (
-    c1 int REFERENCES concur_reindex_tab
-);
+CREATE TABLE concur_reindex_tab2 (c1 int REFERENCES concur_reindex_tab);
 
-INSERT INTO concur_reindex_tab
-    VALUES (1, 'a');
+INSERT INTO
+    concur_reindex_tab
+VALUES
+    (1, 'a');
 
-INSERT INTO concur_reindex_tab
-    VALUES (2, 'a');
+INSERT INTO
+    concur_reindex_tab
+VALUES
+    (2, 'a');
 
 -- Reindex concurrently of exclusion constraint currently not supported
 CREATE TABLE concur_reindex_tab3 (
     c1 int,
     c2 int4range,
-    EXCLUDE USING gist (c2 WITH &&)
-);
+    EXCLUDE USING gist (
+        c2
+        WITH
+            &&));
 
-INSERT INTO concur_reindex_tab3
-    VALUES (3, '[1,2]');
+INSERT INTO
+    concur_reindex_tab3
+VALUES
+    (3, '[1,2]');
 
 REINDEX INDEX CONCURRENTLY concur_reindex_tab3_c2_excl;
 
@@ -2099,8 +2094,10 @@ REINDEX INDEX CONCURRENTLY concur_reindex_tab3_c2_excl;
 REINDEX TABLE CONCURRENTLY concur_reindex_tab3;
 
 -- succeeds with warning
-INSERT INTO concur_reindex_tab3
-    VALUES (4, '[2,4]');
+INSERT INTO
+    concur_reindex_tab3
+VALUES
+    (4, '[2,4]');
 
 -- Check materialized views
 CREATE MATERIALIZED VIEW concur_reindex_matview AS
@@ -2116,9 +2113,7 @@ REINDEX TABLE CONCURRENTLY concur_reindex_tab;
 REINDEX TABLE CONCURRENTLY concur_reindex_matview;
 
 -- Check that comments are preserved
-CREATE TABLE testcomment (
-    i int
-);
+CREATE TABLE testcomment (i int);
 
 CREATE INDEX testcomment_idx1 ON testcomment (i);
 
@@ -2141,26 +2136,32 @@ DROP TABLE testcomment;
 
 -- Partitions
 -- Create some partitioned tables
-CREATE TABLE concur_reindex_part (
-    c1 int,
-    c2 int
-)
-PARTITION BY RANGE (c1);
+CREATE TABLE concur_reindex_part (c1 int, c2 int)
+PARTITION BY
+    RANGE (c1);
 
-CREATE TABLE concur_reindex_part_0 PARTITION OF concur_reindex_part
-FOR VALUES FROM (0) TO (10)
-PARTITION BY LIST (c2);
+CREATE TABLE concur_reindex_part_0 PARTITION OF concur_reindex_part FOR
+VALUES
+FROM
+    (0) TO (10)
+PARTITION BY
+    list (c2);
 
-CREATE TABLE concur_reindex_part_0_1 PARTITION OF concur_reindex_part_0
-FOR VALUES IN (1);
+CREATE TABLE concur_reindex_part_0_1 PARTITION OF concur_reindex_part_0 FOR
+VALUES
+    IN (1);
 
-CREATE TABLE concur_reindex_part_0_2 PARTITION OF concur_reindex_part_0
-FOR VALUES IN (2);
+CREATE TABLE concur_reindex_part_0_2 PARTITION OF concur_reindex_part_0 FOR
+VALUES
+    IN (2);
 
 -- This partitioned table will have no partitions.
-CREATE TABLE concur_reindex_part_10 PARTITION OF concur_reindex_part
-FOR VALUES FROM (10) TO (20)
-PARTITION BY LIST (c2);
+CREATE TABLE concur_reindex_part_10 PARTITION OF concur_reindex_part FOR
+VALUES
+FROM
+    (10) TO (20)
+PARTITION BY
+    list (c2);
 
 -- Create some partitioned indexes
 CREATE INDEX concur_reindex_part_index ON ONLY concur_reindex_part (c1);
@@ -2187,7 +2188,7 @@ SELECT
     parentrelid,
     level
 FROM
-    pg_partition_tree ('concur_reindex_part_index')
+    pg_partition_tree('concur_reindex_part_index')
 ORDER BY
     relid,
     level;
@@ -2207,7 +2208,7 @@ SELECT
     parentrelid,
     level
 FROM
-    pg_partition_tree ('concur_reindex_part_index')
+    pg_partition_tree('concur_reindex_part_index')
 ORDER BY
     relid,
     level;
@@ -2222,7 +2223,7 @@ SELECT
     parentrelid,
     level
 FROM
-    pg_partition_tree ('concur_reindex_part_index')
+    pg_partition_tree('concur_reindex_part_index')
 ORDER BY
     relid,
     level;
@@ -2236,7 +2237,7 @@ SELECT
     parentrelid,
     level
 FROM
-    pg_partition_tree ('concur_reindex_part_index')
+    pg_partition_tree('concur_reindex_part_index')
 ORDER BY
     relid,
     level;
@@ -2246,7 +2247,9 @@ DROP TABLE concur_reindex_part;
 -- Check errors
 -- Cannot run inside a transaction block
 BEGIN;
+
 REINDEX TABLE CONCURRENTLY concur_reindex_tab;
+
 COMMIT;
 
 REINDEX TABLE CONCURRENTLY pg_database;
@@ -2265,14 +2268,15 @@ REINDEX SCHEMA CONCURRENTLY pg_catalog;
 \d concur_reindex_tab
 DROP MATERIALIZED VIEW concur_reindex_matview;
 
-DROP TABLE concur_reindex_tab, concur_reindex_tab2, concur_reindex_tab3;
+DROP TABLE concur_reindex_tab,
+concur_reindex_tab2,
+concur_reindex_tab3;
 
 -- Check handling of invalid indexes
-CREATE TABLE concur_reindex_tab4 (
-    c1 int
-);
+CREATE TABLE concur_reindex_tab4 (c1 int);
 
-INSERT INTO concur_reindex_tab4
+INSERT INTO
+    concur_reindex_tab4
 VALUES
     (1),
     (1),
@@ -2290,7 +2294,8 @@ DROP INDEX concur_reindex_ind5_ccnew;
 
 -- This makes the previous failure go away, so the index can become valid.
 DELETE FROM concur_reindex_tab4
-WHERE c1 = 1;
+WHERE
+    c1 = 1;
 
 -- The invalid index is not processed when running REINDEX TABLE.
 REINDEX TABLE CONCURRENTLY concur_reindex_tab4;
@@ -2310,22 +2315,20 @@ REINDEX SCHEMA schema_to_reindex;
 -- failure, schema does not exist
 CREATE SCHEMA schema_to_reindex;
 
-SET search_path = 'schema_to_reindex';
+SET
+    search_path = 'schema_to_reindex';
 
-CREATE TABLE table1 (
-    col1 serial PRIMARY KEY
-);
+CREATE TABLE table1 (col1 SERIAL PRIMARY KEY);
 
-INSERT INTO table1
+INSERT INTO
+    table1
 SELECT
     generate_series(1, 400);
 
-CREATE TABLE table2 (
-    col1 serial PRIMARY KEY,
-    col2 text NOT NULL
-);
+CREATE TABLE table2 (col1 SERIAL PRIMARY KEY, col2 TEXT NOT NULL);
 
-INSERT INTO table2
+INSERT INTO
+    table2
 SELECT
     generate_series(1, 400),
     'abc';
@@ -2340,7 +2343,7 @@ FROM
 
 CREATE INDEX ON matview (col1);
 
-CREATE VIEW VIEW AS
+CREATE VIEW view AS
 SELECT
     col2
 FROM
@@ -2364,7 +2367,8 @@ WHERE
         WHERE
             nspname = 'schema_to_reindex');
 
-INSERT INTO reindex_before
+INSERT INTO
+    reindex_before
 SELECT
     oid,
     'pg_toast_TABLE',
@@ -2382,7 +2386,8 @@ WHERE
         WHERE
             reltoastrelid > 0);
 
-INSERT INTO reindex_before
+INSERT INTO
+    reindex_before
 SELECT
     oid,
     'pg_toast_TABLE_index',
@@ -2428,10 +2433,11 @@ WHERE
 SELECT
     b.relname,
     b.relkind,
-    CASE WHEN a.relfilenode = b.relfilenode THEN
-        'relfilenode is unchanged'
-    ELSE
-        'relfilenode has changed'
+    CASE
+        WHEN a.relfilenode = b.relfilenode THEN
+            'relfilenode is unchanged'
+        ELSE
+            'relfilenode has changed'
     END
 FROM
     reindex_before b
@@ -2442,16 +2448,26 @@ ORDER BY
 REINDEX SCHEMA schema_to_reindex;
 
 BEGIN;
+
 REINDEX SCHEMA schema_to_reindex;
+
 -- failure, cannot run in a transaction
 END;
+
 -- concurrently
 REINDEX SCHEMA CONCURRENTLY schema_to_reindex;
+
 -- Failure for unauthorized user
 CREATE ROLE regress_reindexuser NOLOGIN;
-SET SESSION ROLE regress_reindexuser;
+
+SET
+    SESSION ROLE regress_reindexuser;
+
 REINDEX SCHEMA schema_to_reindex;
+
 -- Clean up
 RESET ROLE;
+
 DROP ROLE regress_reindexuser;
+
 DROP SCHEMA schema_to_reindex CASCADE;

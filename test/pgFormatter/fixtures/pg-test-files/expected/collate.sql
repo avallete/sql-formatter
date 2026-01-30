@@ -11,37 +11,29 @@
  */
 CREATE SCHEMA collate_tests;
 
-SET search_path = collate_tests;
+SET
+    search_path = collate_tests;
 
-CREATE TABLE collate_test1 (
-    a int,
-    b text COLLATE "C" NOT NULL
-);
+CREATE TABLE collate_test1 (a int, b text COLLATE "C" NOT NULL);
 
 \d collate_test1
-CREATE TABLE collate_test_fail (
-    a int COLLATE "C",
-    b text
-);
+CREATE TABLE collate_test_fail (a int COLLATE "C", b text);
 
-CREATE TABLE collate_test_like (
-    LIKE collate_test1
-);
+CREATE TABLE collate_test_like (LIKE collate_test1);
 
 \d collate_test_like
-CREATE TABLE collate_test2 (
-    a int,
-    b text COLLATE "POSIX"
-);
+CREATE TABLE collate_test2 (a int, b text COLLATE "POSIX");
 
-INSERT INTO collate_test1
+INSERT INTO
+    collate_test1
 VALUES
     (1, 'abc'),
     (2, 'Abc'),
     (3, 'bbc'),
     (4, 'ABD');
 
-INSERT INTO collate_test2
+INSERT INTO
+    collate_test2
 SELECT
     *
 FROM
@@ -81,12 +73,10 @@ CREATE DOMAIN testdomain_p AS text COLLATE "POSIX";
 CREATE DOMAIN testdomain_i AS int COLLATE "POSIX";
 
 -- fail
-CREATE TABLE collate_test4 (
-    a int,
-    b testdomain_p
-);
+CREATE TABLE collate_test4 (a int, b testdomain_p);
 
-INSERT INTO collate_test4
+INSERT INTO
+    collate_test4
 SELECT
     *
 FROM
@@ -100,12 +90,10 @@ FROM
 ORDER BY
     b;
 
-CREATE TABLE collate_test5 (
-    a int,
-    b testdomain_p COLLATE "C"
-);
+CREATE TABLE collate_test5 (a int, b testdomain_p COLLATE "C");
 
-INSERT INTO collate_test5
+INSERT INTO
+    collate_test5
 SELECT
     *
 FROM
@@ -166,13 +154,10 @@ SELECT
     'bbc' COLLATE "POSIX" < 'Abc' COLLATE "POSIX" AS "false";
 
 -- upper/lower
-CREATE TABLE collate_test10 (
-    a int,
-    x text COLLATE "C",
-    y text COLLATE "POSIX"
-);
+CREATE TABLE collate_test10 (a int, x text COLLATE "C", y text COLLATE "POSIX");
 
-INSERT INTO collate_test10
+INSERT INTO
+    collate_test10
 VALUES
     (1, 'hij', 'hij'),
     (2, 'HIJ', 'HIJ');
@@ -226,8 +211,7 @@ ORDER BY
 CREATE VIEW collview3 AS
 SELECT
     a,
-    lower((x || x)
-    COLLATE "POSIX")
+    lower((x || x) COLLATE "POSIX")
 FROM
     collate_test10;
 
@@ -268,7 +252,7 @@ FROM
 SELECT
     a,
     b,
-    greatest (b, 'CCC')
+    greatest(b, 'CCC')
 FROM
     collate_test1
 ORDER BY
@@ -277,7 +261,7 @@ ORDER BY
 SELECT
     a,
     b,
-    greatest (b, 'CCC')
+    greatest(b, 'CCC')
 FROM
     collate_test2
 ORDER BY
@@ -287,14 +271,14 @@ SELECT
     a,
     x,
     y,
-    lower(greatest (x, 'foo')),
-    lower(greatest (y, 'foo'))
+    lower(greatest(x, 'foo')),
+    lower(greatest(y, 'foo'))
 FROM
     collate_test10;
 
 SELECT
     a,
-    nullif (b, 'abc')
+    nullif(b, 'abc')
 FROM
     collate_test1
 ORDER BY
@@ -302,7 +286,7 @@ ORDER BY
 
 SELECT
     a,
-    nullif (b, 'abc')
+    nullif(b, 'abc')
 FROM
     collate_test2
 ORDER BY
@@ -310,18 +294,18 @@ ORDER BY
 
 SELECT
     a,
-    lower(nullif (x, 'foo')),
-    lower(nullif (y, 'foo'))
+    lower(nullif(x, 'foo')),
+    lower(nullif(y, 'foo'))
 FROM
     collate_test10;
 
 SELECT
     a,
     CASE b
-    WHEN 'abc' THEN
-        'abcd'
-    ELSE
-        b
+        WHEN 'abc' THEN
+            'abcd'
+        ELSE
+            b
     END
 FROM
     collate_test1
@@ -331,10 +315,10 @@ ORDER BY
 SELECT
     a,
     CASE b
-    WHEN 'abc' THEN
-        'abcd'
-    ELSE
-        b
+        WHEN 'abc' THEN
+            'abcd'
+        ELSE
+            b
     END
 FROM
     collate_test2
@@ -387,12 +371,18 @@ FROM
     collate_test2;
 
 SELECT
-    array_agg(b ORDER BY b)
+    array_agg (
+        b
+        ORDER BY
+            b)
 FROM
     collate_test1;
 
 SELECT
-    array_agg(b ORDER BY b)
+    array_agg (
+        b
+        ORDER BY
+            b)
 FROM
     collate_test2;
 
@@ -404,17 +394,27 @@ FROM
 
 -- fail
 SELECT
-    array_agg(x COLLATE "C" ORDER BY y COLLATE "POSIX")
+    array_agg (
+        x COLLATE "C"
+        ORDER BY
+            y COLLATE "POSIX")
 FROM
     collate_test10;
 
 SELECT
-    array_agg(a ORDER BY x COLLATE "C", y COLLATE "POSIX")
+    array_agg (
+        a
+        ORDER BY
+            x COLLATE "C",
+            y COLLATE "POSIX")
 FROM
     collate_test10;
 
 SELECT
-    array_agg(a ORDER BY x || y)
+    array_agg (
+        a
+        ORDER BY
+            x || y)
 FROM
     collate_test10;
 
@@ -606,23 +606,21 @@ ORDER BY
 
 -- not so ok
 -- collation mismatch between recursive and non-recursive term
-WITH RECURSIVE foo (
-    x
-) AS (
-    SELECT
-        x
-    FROM (
-        VALUES ('a' COLLATE "C"),
-            ('b')) t (x)
-    UNION ALL
-    SELECT
-        (x || 'c')
-        COLLATE "POSIX"
-    FROM
-        foo
-    WHERE
-        length(x) < 10
-)
+WITH RECURSIVE
+    foo (x) AS (
+        SELECT
+            x
+        FROM (
+                VALUES
+                    ('a' COLLATE "C"),
+                    ('b')) t (x)
+        UNION ALL
+        SELECT
+            (x || 'c') COLLATE "POSIX"
+        FROM
+            foo
+        WHERE
+            length(x) < 10)
 SELECT
     *
 FROM
@@ -633,46 +631,47 @@ SELECT
     b,
     a < b AS lt
 FROM (
-    VALUES ('a', 'B'),
-        ('A', 'b' COLLATE "C")) v (a, b);
+        VALUES
+            ('a', 'B'),
+            ('A', 'b' COLLATE "C")) v (a, b);
 
 -- collation mismatch in subselects
 SELECT
     *
 FROM
     collate_test10
-WHERE (x, y)
-NOT IN (
-    SELECT
-        y,
-        x
-    FROM
-        collate_test10);
+WHERE
+    (x, y) NOT IN (
+        SELECT
+            y,
+            x
+        FROM
+            collate_test10);
 
 -- now it works with overrides
 SELECT
     *
 FROM
     collate_test10
-WHERE (x COLLATE "POSIX", y COLLATE "C")
-NOT IN (
-    SELECT
-        y,
-        x
-    FROM
-        collate_test10);
+WHERE
+    (x COLLATE "POSIX", y COLLATE "C") NOT IN (
+        SELECT
+            y,
+            x
+        FROM
+            collate_test10);
 
 SELECT
     *
 FROM
     collate_test10
-WHERE (x, y)
-NOT IN (
-    SELECT
-        y COLLATE "C",
-        x COLLATE "POSIX"
-    FROM
-        collate_test10);
+WHERE
+    (x, y) NOT IN (
+        SELECT
+            y COLLATE "C",
+            x COLLATE "POSIX"
+        FROM
+            collate_test10);
 
 -- casting
 SELECT
@@ -698,30 +697,32 @@ ORDER BY
 SELECT
     *
 FROM
-    unnest((
-        SELECT
-            array_agg(b ORDER BY b)
-        FROM collate_test1))
+    unnest ( (
+            SELECT
+                array_agg (
+                    b
+                    ORDER BY
+                        b)
+            FROM
+                collate_test1))
 ORDER BY
     1;
 
 SELECT
     *
 FROM
-    unnest((
-        SELECT
-            array_agg(b ORDER BY b)
-        FROM collate_test2))
+    unnest ( (
+            SELECT
+                array_agg (
+                    b
+                    ORDER BY
+                        b)
+            FROM
+                collate_test2))
 ORDER BY
     1;
 
-CREATE FUNCTION dup (anyelement)
-    RETURNS anyelement
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE sql;
+CREATE FUNCTION dup (anyelement) RETURNS anyelement AS 'select $1' LANGUAGE sql;
 
 SELECT
     a,
@@ -768,53 +769,56 @@ ORDER BY
 -- foreign keys
 -- force indexes and mergejoins to be used for FK checking queries,
 -- else they might not exercise collation-dependent operators
-SET enable_seqscan TO 0;
+SET
+    enable_seqscan TO 0;
 
-SET enable_hashjoin TO 0;
+SET
+    enable_hashjoin TO 0;
 
-SET enable_nestloop TO 0;
+SET
+    enable_nestloop TO 0;
 
-CREATE TABLE collate_test20 (
-    f1 text COLLATE "C" PRIMARY KEY
-);
+CREATE TABLE collate_test20 (f1 text COLLATE "C" PRIMARY KEY);
 
-INSERT INTO collate_test20
+INSERT INTO
+    collate_test20
 VALUES
     ('foo'),
     ('bar');
 
-CREATE TABLE collate_test21 (
-    f2 text COLLATE "POSIX" REFERENCES collate_test20
-);
+CREATE TABLE collate_test21 (f2 text COLLATE "POSIX" REFERENCES collate_test20);
 
-INSERT INTO collate_test21
+INSERT INTO
+    collate_test21
 VALUES
     ('foo'),
     ('bar');
 
-INSERT INTO collate_test21
-    VALUES ('baz');
+INSERT INTO
+    collate_test21
+VALUES
+    ('baz');
 
 -- fail
-CREATE TABLE collate_test22 (
-    f2 text COLLATE "POSIX"
-);
+CREATE TABLE collate_test22 (f2 text COLLATE "POSIX");
 
-INSERT INTO collate_test22
+INSERT INTO
+    collate_test22
 VALUES
     ('foo'),
     ('bar'),
     ('baz');
 
 ALTER TABLE collate_test22
-    ADD FOREIGN KEY (f2) REFERENCES collate_test20;
+ADD FOREIGN KEY (f2) REFERENCES collate_test20;
 
 -- fail
 DELETE FROM collate_test22
-WHERE f2 = 'baz';
+WHERE
+    f2 = 'baz';
 
 ALTER TABLE collate_test22
-    ADD FOREIGN KEY (f2) REFERENCES collate_test20;
+ADD FOREIGN KEY (f2) REFERENCES collate_test20;
 
 RESET enable_seqscan;
 
@@ -823,9 +827,7 @@ RESET enable_hashjoin;
 RESET enable_nestloop;
 
 -- EXPLAIN
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -834,9 +836,7 @@ ORDER BY
     x,
     y;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
@@ -850,10 +850,7 @@ CREATE COLLATION mycoll1
 FROM
     "C";
 
-CREATE COLLATION mycoll2 (
-    LC_COLLATE = "POSIX",
-    LC_CTYPE = "POSIX"
-);
+CREATE COLLATION mycoll2 (LC_COLLATE = "POSIX", LC_CTYPE = "POSIX");
 
 CREATE COLLATION mycoll3
 FROM
@@ -862,26 +859,21 @@ FROM
 -- intentionally unsupported
 DROP COLLATION mycoll1;
 
-CREATE TABLE collate_test23 (
-    f1 text COLLATE mycoll2
-);
+CREATE TABLE collate_test23 (f1 text COLLATE mycoll2);
 
 DROP COLLATION mycoll2;
 
 -- fail
 -- invalid: non-lowercase quoted identifiers
-CREATE COLLATION case_coll (
-    "Lc_Collate" = "POSIX",
-    "Lc_Ctype" = "POSIX"
-);
+CREATE COLLATION case_coll ("Lc_Collate" = "POSIX", "Lc_Ctype" = "POSIX");
 
 -- 9.1 bug with useless COLLATE in an expression subject to length coercion
-CREATE TEMP TABLE vctable (
-    f1 varchar(25)
-);
+CREATE TEMP TABLE vctable (f1 varchar(25));
 
-INSERT INTO vctable
-    VALUES ('foo' COLLATE "C");
+INSERT INTO
+    vctable
+VALUES
+    ('foo' COLLATE "C");
 
 SELECT
     COLLATION FOR ('foo');
@@ -891,21 +883,23 @@ SELECT
     COLLATION FOR ('foo'::text);
 
 SELECT
-    COLLATION FOR ((
+    COLLATION FOR ( (
             SELECT
                 a
             FROM
                 collate_test1
-            LIMIT 1));
+            LIMIT
+                1));
 
 -- non-collatable type - error
 SELECT
-    COLLATION FOR ((
+    COLLATION FOR ( (
             SELECT
                 b
             FROM
                 collate_test1
-            LIMIT 1));
+            LIMIT
+                1));
 
 --
 -- Clean up.  Many of these table names will be re-used if the user is
@@ -913,4 +907,3 @@ SELECT
 -- must get rid of them.
 --
 DROP SCHEMA collate_tests CASCADE;
-

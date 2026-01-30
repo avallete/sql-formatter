@@ -5,3 +5,5 @@ node_modules
 coverage
 .eslintcache
 src/parser/grammar.ts
+yarn.lock
+package-lock.json

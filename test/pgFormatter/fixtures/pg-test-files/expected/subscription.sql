@@ -17,9 +17,11 @@ CREATE SUBSCRIPTION testsub PUBLICATION foo;
 
 -- fail - cannot do CREATE SUBSCRIPTION CREATE SLOT inside transaction block
 BEGIN;
-CREATE SUBSCRIPTION testsub CONNECTION 'testconn' PUBLICATION testpub WITH (
-    create_slot
-);
+
+CREATE SUBSCRIPTION testsub CONNECTION 'testconn' PUBLICATION testpub
+WITH
+    (create_slot);
+
 COMMIT;
 
 -- fail - invalid connection string
@@ -28,14 +30,14 @@ CREATE SUBSCRIPTION testsub CONNECTION 'testconn' PUBLICATION testpub;
 -- fail - duplicate publications
 CREATE SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist' PUBLICATION foo,
 testpub,
-foo WITH (
-    connect = FALSE
-);
+foo
+WITH
+    (connect = FALSE);
 
 -- ok
-CREATE SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    connect = FALSE
-);
+CREATE SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (connect = FALSE);
 
 COMMENT ON SUBSCRIPTION testsub IS 'test subscription';
 
@@ -45,64 +47,56 @@ FROM
     pg_subscription s;
 
 -- fail - name already exists
-CREATE SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    connect = FALSE
-);
+CREATE SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (connect = FALSE);
 
 -- fail - must be superuser
 SET SESSION AUTHORIZATION 'regress_subscription_user2';
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION foo WITH (
-    connect = FALSE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION foo
+WITH
+    (connect = FALSE);
 
 SET SESSION AUTHORIZATION 'regress_subscription_user';
 
 -- fail - invalid option combinations
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    connect = FALSE,
-    copy_data = TRUE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (connect = FALSE, copy_data = TRUE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    connect = FALSE,
-    enabled = TRUE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (connect = FALSE, enabled = TRUE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    connect = FALSE,
-    create_slot = TRUE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (connect = FALSE, create_slot = TRUE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE,
-    enabled = TRUE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE, enabled = TRUE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE,
-    create_slot = TRUE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE, create_slot = TRUE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE,
-    enabled = FALSE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE, enabled = FALSE);
 
-CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE,
-    create_slot = FALSE
-);
+CREATE SUBSCRIPTION testsub2 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE, create_slot = FALSE);
 
 -- ok - with slot_name = NONE
-CREATE SUBSCRIPTION testsub3 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub WITH (
-    slot_name = NONE,
-    connect = FALSE
-);
+CREATE SUBSCRIPTION testsub3 CONNECTION 'dbname=doesnotexist' PUBLICATION testpub
+WITH
+    (slot_name = NONE, connect = FALSE);
 
 -- fail
 ALTER SUBSCRIPTION testsub3 ENABLE;
@@ -115,41 +109,60 @@ DROP SUBSCRIPTION testsub3;
 ALTER SUBSCRIPTION testsub CONNECTION 'foobar';
 
 \dRs+
-ALTER SUBSCRIPTION testsub SET PUBLICATION testpub2, testpub3 WITH ( REFRESH = FALSE);
+ALTER SUBSCRIPTION testsub
+SET
+    PUBLICATION testpub2,
+    testpub3
+WITH
+    (refresh = FALSE);
 
 ALTER SUBSCRIPTION testsub CONNECTION 'dbname=doesnotexist2';
 
-ALTER SUBSCRIPTION testsub SET (slot_name = 'newname');
+ALTER SUBSCRIPTION testsub
+SET
+    (slot_name = 'newname');
 
 -- fail
 ALTER SUBSCRIPTION doesnotexist CONNECTION 'dbname=doesnotexist2';
 
-ALTER SUBSCRIPTION testsub SET (create_slot = FALSE);
+ALTER SUBSCRIPTION testsub
+SET
+    (create_slot = FALSE);
 
 \dRs+
 BEGIN;
+
 ALTER SUBSCRIPTION testsub ENABLE;
+
 \dRs
 ALTER SUBSCRIPTION testsub DISABLE;
+
 \dRs
 COMMIT;
 
 -- fail - must be owner of subscription
 SET ROLE regress_subscription_user_dummy;
 
-ALTER SUBSCRIPTION testsub RENAME TO testsub_dummy;
+ALTER SUBSCRIPTION testsub
+RENAME TO testsub_dummy;
 
 RESET ROLE;
 
-ALTER SUBSCRIPTION testsub RENAME TO testsub_foo;
+ALTER SUBSCRIPTION testsub
+RENAME TO testsub_foo;
 
-ALTER SUBSCRIPTION testsub_foo SET (synchronous_commit = local);
+ALTER SUBSCRIPTION testsub_foo
+SET
+    (synchronous_commit = local);
 
-ALTER SUBSCRIPTION testsub_foo SET (synchronous_commit = foobar);
+ALTER SUBSCRIPTION testsub_foo
+SET
+    (synchronous_commit = foobar);
 
 \dRs+
 -- rename back to keep the rest simple
-ALTER SUBSCRIPTION testsub_foo RENAME TO testsub;
+ALTER SUBSCRIPTION testsub_foo
+RENAME TO testsub;
 
 -- fail - new owner must be superuser
 ALTER SUBSCRIPTION testsub OWNER TO regress_subscription_user2;
@@ -161,14 +174,20 @@ ALTER SUBSCRIPTION testsub OWNER TO regress_subscription_user2;
 
 -- fail - cannot do DROP SUBSCRIPTION inside transaction block with slot name
 BEGIN;
+
 DROP SUBSCRIPTION testsub;
+
 COMMIT;
 
-ALTER SUBSCRIPTION testsub SET (slot_name = NONE);
+ALTER SUBSCRIPTION testsub
+SET
+    (slot_name = NONE);
 
 -- now it works
 BEGIN;
+
 DROP SUBSCRIPTION testsub;
+
 COMMIT;
 
 DROP SUBSCRIPTION IF EXISTS testsub;
@@ -183,4 +202,3 @@ DROP ROLE regress_subscription_user;
 DROP ROLE regress_subscription_user2;
 
 DROP ROLE regress_subscription_user_dummy;
-

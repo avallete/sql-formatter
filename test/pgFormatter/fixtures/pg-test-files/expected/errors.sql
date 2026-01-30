@@ -13,8 +13,7 @@ SELECT
 --
 -- SELECT
 -- this used to be a syntax error, but now we allow an empty target list
-SELECT
-;
+SELECT;
 
 -- no such relation
 SELECT
@@ -30,7 +29,8 @@ FROM
 
 -- empty distinct list isn't OK
 SELECT DISTINCT
-    FROM pg_database;
+FROM
+    pg_database;
 
 -- bad attribute name on lhs of operator
 SELECT
@@ -49,8 +49,8 @@ WHERE
     pg_database.datname = nonesuch;
 
 -- bad attribute name in select distinct on
-SELECT DISTINCT ON (foobar)
-    *
+SELECT DISTINCT
+    ON (foobar) *
 FROM
     pg_database;
 
@@ -74,37 +74,46 @@ DROP TABLE nonesuch;
 -- ALTER TABLE
 -- relation renaming
 -- missing relation name
-ALTER TABLE RENAME;
+ALTER TABLE
+RENAME;
 
 -- no such relation
-ALTER TABLE nonesuch RENAME TO newnonesuch;
+ALTER TABLE nonesuch
+RENAME TO newnonesuch;
 
 -- no such relation
-ALTER TABLE nonesuch RENAME TO stud_emp;
+ALTER TABLE nonesuch
+RENAME TO stud_emp;
 
 -- conflict
-ALTER TABLE stud_emp RENAME TO aggtest;
+ALTER TABLE stud_emp
+RENAME TO aggtest;
 
 -- self-conflict
-ALTER TABLE stud_emp RENAME TO stud_emp;
+ALTER TABLE stud_emp
+RENAME TO stud_emp;
 
 -- attribute renaming
 -- no such relation
-ALTER TABLE nonesuchrel RENAME COLUMN nonesuchatt TO newnonesuchatt;
+ALTER TABLE nonesuchrel
+RENAME COLUMN nonesuchatt TO newnonesuchatt;
 
 -- no such attribute
-ALTER TABLE emp RENAME COLUMN nonesuchatt TO newnonesuchatt;
+ALTER TABLE emp
+RENAME COLUMN nonesuchatt TO newnonesuchatt;
 
 -- conflict
-ALTER TABLE emp RENAME COLUMN salary TO manager;
+ALTER TABLE emp
+RENAME COLUMN salary TO manager;
 
 -- conflict
-ALTER TABLE emp RENAME COLUMN salary TO ctid;
+ALTER TABLE emp
+RENAME COLUMN salary TO ctid;
 
 --
 -- TRANSACTION STUFF
 -- not in a xact
-abort;
+ABORT;
 
 -- not in a xact
 END;
@@ -113,19 +122,14 @@ END;
 -- CREATE AGGREGATE
 -- sfunc/finalfunc type disagreement
 CREATE AGGREGATE newavg2 (
-    SFUNC = int4pl,
-    BASETYPE = int4,
-    STYPE = int4,
-    FINALFUNC = int2um,
-    INITCOND = '0'
-);
+    sfunc = int4pl,
+    basetype = int4,
+    stype = int4,
+    finalfunc = int2um,
+    initcond = '0');
 
 -- left out basetype
-CREATE AGGREGATE newcnt1 (
-    SFUNC = int4inc,
-    STYPE = int4,
-    INITCOND = '0'
-);
+CREATE AGGREGATE newcnt1 (sfunc = int4inc, stype = int4, initcond = '0');
 
 --
 -- DROP INDEX
@@ -189,34 +193,32 @@ DROP OPERATOR;
 DROP OPERATOR equals;
 
 -- missing type list
-DROP OPERATOR ===;
+DROP OPERATOR = = =;
 
 -- missing parentheses
-DROP OPERATOR int4, int4;
+DROP OPERATOR int4,
+int4;
 
 -- missing operator name
 DROP OPERATOR (int4, int4);
 
 -- missing type list contents
-DROP OPERATOR === ();
+DROP OPERATOR = = = ();
 
 -- no such operator
-DROP OPERATOR === (int4);
+DROP OPERATOR = = = (int4);
 
 -- no such operator by that name
-DROP OPERATOR === (int4, int4);
+DROP OPERATOR = = = (int4, int4);
 
 -- no such type1
-DROP OPERATOR = (
-    nonesuch);
+DROP OPERATOR = (nonesuch);
 
 -- no such type1
-DROP OPERATOR = (
-, int4);
+DROP OPERATOR = (, int4);
 
 -- no such type1
-DROP OPERATOR = (
-    nonesuch, int4);
+DROP OPERATOR = (nonesuch, int4);
 
 -- no such type2
 DROP OPERATOR = (int4, nonesuch);
@@ -236,11 +238,11 @@ DROP RULE 314159;
 DROP RULE nonesuch ON noplace;
 
 -- these postquel variants are no longer supported
-DROP tuple RULE nonesuch;
+DROP tuple rule nonesuch;
 
-DROP instance RULE nonesuch ON noplace;
+DROP instance rule nonesuch ON noplace;
 
-DROP rewrite RULE nonesuch;
+DROP rewrite rule nonesuch;
 
 --
 -- Check that division-by-zero is properly caught.
@@ -287,109 +289,100 @@ CREATE foo;
 
 CREATE TABLE;
 
-CREATE TABLE \g
+CREATE TABLE
+\g
+INSERT INTO
+    foo
+VALUES
+    (123) foo;
 
-INSERT INTO foo
-    VALUES (123) foo;
+INSERT INTO
+    123
+VALUES
+    (123);
 
-INSERT INTO 123
-    VALUES (123);
-
-INSERT INTO foo
-    VALUES (123) 123;
+INSERT INTO
+    foo
+VALUES
+    (123) 123;
 
 -- with a tab
 CREATE TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL);
 
 -- long line to be truncated on the left
 CREATE TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL);
 
 -- long line to be truncated on the right
 CREATE TABLE foo (
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL,
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY
-);
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL,
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY);
 
 -- long line to be truncated both ways
 CREATE TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL);
 
 -- long line to be truncated on the left, many lines
 CREATE TEMPORARY TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL);
 
 -- long line to be truncated on the right, many lines
 CREATE TEMPORARY TABLE foo (
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL,
-    id int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY
-);
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL,
+    id INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY);
 
 -- long line to be truncated both ways, many lines
 CREATE TEMPORARY TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    idx int4 UNIQUE NOT NULL,
-    idy int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL,
-    idz int4 UNIQUE NOT NULL,
-    idv int4 UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    idx INT4 UNIQUE NOT NULL,
+    idy INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL,
+    idz INT4 UNIQUE NOT NULL,
+    idv INT4 UNIQUE NOT NULL);
 
 -- more than 10 lines...
 CREATE TEMPORARY TABLE foo (
-    id int4 UNIQUE NOT NULL,
-    idm int4 UNIQUE NOT NULL,
-    idx int4 UNIQUE NOT NULL,
-    idy int4 UNIQUE NOT NULL,
-    id2 text NOT NULL PRIMARY KEY,
-    id3 integer NOT NUL,
-    id4 int4 UNIQUE NOT NULL,
-    id5 text UNIQUE NOT NULL,
-    idz int4 UNIQUE NOT NULL,
-    idv int4 UNIQUE NOT NULL
-);
+    id INT4 UNIQUE NOT NULL,
+    idm INT4 UNIQUE NOT NULL,
+    idx INT4 UNIQUE NOT NULL,
+    idy INT4 UNIQUE NOT NULL,
+    id2 TEXT NOT NULL PRIMARY KEY,
+    id3 INTEGER NOT NUL,
+    id4 INT4 UNIQUE NOT NULL,
+    id5 TEXT UNIQUE NOT NULL,
+    idz INT4 UNIQUE NOT NULL,
+    idv INT4 UNIQUE NOT NULL);
 
 -- Check that stack depth detection mechanism works and
 -- max_stack_depth is not set too high
-CREATE FUNCTION infinite_recurse ()
-    RETURNS int
-    AS '
-    SELECT
-        infinite_recurse ();
-'
-LANGUAGE sql;
+CREATE FUNCTION infinite_recurse () returns int AS 'select infinite_recurse()' language sql;
 
 \set VERBOSITY terse
 SELECT
     infinite_recurse ();
-

@@ -1,76 +1,46 @@
-CREATE OR REPLACE FUNCTION chkrolattr ()
-    RETURNS TABLE (
-        "role" name,
-        rolekeyword text,
-        canlogin bool,
-        replication bool
-    )
-    AS $$
-    SELECT
-        r.rolname,
-        v.keyword,
-        r.rolcanlogin,
-        r.rolreplication
-    FROM
-        pg_roles r
-        JOIN (
-            VALUES (CURRENT_USER, 'current_user'),
-                (SESSION_USER, 'session_user'),
-                ('current_user', '-'),
-                ('session_user', '-'),
-                ('Public', '-'),
-                ('None', '-')) AS v (uname, keyword) ON (r.rolname = v.uname)
-    ORDER BY
-        1;
-$$
-LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION chkrolattr () RETURNS TABLE (
+    "role" name,
+    rolekeyword text,
+    canlogin bool,
+    replication bool) AS $$
+SELECT r.rolname, v.keyword, r.rolcanlogin, r.rolreplication
+ FROM pg_roles r
+ JOIN (VALUES(CURRENT_USER, 'current_user'),
+             (SESSION_USER, 'session_user'),
+             ('current_user', '-'),
+             ('session_user', '-'),
+             ('Public', '-'),
+             ('None', '-'))
+      AS v(uname, keyword)
+      ON (r.rolname = v.uname)
+ ORDER BY 1;
+$$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION chksetconfig ()
-    RETURNS TABLE (
-        db name,
-        "role" name,
-        rolkeyword text,
-        setconfig text[]
-    )
-    AS $$
-    SELECT
-        COALESCE(d.datname, 'ALL'),
-        COALESCE(r.rolname, 'ALL'),
-        COALESCE(v.keyword, '-'),
-        s.setconfig
-    FROM
-        pg_db_role_setting s
-    LEFT JOIN pg_roles r ON (r.oid = s.setrole)
-    LEFT JOIN pg_database d ON (d.oid = s.setdatabase)
-    LEFT JOIN (
-        VALUES (CURRENT_USER, 'current_user'),
-            (SESSION_USER, 'session_user')) AS v (uname, keyword) ON (r.rolname = v.uname)
-WHERE (r.rolname) IN ('Public', 'current_user', 'regress_testrol1', 'regress_testrol2')
-ORDER BY
-    1,
-    2;
-$$
-LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION chksetconfig () RETURNS TABLE (
+    db name,
+    "role" name,
+    rolkeyword text,
+    setconfig TEXT[]) AS $$
+SELECT COALESCE(d.datname, 'ALL'), COALESCE(r.rolname, 'ALL'),
+	   COALESCE(v.keyword, '-'), s.setconfig
+ FROM pg_db_role_setting s
+ LEFT JOIN pg_roles r ON (r.oid = s.setrole)
+ LEFT JOIN pg_database d ON (d.oid = s.setdatabase)
+ LEFT JOIN (VALUES(CURRENT_USER, 'current_user'),
+             (SESSION_USER, 'session_user'))
+      AS v(uname, keyword)
+      ON (r.rolname = v.uname)
+   WHERE (r.rolname) IN ('Public', 'current_user', 'regress_testrol1', 'regress_testrol2')
+ORDER BY 1, 2;
+$$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION chkumapping ()
-    RETURNS TABLE (
-        umname name,
-        umserver name,
-        umoptions text[]
-    )
-    AS $$
-    SELECT
-        r.rolname,
-        s.srvname,
-        m.umoptions
-    FROM
-        pg_user_mapping m
-    LEFT JOIN pg_roles r ON (r.oid = m.umuser)
-    JOIN pg_foreign_server s ON (s.oid = m.umserver)
-ORDER BY
-    2;
-$$
-LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION chkumapping () RETURNS TABLE (umname name, umserver name, umoptions TEXT[]) AS $$
+SELECT r.rolname, s.srvname, m.umoptions
+ FROM pg_user_mapping m
+ LEFT JOIN pg_roles r ON (r.oid = m.umuser)
+ JOIN pg_foreign_server s ON (s.oid = m.umserver)
+ ORDER BY 2;
+$$ LANGUAGE SQL;
 
 CREATE ROLE "Public";
 
@@ -82,16 +52,16 @@ CREATE ROLE "session_user";
 
 CREATE ROLE "user";
 
-CREATE ROLE CURRENT_USER;
+CREATE ROLE current_user;
 
 -- error
-CREATE ROLE CURRENT_ROLE;
+CREATE ROLE current_role;
 
 -- error
-CREATE ROLE SESSION_USER;
+CREATE ROLE session_user;
 
 -- error
-CREATE ROLE USER;
+CREATE ROLE user;
 
 -- error
 CREATE ROLE ALL;
@@ -136,136 +106,236 @@ SET ROLE regress_testrol2;
 
 --  ALTER ROLE
 BEGIN;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER ROLE CURRENT_USER WITH REPLICATION;
+
+ALTER ROLE CURRENT_USER
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER ROLE "current_user" WITH REPLICATION;
+
+ALTER ROLE "current_user"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER ROLE SESSION_USER WITH REPLICATION;
+
+ALTER ROLE SESSION_USER
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER ROLE "session_user" WITH REPLICATION;
+
+ALTER ROLE "session_user"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER "Public" WITH REPLICATION;
-ALTER USER "None" WITH REPLICATION;
+
+ALTER USER "Public"
+WITH
+    REPLICATION;
+
+ALTER USER "None"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER regress_testrol1 WITH NOREPLICATION;
-ALTER USER regress_testrol2 WITH NOREPLICATION;
+
+ALTER USER regress_testrol1
+WITH
+    NOREPLICATION;
+
+ALTER USER regress_testrol2
+WITH
+    NOREPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
+
 ROLLBACK;
 
-ALTER ROLE USER WITH LOGIN;
+ALTER ROLE USER
+WITH
+    LOGIN;
 
 -- error
-ALTER ROLE CURRENT_ROLE WITH LOGIN;
+ALTER ROLE CURRENT_ROLE
+WITH
+    LOGIN;
 
 --error
-ALTER ROLE ALL WITH REPLICATION;
+ALTER ROLE ALL
+WITH
+    REPLICATION;
 
 -- error
-ALTER ROLE SESSION_ROLE WITH NOREPLICATION;
+ALTER ROLE SESSION_ROLE
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER ROLE PUBLIC WITH NOREPLICATION;
+ALTER ROLE PUBLIC
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER ROLE "public" WITH NOREPLICATION;
+ALTER ROLE "public"
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER ROLE NONE WITH NOREPLICATION;
+ALTER ROLE NONE
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER ROLE "none" WITH NOREPLICATION;
+ALTER ROLE "none"
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER ROLE nonexistent WITH NOREPLICATION;
+ALTER ROLE nonexistent
+WITH
+    NOREPLICATION;
 
 -- error
 --  ALTER USER
 BEGIN;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER CURRENT_USER WITH REPLICATION;
+
+ALTER USER CURRENT_USER
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER "current_user" WITH REPLICATION;
+
+ALTER USER "current_user"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER SESSION_USER WITH REPLICATION;
+
+ALTER USER SESSION_USER
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER "session_user" WITH REPLICATION;
+
+ALTER USER "session_user"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER "Public" WITH REPLICATION;
-ALTER USER "None" WITH REPLICATION;
+
+ALTER USER "Public"
+WITH
+    REPLICATION;
+
+ALTER USER "None"
+WITH
+    REPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
-ALTER USER regress_testrol1 WITH NOREPLICATION;
-ALTER USER regress_testrol2 WITH NOREPLICATION;
+
+ALTER USER regress_testrol1
+WITH
+    NOREPLICATION;
+
+ALTER USER regress_testrol2
+WITH
+    NOREPLICATION;
+
 SELECT
     *
 FROM
     chkrolattr ();
+
 ROLLBACK;
 
-ALTER USER USER WITH LOGIN;
+ALTER USER USER
+WITH
+    LOGIN;
 
 -- error
-ALTER USER CURRENT_ROLE WITH LOGIN;
+ALTER USER CURRENT_ROLE
+WITH
+    LOGIN;
 
 -- error
-ALTER USER ALL WITH REPLICATION;
+ALTER USER ALL
+WITH
+    REPLICATION;
 
 -- error
-ALTER USER SESSION_ROLE WITH NOREPLICATION;
+ALTER USER SESSION_ROLE
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER USER PUBLIC WITH NOREPLICATION;
+ALTER USER PUBLIC
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER USER "public" WITH NOREPLICATION;
+ALTER USER "public"
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER USER NONE WITH NOREPLICATION;
+ALTER USER NONE
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER USER "none" WITH NOREPLICATION;
+ALTER USER "none"
+WITH
+    NOREPLICATION;
 
 -- error
-ALTER USER nonexistent WITH NOREPLICATION;
+ALTER USER nonexistent
+WITH
+    NOREPLICATION;
 
 -- error
 --  ALTER ROLE SET/RESET
@@ -274,53 +344,78 @@ SELECT
 FROM
     chksetconfig ();
 
-ALTER ROLE CURRENT_USER SET application_name TO 'FOO';
+ALTER ROLE CURRENT_USER
+SET
+    application_name TO 'FOO';
 
-ALTER ROLE SESSION_USER SET application_name TO 'BAR';
+ALTER ROLE SESSION_USER
+SET
+    application_name TO 'BAR';
 
-ALTER ROLE "current_user" SET application_name TO 'FOOFOO';
+ALTER ROLE "current_user"
+SET
+    application_name TO 'FOOFOO';
 
-ALTER ROLE "Public" SET application_name TO 'BARBAR';
+ALTER ROLE "Public"
+SET
+    application_name TO 'BARBAR';
 
-ALTER ROLE ALL SET application_name TO 'SLAP';
-
-SELECT
-    *
-FROM
-    chksetconfig ();
-
-ALTER ROLE regress_testrol1 SET application_name TO 'SLAM';
-
-SELECT
-    *
-FROM
-    chksetconfig ();
-
-ALTER ROLE CURRENT_USER RESET application_name;
-
-ALTER ROLE SESSION_USER RESET application_name;
-
-ALTER ROLE "current_user" RESET application_name;
-
-ALTER ROLE "Public" RESET application_name;
-
-ALTER ROLE ALL RESET application_name;
+ALTER ROLE ALL
+SET
+    application_name TO 'SLAP';
 
 SELECT
     *
 FROM
     chksetconfig ();
 
-ALTER ROLE CURRENT_ROLE SET application_name TO 'BAZ';
+ALTER ROLE regress_testrol1
+SET
+    application_name TO 'SLAM';
+
+SELECT
+    *
+FROM
+    chksetconfig ();
+
+ALTER ROLE CURRENT_USER
+RESET application_name;
+
+ALTER ROLE SESSION_USER
+RESET application_name;
+
+ALTER ROLE "current_user"
+RESET application_name;
+
+ALTER ROLE "Public"
+RESET application_name;
+
+ALTER ROLE ALL
+RESET application_name;
+
+SELECT
+    *
+FROM
+    chksetconfig ();
+
+ALTER ROLE CURRENT_ROLE
+SET
+    application_name TO 'BAZ';
 
 -- error
-ALTER ROLE USER SET application_name TO 'BOOM';
+ALTER ROLE USER
+SET
+    application_name TO 'BOOM';
 
 -- error
-ALTER ROLE PUBLIC SET application_name TO 'BOMB';
+ALTER ROLE PUBLIC
+SET
+    application_name TO 'BOMB';
 
 -- error
-ALTER ROLE nonexistent SET application_name TO 'BOMB';
+ALTER ROLE nonexistent
+SET
+    application_name TO 'BOMB';
 
 -- error
 --  ALTER USER SET/RESET
@@ -329,56 +424,83 @@ SELECT
 FROM
     chksetconfig ();
 
-ALTER USER CURRENT_USER SET application_name TO 'FOO';
+ALTER USER CURRENT_USER
+SET
+    application_name TO 'FOO';
 
-ALTER USER SESSION_USER SET application_name TO 'BAR';
+ALTER USER SESSION_USER
+SET
+    application_name TO 'BAR';
 
-ALTER USER "current_user" SET application_name TO 'FOOFOO';
+ALTER USER "current_user"
+SET
+    application_name TO 'FOOFOO';
 
-ALTER USER "Public" SET application_name TO 'BARBAR';
+ALTER USER "Public"
+SET
+    application_name TO 'BARBAR';
 
-ALTER USER ALL SET application_name TO 'SLAP';
-
-SELECT
-    *
-FROM
-    chksetconfig ();
-
-ALTER USER regress_testrol1 SET application_name TO 'SLAM';
-
-SELECT
-    *
-FROM
-    chksetconfig ();
-
-ALTER USER CURRENT_USER RESET application_name;
-
-ALTER USER SESSION_USER RESET application_name;
-
-ALTER USER "current_user" RESET application_name;
-
-ALTER USER "Public" RESET application_name;
-
-ALTER USER ALL RESET application_name;
+ALTER USER ALL
+SET
+    application_name TO 'SLAP';
 
 SELECT
     *
 FROM
     chksetconfig ();
 
-ALTER USER CURRENT_USER SET application_name TO 'BAZ';
+ALTER USER regress_testrol1
+SET
+    application_name TO 'SLAM';
+
+SELECT
+    *
+FROM
+    chksetconfig ();
+
+ALTER USER CURRENT_USER
+RESET application_name;
+
+ALTER USER SESSION_USER
+RESET application_name;
+
+ALTER USER "current_user"
+RESET application_name;
+
+ALTER USER "Public"
+RESET application_name;
+
+ALTER USER ALL
+RESET application_name;
+
+SELECT
+    *
+FROM
+    chksetconfig ();
+
+ALTER USER CURRENT_USER
+SET
+    application_name TO 'BAZ';
 
 -- error
-ALTER USER USER SET application_name TO 'BOOM';
+ALTER USER USER
+SET
+    application_name TO 'BOOM';
 
 -- error
-ALTER USER PUBLIC SET application_name TO 'BOMB';
+ALTER USER PUBLIC
+SET
+    application_name TO 'BOMB';
 
 -- error
-ALTER USER NONE SET application_name TO 'BOMB';
+ALTER USER NONE
+SET
+    application_name TO 'BOMB';
 
 -- error
-ALTER USER nonexistent SET application_name TO 'BOMB';
+ALTER USER nonexistent
+SET
+    application_name TO 'BOMB';
 
 -- error
 -- CREATE SCHEMA
@@ -464,29 +586,17 @@ ORDER BY
 \c -
 SET SESSION AUTHORIZATION regress_testrol0;
 
-CREATE TABLE testtab1 (
-    a int
-);
+CREATE TABLE testtab1 (a int);
 
-CREATE TABLE testtab2 (
-    a int
-);
+CREATE TABLE testtab2 (a int);
 
-CREATE TABLE testtab3 (
-    a int
-);
+CREATE TABLE testtab3 (a int);
 
-CREATE TABLE testtab4 (
-    a int
-);
+CREATE TABLE testtab4 (a int);
 
-CREATE TABLE testtab5 (
-    a int
-);
+CREATE TABLE testtab5 (a int);
 
-CREATE TABLE testtab6 (
-    a int
-);
+CREATE TABLE testtab6 (a int);
 
 \c -
 SET SESSION AUTHORIZATION regress_testrol1;
@@ -535,55 +645,25 @@ ORDER BY
 \c -
 SET SESSION AUTHORIZATION regress_testrol0;
 
-CREATE AGGREGATE testagg1 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg1 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg2 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg2 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg3 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg3 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg4 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg4 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg5 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg5 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg5 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg5 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg6 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg6 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg7 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg7 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg8 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg8 (int2) (SFUNC = int2_sum, STYPE = int8);
 
-CREATE AGGREGATE testagg9 (int2) (
-    SFUNC = int2_sum,
-    STYPE = int8
-);
+CREATE AGGREGATE testagg9 (int2) (SFUNC = int2_sum, STYPE = int8);
 
 \c -
 SET SESSION AUTHORIZATION regress_testrol1;
@@ -647,46 +727,26 @@ CREATE SERVER sv8 FOREIGN DATA WRAPPER test_wrapper;
 
 CREATE SERVER sv9 FOREIGN DATA WRAPPER test_wrapper;
 
-CREATE USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS (
-    USER 'CURRENT_USER'
-);
+CREATE USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS (user 'CURRENT_USER');
 
-CREATE USER MAPPING FOR "current_user" SERVER sv2 OPTIONS (
-    USER '"current_user"'
-);
+CREATE USER MAPPING FOR "current_user" SERVER sv2 OPTIONS (user '"current_user"');
 
-CREATE USER MAPPING FOR USER SERVER sv3 OPTIONS (
-    USER 'USER'
-);
+CREATE USER MAPPING FOR USER SERVER sv3 OPTIONS (user 'USER');
 
-CREATE USER MAPPING FOR "user" SERVER sv4 OPTIONS (
-    USER '"USER"'
-);
+CREATE USER MAPPING FOR "user" SERVER sv4 OPTIONS (user '"USER"');
 
-CREATE USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS (
-    USER 'SESSION_USER'
-);
+CREATE USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS (user 'SESSION_USER');
 
-CREATE USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS (
-    USER 'PUBLIC'
-);
+CREATE USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS (user 'PUBLIC');
 
-CREATE USER MAPPING FOR "Public" SERVER sv7 OPTIONS (
-    USER '"Public"'
-);
+CREATE USER MAPPING FOR "Public" SERVER sv7 OPTIONS (user '"Public"');
 
-CREATE USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS (
-    USER 'regress_testrolx'
-);
+CREATE USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS (user 'regress_testrolx');
 
-CREATE USER MAPPING FOR CURRENT_ROLE SERVER sv9 OPTIONS (
-    USER 'CURRENT_ROLE'
-);
+CREATE USER MAPPING FOR CURRENT_ROLE SERVER sv9 OPTIONS (user 'CURRENT_ROLE');
 
 -- error
-CREATE USER MAPPING FOR nonexistent SERVER sv9 OPTIONS (
-    USER 'nonexistent'
-);
+CREATE USER MAPPING FOR nonexistent SERVER sv9 OPTIONS (user 'nonexistent');
 
 -- error;
 SELECT
@@ -695,25 +755,45 @@ FROM
     chkumapping ();
 
 -- ALTER USER MAPPING
-ALTER USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS ( SET USER 'CURRENT_USER_alt');
+ALTER USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS (
+    SET
+        user 'CURRENT_USER_alt');
 
-ALTER USER MAPPING FOR "current_user" SERVER sv2 OPTIONS ( SET USER '"current_user"_alt');
+ALTER USER MAPPING FOR "current_user" SERVER sv2 OPTIONS (
+    SET
+        user '"current_user"_alt');
 
-ALTER USER MAPPING FOR USER SERVER sv3 OPTIONS ( SET USER 'USER_alt');
+ALTER USER MAPPING FOR USER SERVER sv3 OPTIONS (
+    SET
+        user 'USER_alt');
 
-ALTER USER MAPPING FOR "user" SERVER sv4 OPTIONS ( SET USER '"user"_alt');
+ALTER USER MAPPING FOR "user" SERVER sv4 OPTIONS (
+    SET
+        user '"user"_alt');
 
-ALTER USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS ( SET USER 'SESSION_USER_alt');
+ALTER USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS (
+    SET
+        user 'SESSION_USER_alt');
 
-ALTER USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS ( SET USER 'public_alt');
+ALTER USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS (
+    SET
+        user 'public_alt');
 
-ALTER USER MAPPING FOR "Public" SERVER sv7 OPTIONS ( SET USER '"Public"_alt');
+ALTER USER MAPPING FOR "Public" SERVER sv7 OPTIONS (
+    SET
+        user '"Public"_alt');
 
-ALTER USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS ( SET USER 'regress_testrolx_alt');
+ALTER USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS (
+    SET
+        user 'regress_testrolx_alt');
 
-ALTER USER MAPPING FOR CURRENT_ROLE SERVER sv9 OPTIONS ( SET USER 'CURRENT_ROLE_alt');
+ALTER USER MAPPING FOR CURRENT_ROLE SERVER sv9 OPTIONS (
+    SET
+        user 'CURRENT_ROLE_alt');
 
-ALTER USER MAPPING FOR nonexistent SERVER sv9 OPTIONS ( SET USER 'nonexistent_alt');
+ALTER USER MAPPING FOR nonexistent SERVER sv9 OPTIONS (
+    SET
+        user 'nonexistent_alt');
 
 -- error
 SELECT
@@ -749,37 +829,21 @@ SELECT
 FROM
     chkumapping ();
 
-CREATE USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS (
-    USER 'CURRENT_USER'
-);
+CREATE USER MAPPING FOR CURRENT_USER SERVER sv1 OPTIONS (user 'CURRENT_USER');
 
-CREATE USER MAPPING FOR "current_user" SERVER sv2 OPTIONS (
-    USER '"current_user"'
-);
+CREATE USER MAPPING FOR "current_user" SERVER sv2 OPTIONS (user '"current_user"');
 
-CREATE USER MAPPING FOR USER SERVER sv3 OPTIONS (
-    USER 'USER'
-);
+CREATE USER MAPPING FOR USER SERVER sv3 OPTIONS (user 'USER');
 
-CREATE USER MAPPING FOR "user" SERVER sv4 OPTIONS (
-    USER '"USER"'
-);
+CREATE USER MAPPING FOR "user" SERVER sv4 OPTIONS (user '"USER"');
 
-CREATE USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS (
-    USER 'SESSION_USER'
-);
+CREATE USER MAPPING FOR SESSION_USER SERVER sv5 OPTIONS (user 'SESSION_USER');
 
-CREATE USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS (
-    USER 'PUBLIC'
-);
+CREATE USER MAPPING FOR PUBLIC SERVER sv6 OPTIONS (user 'PUBLIC');
 
-CREATE USER MAPPING FOR "Public" SERVER sv7 OPTIONS (
-    USER '"Public"'
-);
+CREATE USER MAPPING FOR "Public" SERVER sv7 OPTIONS (user '"Public"');
 
-CREATE USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS (
-    USER 'regress_testrolx'
-);
+CREATE USER MAPPING FOR regress_testrolx SERVER sv8 OPTIONS (user 'regress_testrolx');
 
 SELECT
     *
@@ -863,8 +927,7 @@ CREATE SCHEMA test_roles_schema AUTHORIZATION pg_signal_backend;
 --success
 SET ROLE regress_testrol2;
 
-UPDATE
-    pg_proc
+UPDATE pg_proc
 SET
     proacl = NULL
 WHERE
@@ -878,21 +941,37 @@ FROM
 WHERE
     proname LIKE 'testagg_';
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg1 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg1 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg2 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg2 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg3 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg3 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg4 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg4 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg5 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg5 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg6 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg6 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg7 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg7 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg8 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg8 (int2)
+FROM
+    PUBLIC;
 
 GRANT ALL PRIVILEGES ON FUNCTION testagg1 (int2) TO PUBLIC;
 
@@ -908,7 +987,9 @@ GRANT ALL PRIVILEGES ON FUNCTION testagg6 (int2) TO regress_testrolx;
 
 GRANT ALL PRIVILEGES ON FUNCTION testagg7 (int2) TO "public";
 
-GRANT ALL PRIVILEGES ON FUNCTION testagg8 (int2) TO CURRENT_USER, public, regress_testrolx;
+GRANT ALL PRIVILEGES ON FUNCTION testagg8 (int2) TO current_user,
+public,
+regress_testrolx;
 
 SELECT
     proname,
@@ -938,21 +1019,39 @@ FROM
 WHERE
     proname LIKE 'testagg_';
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg1 (int2) FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg1 (int2)
+FROM
+    PUBLIC;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg2 (int2) FROM CURRENT_USER;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg2 (int2)
+FROM
+    CURRENT_USER;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg3 (int2) FROM "current_user";
+REVOKE ALL PRIVILEGES ON FUNCTION testagg3 (int2)
+FROM
+    "current_user";
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg4 (int2) FROM SESSION_USER;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg4 (int2)
+FROM
+    SESSION_USER;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg5 (int2) FROM "Public";
+REVOKE ALL PRIVILEGES ON FUNCTION testagg5 (int2)
+FROM
+    "Public";
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg6 (int2) FROM regress_testrolx;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg6 (int2)
+FROM
+    regress_testrolx;
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg7 (int2) FROM "public";
+REVOKE ALL PRIVILEGES ON FUNCTION testagg7 (int2)
+FROM
+    "public";
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg8 (int2) FROM CURRENT_USER, public, regress_testrolx;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg8 (int2)
+FROM
+    current_user,
+    public,
+    regress_testrolx;
 
 SELECT
     proname,
@@ -962,16 +1061,24 @@ FROM
 WHERE
     proname LIKE 'testagg_';
 
-REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2) FROM CURRENT_ROLE;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2)
+FROM
+    CURRENT_ROLE;
 
 --error
-REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2) FROM USER;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2)
+FROM
+    USER;
 
 --error
-REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2) FROM NONE;
+REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2)
+FROM
+    NONE;
 
 --error
-REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2) FROM "none";
+REVOKE ALL PRIVILEGES ON FUNCTION testagg9 (int2)
+FROM
+    "none";
 
 --error
 SELECT
@@ -1012,34 +1119,58 @@ WHERE
 
 RESET SESSION AUTHORIZATION;
 
-REVOKE pg_read_all_stats FROM regress_role_haspriv;
+REVOKE pg_read_all_stats
+FROM
+    regress_role_haspriv;
 
 -- pg_read_all_settings
 GRANT pg_read_all_settings TO regress_role_haspriv;
 
 BEGIN;
+
 -- A GUC using GUC_SUPERUSER_ONLY is useful for negative tests.
-SET LOCAL session_preload_libraries TO 'path-to-preload-libraries';
+SET
+    LOCAL session_preload_libraries TO 'path-to-preload-libraries';
+
 SET SESSION AUTHORIZATION regress_role_haspriv;
+
 -- passes with role member of pg_read_all_settings
 SHOW session_preload_libraries;
+
 SET SESSION AUTHORIZATION regress_role_nopriv;
+
 -- fails with role not member of pg_read_all_settings
 SHOW session_preload_libraries;
+
 RESET SESSION AUTHORIZATION;
+
 ROLLBACK;
 
-REVOKE pg_read_all_settings FROM regress_role_haspriv;
+REVOKE pg_read_all_settings
+FROM
+    regress_role_haspriv;
 
 -- clean up
 \c
 DROP SCHEMA test_roles_schema;
 
-DROP OWNED BY regress_testrol0, "Public", "current_user", regress_testrol1, regress_testrol2, regress_testrolx CASCADE;
+DROP OWNED BY regress_testrol0,
+"Public",
+"current_user",
+regress_testrol1,
+regress_testrol2,
+regress_testrolx CASCADE;
 
-DROP ROLE regress_testrol0, regress_testrol1, regress_testrol2, regress_testrolx;
+DROP ROLE regress_testrol0,
+regress_testrol1,
+regress_testrol2,
+regress_testrolx;
 
-DROP ROLE "Public", "None", "current_user", "session_user", "user";
+DROP ROLE "Public",
+"None",
+"current_user",
+"session_user",
+"user";
 
-DROP ROLE regress_role_haspriv, regress_role_nopriv;
-
+DROP ROLE regress_role_haspriv,
+regress_role_nopriv;

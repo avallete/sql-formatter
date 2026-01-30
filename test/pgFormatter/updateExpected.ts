@@ -88,7 +88,7 @@ function updateExpectedFiles(inputDir: string, expectedDir: string, label: strin
     const expectedPath = path.join(expectedDir, file);
 
     const input = fs.readFileSync(inputPath, 'utf-8');
-    
+
     let formatted: string;
     try {
       formatted = formatWithSqlFormatter(input);
@@ -123,7 +123,11 @@ console.log('test-files:');
 const testFilesResult = updateExpectedFiles(TEST_FILES_DIR, TEST_FILES_EXPECTED_DIR, 'test-files');
 
 console.log('\npg-test-files:');
-const pgTestFilesResult = updateExpectedFiles(PG_TEST_FILES_DIR, PG_TEST_FILES_EXPECTED_DIR, 'pg-test-files');
+const pgTestFilesResult = updateExpectedFiles(
+  PG_TEST_FILES_DIR,
+  PG_TEST_FILES_EXPECTED_DIR,
+  'pg-test-files'
+);
 
 const totalUpdated = testFilesResult.updated + pgTestFilesResult.updated;
 const totalSkipped = testFilesResult.skipped + pgTestFilesResult.skipped;

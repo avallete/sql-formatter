@@ -10,55 +10,55 @@ SELECT
 -- ******************testing built-in type bool********************
 -- check bool input syntax
 SELECT
-    TRUE AS true;
+    TRUE AS TRUE;
 
 SELECT
-    FALSE AS false;
+    FALSE AS FALSE;
 
 SELECT
-    bool 't' AS true;
+    bool 't' AS TRUE;
 
 SELECT
-    bool '   f           ' AS false;
+    bool '   f           ' AS FALSE;
 
 SELECT
-    bool 'true' AS true;
+    bool 'true' AS TRUE;
 
 SELECT
     bool 'test' AS error;
 
 SELECT
-    bool 'false' AS false;
+    bool 'false' AS FALSE;
 
 SELECT
     bool 'foo' AS error;
 
 SELECT
-    bool 'y' AS true;
+    bool 'y' AS TRUE;
 
 SELECT
-    bool 'yes' AS true;
+    bool 'yes' AS TRUE;
 
 SELECT
     bool 'yeah' AS error;
 
 SELECT
-    bool 'n' AS false;
+    bool 'n' AS FALSE;
 
 SELECT
-    bool 'no' AS false;
+    bool 'no' AS FALSE;
 
 SELECT
     bool 'nay' AS error;
 
 SELECT
-    bool 'on' AS true;
+    bool 'on' AS TRUE;
 
 SELECT
-    bool 'off' AS false;
+    bool 'off' AS FALSE;
 
 SELECT
-    bool 'of' AS false;
+    bool 'of' AS FALSE;
 
 SELECT
     bool 'o' AS error;
@@ -70,13 +70,13 @@ SELECT
     bool 'off_' AS error;
 
 SELECT
-    bool '1' AS true;
+    bool '1' AS TRUE;
 
 SELECT
     bool '11' AS error;
 
 SELECT
-    bool '0' AS false;
+    bool '0' AS FALSE;
 
 SELECT
     bool '000' AS error;
@@ -87,45 +87,45 @@ SELECT
 -- and, or, not in qualifications
 SELECT
     bool 't'
-    OR bool 'f' AS true;
+    OR bool 'f' AS TRUE;
 
 SELECT
     bool 't'
-    AND bool 'f' AS false;
+    AND bool 'f' AS FALSE;
 
 SELECT
-    NOT bool 'f' AS true;
+    NOT bool 'f' AS TRUE;
 
 SELECT
-    bool 't' = bool 'f' AS false;
+    bool 't' = bool 'f' AS FALSE;
 
 SELECT
-    bool 't' <> bool 'f' AS true;
+    bool 't' <> bool 'f' AS TRUE;
 
 SELECT
-    bool 't' > bool 'f' AS true;
+    bool 't' > bool 'f' AS TRUE;
 
 SELECT
-    bool 't' >= bool 'f' AS true;
+    bool 't' >= bool 'f' AS TRUE;
 
 SELECT
-    bool 'f' < bool 't' AS true;
+    bool 'f' < bool 't' AS TRUE;
 
 SELECT
-    bool 'f' <= bool 't' AS true;
+    bool 'f' <= bool 't' AS TRUE;
 
 -- explicit casts to/from text
 SELECT
-    'TrUe'::text::boolean AS true,
-    'fAlse'::text::boolean AS false;
+    'TrUe'::text::boolean AS TRUE,
+    'fAlse'::text::boolean AS FALSE;
 
 SELECT
-    '    true   '::text::boolean AS true,
-    '     FALSE'::text::boolean AS false;
+    '    true   '::text::boolean AS TRUE,
+    '     FALSE'::text::boolean AS FALSE;
 
 SELECT
-    TRUE::boolean::text AS true,
-    FALSE::boolean::text AS false;
+    TRUE::boolean::text AS TRUE,
+    FALSE::boolean::text AS FALSE;
 
 SELECT
     '  tru e '::text::boolean AS invalid;
@@ -135,18 +135,22 @@ SELECT
     ''::text::boolean AS invalid;
 
 -- error
-CREATE TABLE BOOLTBL1 (
-    f1 bool
-);
+CREATE TABLE BOOLTBL1 (f1 bool);
 
-INSERT INTO BOOLTBL1 (f1)
-    VALUES (bool 't');
+INSERT INTO
+    BOOLTBL1 (f1)
+VALUES
+    (bool 't');
 
-INSERT INTO BOOLTBL1 (f1)
-    VALUES (bool 'True');
+INSERT INTO
+    BOOLTBL1 (f1)
+VALUES
+    (bool 'True');
 
-INSERT INTO BOOLTBL1 (f1)
-    VALUES (bool 'true');
+INSERT INTO
+    BOOLTBL1 (f1)
+VALUES
+    (bool 'true');
 
 -- BOOLTBL1 should be full of true's at this point
 SELECT
@@ -177,10 +181,12 @@ SELECT
 FROM
     BOOLTBL1
 WHERE
-    booleq(bool 'false', f1);
+    booleq (bool 'false', f1);
 
-INSERT INTO BOOLTBL1 (f1)
-    VALUES (bool 'f');
+INSERT INTO
+    BOOLTBL1 (f1)
+VALUES
+    (bool 'f');
 
 SELECT
     '' AS f_1,
@@ -190,26 +196,34 @@ FROM
 WHERE
     f1 = bool 'false';
 
-CREATE TABLE BOOLTBL2 (
-    f1 bool
-);
+CREATE TABLE BOOLTBL2 (f1 bool);
 
-INSERT INTO BOOLTBL2 (f1)
-    VALUES (bool 'f');
+INSERT INTO
+    BOOLTBL2 (f1)
+VALUES
+    (bool 'f');
 
-INSERT INTO BOOLTBL2 (f1)
-    VALUES (bool 'false');
+INSERT INTO
+    BOOLTBL2 (f1)
+VALUES
+    (bool 'false');
 
-INSERT INTO BOOLTBL2 (f1)
-    VALUES (bool 'False');
+INSERT INTO
+    BOOLTBL2 (f1)
+VALUES
+    (bool 'False');
 
-INSERT INTO BOOLTBL2 (f1)
-    VALUES (bool 'FALSE');
+INSERT INTO
+    BOOLTBL2 (f1)
+VALUES
+    (bool 'FALSE');
 
 -- This is now an invalid expression
 -- For pre-v6.3 this evaluated to false - thomas 1997-10-23
-INSERT INTO BOOLTBL2 (f1)
-    VALUES (bool 'XXX');
+INSERT INTO
+    BOOLTBL2 (f1)
+VALUES
+    (bool 'XXX');
 
 -- BOOLTBL2 should be full of false's at this point
 SELECT
@@ -236,7 +250,7 @@ FROM
     BOOLTBL1,
     BOOLTBL2
 WHERE
-    boolne(BOOLTBL2.f1, BOOLTBL1.f1);
+    boolne (BOOLTBL2.f1, BOOLTBL1.f1);
 
 SELECT
     '' AS ff_4,
@@ -335,20 +349,22 @@ WHERE
 --
 -- Tests for BooleanTest
 --
-CREATE TABLE BOOLTBL3 (
-    d text,
-    b bool,
-    o int
-);
+CREATE TABLE BOOLTBL3 (d text, b bool, o int);
 
-INSERT INTO BOOLTBL3 (d, b, o)
-    VALUES ('true', TRUE, 1);
+INSERT INTO
+    BOOLTBL3 (d, b, o)
+VALUES
+    ('true', TRUE, 1);
 
-INSERT INTO BOOLTBL3 (d, b, o)
-    VALUES ('false', FALSE, 2);
+INSERT INTO
+    BOOLTBL3 (d, b, o)
+VALUES
+    ('false', FALSE, 2);
 
-INSERT INTO BOOLTBL3 (d, b, o)
-    VALUES ('null', NULL, 3);
+INSERT INTO
+    BOOLTBL3 (d, b, o)
+VALUES
+    ('null', NULL, 3);
 
 SELECT
     d,
@@ -366,14 +382,12 @@ ORDER BY
 -- Test to make sure short-circuiting and NULL handling is
 -- correct. Use a table as source to prevent constant simplification
 -- to interfer.
-CREATE TABLE booltbl4 (
-    isfalse bool,
-    istrue bool,
-    isnul bool
-);
+CREATE TABLE booltbl4 (isfalse bool, istrue bool, isnul bool);
 
-INSERT INTO booltbl4
-    VALUES (FALSE, TRUE, NULL);
+INSERT INTO
+    booltbl4
+VALUES
+    (FALSE, TRUE, NULL);
 
 \pset null '(null)'
 -- AND expression need to return null if there's any nulls and not all
@@ -477,4 +491,3 @@ DROP TABLE BOOLTBL2;
 DROP TABLE BOOLTBL3;
 
 DROP TABLE BOOLTBL4;
-

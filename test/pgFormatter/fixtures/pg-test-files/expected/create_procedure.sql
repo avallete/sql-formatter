@@ -4,24 +4,12 @@ CALL nonexistent ();
 CALL random();
 
 -- error
-CREATE FUNCTION cp_testfunc1 (a int)
-    RETURNS int
-    LANGUAGE SQL
-    AS $$
-    SELECT
-        a
-$$;
+CREATE FUNCTION cp_testfunc1 (a int) RETURNS int LANGUAGE SQL AS $$ SELECT a $$;
 
-CREATE TABLE cp_test (
-    a int,
-    b text
-);
+CREATE TABLE cp_test (a int, b text);
 
-CREATE PROCEDURE ptest1 (x text)
-LANGUAGE SQL
-AS $$
-    INSERT INTO cp_test
-        VALUES (1, x);
+CREATE PROCEDURE ptest1 (x text) LANGUAGE SQL AS $$
+INSERT INTO cp_test VALUES (1, x);
 $$;
 
 \df ptest1
@@ -52,11 +40,8 @@ FROM
 ORDER BY
     b COLLATE "C";
 
-CREATE PROCEDURE ptest2 ()
-LANGUAGE SQL
-AS $$
-    SELECT
-        5;
+CREATE PROCEDURE ptest2 () LANGUAGE SQL AS $$
+SELECT 5;
 $$;
 
 CALL ptest2 ();
@@ -64,11 +49,9 @@ CALL ptest2 ();
 -- nested CALL
 TRUNCATE cp_test;
 
-CREATE PROCEDURE ptest3 (y text)
-LANGUAGE SQL
-AS $$
-    CALL ptest1 (y);
-    CALL ptest1 ($1);
+CREATE PROCEDURE ptest3 (y text) LANGUAGE SQL AS $$
+CALL ptest1(y);
+CALL ptest1($1);
 $$;
 
 CALL ptest3 ('b');
@@ -79,33 +62,22 @@ FROM
     cp_test;
 
 -- output arguments
-CREATE PROCEDURE ptest4a (INOUT a int, INOUT b int)
-LANGUAGE SQL
-AS $$
-    SELECT
-        1,
-        2;
+CREATE PROCEDURE ptest4a (INOUT a int, INOUT b int) LANGUAGE SQL AS $$
+SELECT 1, 2;
 $$;
 
 CALL ptest4a (NULL, NULL);
 
-CREATE PROCEDURE ptest4b (INOUT b int, INOUT a int)
-LANGUAGE SQL
-AS $$
-    CALL ptest4a (a, b);
-    -- error, not supported
+CREATE PROCEDURE ptest4b (INOUT b int, INOUT a int) LANGUAGE SQL AS $$
+CALL ptest4a(a, b);  -- error, not supported
 $$;
 
 DROP PROCEDURE ptest4a;
 
 -- named and default parameters
-CREATE OR REPLACE PROCEDURE ptest5 (a int, b text, c int DEFAULT 100)
-LANGUAGE SQL
-AS $$
-    INSERT INTO cp_test
-        VALUES (a, b);
-    INSERT INTO cp_test
-        VALUES (c, b);
+CREATE OR REPLACE PROCEDURE ptest5 (a int, b text, c int DEFAULT 100) LANGUAGE SQL AS $$
+INSERT INTO cp_test VALUES(a, b);
+INSERT INTO cp_test VALUES(c, b);
 $$;
 
 TRUNCATE cp_test;
@@ -124,24 +96,18 @@ FROM
     cp_test;
 
 -- polymorphic types
-CREATE PROCEDURE ptest6 (a int, b anyelement)
-LANGUAGE SQL
-AS $$
-    SELECT
-        NULL::int;
+CREATE PROCEDURE ptest6 (a int, b anyelement) LANGUAGE SQL AS $$
+SELECT NULL::int;
 $$;
 
 CALL ptest6 (1, 2);
 
 -- collation assignment
-CREATE PROCEDURE ptest7 (a text, b text)
-LANGUAGE SQL
-AS $$
-    SELECT
-        a = b;
+CREATE PROCEDURE ptest7 (a text, b text) LANGUAGE SQL AS $$
+SELECT a = b;
 $$;
 
-CALL ptest7 (least ('a', 'b'), 'a');
+CALL ptest7 (least('a', 'b'), 'a');
 
 -- various error cases
 CALL version();
@@ -150,28 +116,13 @@ CALL version();
 CALL sum(1);
 
 -- error: not a procedure
-CREATE PROCEDURE ptestx ()
-LANGUAGE SQL
+CREATE PROCEDURE ptestx () LANGUAGE SQL
 WINDOW
-AS $$
-    INSERT INTO cp_test
-        VALUES (1, 'a')
-$$;
+    AS $$ INSERT INTO cp_test VALUES (1, 'a') $$;
 
-CREATE PROCEDURE ptestx ()
-LANGUAGE SQL
-STRICT
-AS $$
-    INSERT INTO cp_test
-        VALUES (1, 'a')
-$$;
+CREATE PROCEDURE ptestx () LANGUAGE SQL STRICT AS $$ INSERT INTO cp_test VALUES (1, 'a') $$;
 
-CREATE PROCEDURE ptestx (OUT a int)
-LANGUAGE SQL
-AS $$
-    INSERT INTO cp_test
-        VALUES (1, 'a')
-$$;
+CREATE PROCEDURE ptestx (OUT a int) LANGUAGE SQL AS $$ INSERT INTO cp_test VALUES (1, 'a') $$;
 
 ALTER PROCEDURE ptest1 (text) STRICT;
 
@@ -196,7 +147,10 @@ CREATE USER regress_cp_user1;
 
 GRANT INSERT ON cp_test TO regress_cp_user1;
 
-REVOKE EXECUTE ON PROCEDURE ptest1 (text) FROM PUBLIC;
+REVOKE
+EXECUTE ON PROCEDURE ptest1 (text)
+FROM
+    PUBLIC;
 
 SET ROLE regress_cp_user1;
 
@@ -205,7 +159,8 @@ CALL ptest1 ('a');
 -- error
 RESET ROLE;
 
-GRANT EXECUTE ON PROCEDURE ptest1 (text) TO regress_cp_user1;
+GRANT
+EXECUTE ON PROCEDURE ptest1 (text) TO regress_cp_user1;
 
 SET ROLE regress_cp_user1;
 
@@ -215,13 +170,17 @@ CALL ptest1 ('a');
 RESET ROLE;
 
 -- ROUTINE syntax
-ALTER ROUTINE cp_testfunc1 (int) RENAME TO cp_testfunc1a;
+ALTER ROUTINE cp_testfunc1 (int)
+RENAME TO cp_testfunc1a;
 
-ALTER ROUTINE cp_testfunc1a RENAME TO cp_testfunc1;
+ALTER ROUTINE cp_testfunc1a
+RENAME TO cp_testfunc1;
 
-ALTER ROUTINE ptest1 (text) RENAME TO ptest1a;
+ALTER ROUTINE ptest1 (text)
+RENAME TO ptest1a;
 
-ALTER ROUTINE ptest1a RENAME TO ptest1;
+ALTER ROUTINE ptest1a
+RENAME TO ptest1;
 
 DROP ROUTINE cp_testfunc1 (int);
 
@@ -233,4 +192,3 @@ DROP PROCEDURE ptest2;
 DROP TABLE cp_test;
 
 DROP USER regress_cp_user1;
-

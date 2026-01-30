@@ -8,23 +8,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          bun-version: latest
 
       - name: Install
-        run: yarn install --ignore-scripts
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Test
-        run: yarn test --coverage
+        run: bun run test -- --coverage
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@1.1.3

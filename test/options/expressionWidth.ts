@@ -7,7 +7,7 @@ export default function supportsExpressionWidth(format: FormatFn) {
     expect(() => {
       format('SELECT *', { expressionWidth: -2 });
     }).toThrowErrorMatchingInlineSnapshot(
-      `"expressionWidth config must be positive number. Received -2 instead."`
+      `[Error: expressionWidth config must be positive number. Received -2 instead.]`
     );
   });
 
@@ -15,7 +15,7 @@ export default function supportsExpressionWidth(format: FormatFn) {
     expect(() => {
       format('SELECT *', { expressionWidth: 0 });
     }).toThrowErrorMatchingInlineSnapshot(
-      `"expressionWidth config must be positive number. Received 0 instead."`
+      `[Error: expressionWidth config must be positive number. Received 0 instead.]`
     );
   });
 

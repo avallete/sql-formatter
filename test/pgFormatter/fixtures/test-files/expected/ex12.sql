@@ -1,7 +1,7 @@
-SET client_encoding TO 'UTF8';
+SET
+    client_encoding TO 'UTF8';
 
-UPDATE
-    weather
+UPDATE weather
 SET
     temp_lo = temp_lo + 1,
     temp_hi = temp_lo + 15,
@@ -18,15 +18,17 @@ RETURNING
 SELECT
     *
 FROM (
-    SELECT
-        *
-    FROM
-        mytable
-    FOR UPDATE) AS ss
+        SELECT
+            *
+        FROM
+            mytable
+        FOR UPDATE
+) AS ss
 WHERE
     col1 = 5;
 
 BEGIN;
+
 SELECT
     *
 FROM
@@ -34,12 +36,13 @@ FROM
 WHERE
     key = 1
 FOR NO KEY UPDATE;
+
 SAVEPOINT s;
-UPDATE
-    mytable
+
+UPDATE mytable
 SET
     col1 = NULL
 WHERE
     key = 1;
-ROLLBACK TO s;
 
+ROLLBACK TO s;

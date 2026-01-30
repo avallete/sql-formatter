@@ -4,12 +4,9 @@ CREATE TABLE test_replica_identity (
     keyb text NOT NULL,
     nonkey text,
     CONSTRAINT test_replica_identity_unique_defer UNIQUE (keya, keyb) DEFERRABLE,
-    CONSTRAINT test_replica_identity_unique_nondefer UNIQUE (keya, keyb)
-);
+    CONSTRAINT test_replica_identity_unique_nondefer UNIQUE (keya, keyb));
 
-CREATE TABLE test_replica_identity_othertable (
-    id serial PRIMARY KEY
-);
+CREATE TABLE test_replica_identity_othertable (id serial PRIMARY KEY);
 
 CREATE INDEX test_replica_identity_keyab ON test_replica_identity (keya, keyb);
 
@@ -17,7 +14,7 @@ CREATE UNIQUE INDEX test_replica_identity_keyab_key ON test_replica_identity (ke
 
 CREATE UNIQUE INDEX test_replica_identity_nonkey ON test_replica_identity (keya, nonkey);
 
-CREATE INDEX test_replica_identity_hash ON test_replica_identity USING HASH (nonkey);
+CREATE INDEX test_replica_identity_hash ON test_replica_identity USING hash (nonkey);
 
 CREATE UNIQUE INDEX test_replica_identity_expr ON test_replica_identity (keya, keyb, (3));
 
@@ -52,32 +49,25 @@ WHERE
 -- Make sure we detect ineligible indexes
 ----
 -- fail, not unique
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_keyab;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_keyab;
 
 -- fail, not a candidate key, nullable column
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_nonkey;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_nonkey;
 
 -- fail, hash indexes cannot do uniqueness
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_hash;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_hash;
 
 -- fail, expression index
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_expr;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_expr;
 
 -- fail, partial index
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_partial;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_partial;
 
 -- fail, not our index
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_othertable_pkey;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_othertable_pkey;
 
 -- fail, deferrable
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_unique_defer;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_unique_defer;
 
 SELECT
     relreplident
@@ -90,8 +80,7 @@ WHERE
 -- Make sure index cases succeed
 ----
 -- succeed, primary key
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_pkey;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_pkey;
 
 SELECT
     relreplident
@@ -102,15 +91,12 @@ WHERE
 
 \d test_replica_identity
 -- succeed, nondeferrable unique constraint over nonnullable cols
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_unique_nondefer;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_unique_nondefer;
 
 -- succeed unique index over nonnullable cols
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_keyab_key;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_keyab_key;
 
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-USING INDEX test_replica_identity_keyab_key;
+ALTER TABLE test_replica_identity REPLICA IDENTITY USING INDEX test_replica_identity_keyab_key;
 
 SELECT
     relreplident
@@ -148,8 +134,7 @@ WHERE
     indrelid = 'test_replica_identity'::regclass
     AND indisreplident;
 
-ALTER TABLE test_replica_identity REPLICA IDENTITY
-    FULL;
+ALTER TABLE test_replica_identity REPLICA IDENTITY FULL;
 
 SELECT
     relreplident
@@ -171,4 +156,3 @@ WHERE
 DROP TABLE test_replica_identity;
 
 DROP TABLE test_replica_identity_othertable;
-

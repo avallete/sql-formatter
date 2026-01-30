@@ -34,86 +34,31 @@
 -- argument polymorphism, but within the constraints of valid aggregate
 -- functions, i.e. tf arg1 and tf return type must match
 -- polymorphic single arg transfn
-CREATE FUNCTION stfp (anyarray)
-    RETURNS anyarray
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION stfp (anyarray) RETURNS anyarray AS 'select $1' LANGUAGE SQL;
 
 -- non-polymorphic single arg transfn
-CREATE FUNCTION stfnp (int[])
-    RETURNS int[]
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION stfnp (INT[]) RETURNS INT[] AS 'select $1' LANGUAGE SQL;
 
 -- dual polymorphic transfn
-CREATE FUNCTION tfp (anyarray, anyelement)
-    RETURNS anyarray
-    AS '
-    SELECT
-        $1 || $2;
-'
-LANGUAGE SQL;
+CREATE FUNCTION tfp (anyarray, anyelement) RETURNS anyarray AS 'select $1 || $2' LANGUAGE SQL;
 
 -- dual non-polymorphic transfn
-CREATE FUNCTION tfnp (int[], int)
-    RETURNS int[]
-    AS '
-    SELECT
-        $1 || $2;
-'
-LANGUAGE SQL;
+CREATE FUNCTION tfnp (INT[], int) RETURNS INT[] AS 'select $1 || $2' LANGUAGE SQL;
 
 -- arg1 only polymorphic transfn
-CREATE FUNCTION tf1p (anyarray, int)
-    RETURNS anyarray
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION tf1p (anyarray, int) RETURNS anyarray AS 'select $1' LANGUAGE SQL;
 
 -- arg2 only polymorphic transfn
-CREATE FUNCTION tf2p (int[], anyelement)
-    RETURNS int[]
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION tf2p (INT[], anyelement) RETURNS INT[] AS 'select $1' LANGUAGE SQL;
 
 -- multi-arg polymorphic
-CREATE FUNCTION sum3 (anyelement, anyelement, anyelement)
-    RETURNS anyelement
-    AS '
-    SELECT
-        $1 + $2 + $3;
-'
-LANGUAGE sql
-STRICT;
+CREATE FUNCTION sum3 (anyelement, anyelement, anyelement) returns anyelement AS 'select $1+$2+$3' language sql strict;
 
 -- finalfn polymorphic
-CREATE FUNCTION ffp (anyarray)
-    RETURNS anyarray
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION ffp (anyarray) RETURNS anyarray AS 'select $1' LANGUAGE SQL;
 
 -- finalfn non-polymorphic
-CREATE FUNCTION ffnp (int[])
-    RETURNS int[]
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE SQL;
+CREATE FUNCTION ffnp (INT[]) returns INT[] AS 'select $1' LANGUAGE SQL;
 
 -- Try to cover all the possible states:
 --
@@ -133,8 +78,7 @@ CREATE AGGREGATE myaggp01a (*) (
     SFUNC = stfnp,
     STYPE = int4[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --     P    N
 -- should ERROR: stfnp(anyarray) not matched by stfnp(int[])
@@ -142,8 +86,7 @@ CREATE AGGREGATE myaggp02a (*) (
     SFUNC = stfnp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --     N    P
 -- should CREATE
@@ -151,14 +94,9 @@ CREATE AGGREGATE myaggp03a (*) (
     SFUNC = stfp,
     STYPE = int4[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
-CREATE AGGREGATE myaggp03b (*) (
-    SFUNC = stfp,
-    STYPE = int4[],
-    INITCOND = '{}'
-);
+CREATE AGGREGATE myaggp03b (*) (SFUNC = stfp, STYPE = int4[], INITCOND = '{}');
 
 --     P    P
 -- should ERROR: we have no way to resolve S
@@ -166,14 +104,9 @@ CREATE AGGREGATE myaggp04a (*) (
     SFUNC = stfp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
-CREATE AGGREGATE myaggp04b (*) (
-    SFUNC = stfp,
-    STYPE = anyarray,
-    INITCOND = '{}'
-);
+CREATE AGGREGATE myaggp04b (*) (SFUNC = stfp, STYPE = anyarray, INITCOND = '{}');
 
 --    Case2 (R = P) && ((B = P) || (B = N))
 --    -------------------------------------
@@ -184,108 +117,96 @@ CREATE AGGREGATE myaggp04b (*) (
 CREATE AGGREGATE myaggp05a (
     BASETYPE = int,
     SFUNC = tfnp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    N        N    P
 -- should CREATE
 CREATE AGGREGATE myaggp06a (
     BASETYPE = int,
     SFUNC = tf2p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    N        P    N
 -- should ERROR: tfnp(int[], anyelement) not matched by tfnp(int[], int)
 CREATE AGGREGATE myaggp07a (
     BASETYPE = anyelement,
     SFUNC = tfnp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    N        P    P
 -- should CREATE
 CREATE AGGREGATE myaggp08a (
     BASETYPE = anyelement,
     SFUNC = tf2p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    P        N    N
 -- should CREATE
 CREATE AGGREGATE myaggp09a (
     BASETYPE = int,
     SFUNC = tf1p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp09b (
     BASETYPE = int,
     SFUNC = tf1p,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    P        N    P
 -- should CREATE
 CREATE AGGREGATE myaggp10a (
     BASETYPE = int,
     SFUNC = tfp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp10b (
     BASETYPE = int,
     SFUNC = tfp,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    P        P    N
 -- should ERROR: tf1p(int[],anyelement) not matched by tf1p(anyarray,int)
 CREATE AGGREGATE myaggp11a (
     BASETYPE = anyelement,
     SFUNC = tf1p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp11b (
     BASETYPE = anyelement,
     SFUNC = tf1p,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    P        P    P
 -- should ERROR: tfp(int[],anyelement) not matched by tfp(anyarray,anyelement)
 CREATE AGGREGATE myaggp12a (
     BASETYPE = anyelement,
     SFUNC = tfp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp12b (
     BASETYPE = anyelement,
     SFUNC = tfp,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    P    N        N    N
 -- should ERROR: tfnp(anyarray, int) not matched by tfnp(int[],int)
@@ -294,8 +215,7 @@ CREATE AGGREGATE myaggp13a (
     SFUNC = tfnp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        N    P
 -- should ERROR: tf2p(anyarray, int) not matched by tf2p(int[],anyelement)
@@ -304,8 +224,7 @@ CREATE AGGREGATE myaggp14a (
     SFUNC = tf2p,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        P    N
 -- should ERROR: tfnp(anyarray, anyelement) not matched by tfnp(int[],int)
@@ -314,8 +233,7 @@ CREATE AGGREGATE myaggp15a (
     SFUNC = tfnp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        P    P
 -- should ERROR: tf2p(anyarray, anyelement) not matched by tf2p(int[],anyelement)
@@ -324,8 +242,7 @@ CREATE AGGREGATE myaggp16a (
     SFUNC = tf2p,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        N    N
 -- should ERROR: we have no way to resolve S
@@ -334,15 +251,13 @@ CREATE AGGREGATE myaggp17a (
     SFUNC = tf1p,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp17b (
     BASETYPE = int,
     SFUNC = tf1p,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        N    P
 -- should ERROR: tfp(anyarray, int) not matched by tfp(anyarray, anyelement)
@@ -351,15 +266,13 @@ CREATE AGGREGATE myaggp18a (
     SFUNC = tfp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp18b (
     BASETYPE = int,
     SFUNC = tfp,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        P    N
 -- should ERROR: tf1p(anyarray, anyelement) not matched by tf1p(anyarray, int)
@@ -368,15 +281,13 @@ CREATE AGGREGATE myaggp19a (
     SFUNC = tf1p,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp19b (
     BASETYPE = anyelement,
     SFUNC = tf1p,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        P    P
 -- should CREATE
@@ -385,15 +296,13 @@ CREATE AGGREGATE myaggp20a (
     SFUNC = tfp,
     STYPE = anyarray,
     FINALFUNC = ffp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggp20b (
     BASETYPE = anyelement,
     SFUNC = tfp,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --     Case3 (R = N) && (B = A)
 --     ------------------------
@@ -405,14 +314,9 @@ CREATE AGGREGATE myaggn01a (*) (
     SFUNC = stfnp,
     STYPE = int4[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
-CREATE AGGREGATE myaggn01b (*) (
-    SFUNC = stfnp,
-    STYPE = int4[],
-    INITCOND = '{}'
-);
+CREATE AGGREGATE myaggn01b (*) (SFUNC = stfnp, STYPE = int4[], INITCOND = '{}');
 
 --     P    N
 -- should ERROR: stfnp(anyarray) not matched by stfnp(int[])
@@ -420,14 +324,9 @@ CREATE AGGREGATE myaggn02a (*) (
     SFUNC = stfnp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
-CREATE AGGREGATE myaggn02b (*) (
-    SFUNC = stfnp,
-    STYPE = anyarray,
-    INITCOND = '{}'
-);
+CREATE AGGREGATE myaggn02b (*) (SFUNC = stfnp, STYPE = anyarray, INITCOND = '{}');
 
 --     N    P
 -- should CREATE
@@ -435,8 +334,7 @@ CREATE AGGREGATE myaggn03a (*) (
     SFUNC = stfp,
     STYPE = int4[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --     P    P
 -- should ERROR: ffnp(anyarray) not matched by ffnp(int[])
@@ -444,8 +342,7 @@ CREATE AGGREGATE myaggn04a (*) (
     SFUNC = stfp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    Case4 (R = N) && ((B = P) || (B = N))
 --    -------------------------------------
@@ -456,108 +353,96 @@ CREATE AGGREGATE myaggn04a (*) (
 CREATE AGGREGATE myaggn05a (
     BASETYPE = int,
     SFUNC = tfnp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn05b (
     BASETYPE = int,
     SFUNC = tfnp,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    N        N    P
 -- should CREATE
 CREATE AGGREGATE myaggn06a (
     BASETYPE = int,
     SFUNC = tf2p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn06b (
     BASETYPE = int,
     SFUNC = tf2p,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    N        P    N
 -- should ERROR: tfnp(int[], anyelement) not matched by tfnp(int[], int)
 CREATE AGGREGATE myaggn07a (
     BASETYPE = anyelement,
     SFUNC = tfnp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn07b (
     BASETYPE = anyelement,
     SFUNC = tfnp,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    N        P    P
 -- should CREATE
 CREATE AGGREGATE myaggn08a (
     BASETYPE = anyelement,
     SFUNC = tf2p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn08b (
     BASETYPE = anyelement,
     SFUNC = tf2p,
-    STYPE = int[],
-    INITCOND = '{}'
-);
+    STYPE = INT[],
+    INITCOND = '{}');
 
 --    N    P        N    N
 -- should CREATE
 CREATE AGGREGATE myaggn09a (
     BASETYPE = int,
     SFUNC = tf1p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    P        N    P
 -- should CREATE
 CREATE AGGREGATE myaggn10a (
     BASETYPE = int,
     SFUNC = tfp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    P        P    N
 -- should ERROR: tf1p(int[],anyelement) not matched by tf1p(anyarray,int)
 CREATE AGGREGATE myaggn11a (
     BASETYPE = anyelement,
     SFUNC = tf1p,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    N    P        P    P
 -- should ERROR: tfp(int[],anyelement) not matched by tfp(anyarray,anyelement)
 CREATE AGGREGATE myaggn12a (
     BASETYPE = anyelement,
     SFUNC = tfp,
-    STYPE = int[],
+    STYPE = INT[],
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        N    N
 -- should ERROR: tfnp(anyarray, int) not matched by tfnp(int[],int)
@@ -566,15 +451,13 @@ CREATE AGGREGATE myaggn13a (
     SFUNC = tfnp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn13b (
     BASETYPE = int,
     SFUNC = tfnp,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        N    P
 -- should ERROR: tf2p(anyarray, int) not matched by tf2p(int[],anyelement)
@@ -583,15 +466,13 @@ CREATE AGGREGATE myaggn14a (
     SFUNC = tf2p,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn14b (
     BASETYPE = int,
     SFUNC = tf2p,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        P    N
 -- should ERROR: tfnp(anyarray, anyelement) not matched by tfnp(int[],int)
@@ -600,15 +481,13 @@ CREATE AGGREGATE myaggn15a (
     SFUNC = tfnp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn15b (
     BASETYPE = anyelement,
     SFUNC = tfnp,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    N        P    P
 -- should ERROR: tf2p(anyarray, anyelement) not matched by tf2p(int[],anyelement)
@@ -617,15 +496,13 @@ CREATE AGGREGATE myaggn16a (
     SFUNC = tf2p,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 CREATE AGGREGATE myaggn16b (
     BASETYPE = anyelement,
     SFUNC = tf2p,
     STYPE = anyarray,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        N    N
 -- should ERROR: ffnp(anyarray) not matched by ffnp(int[])
@@ -634,8 +511,7 @@ CREATE AGGREGATE myaggn17a (
     SFUNC = tf1p,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        N    P
 -- should ERROR: tfp(anyarray, int) not matched by tfp(anyarray, anyelement)
@@ -644,8 +520,7 @@ CREATE AGGREGATE myaggn18a (
     SFUNC = tfp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        P    N
 -- should ERROR: tf1p(anyarray, anyelement) not matched by tf1p(anyarray, int)
@@ -654,8 +529,7 @@ CREATE AGGREGATE myaggn19a (
     SFUNC = tf1p,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 --    P    P        P    P
 -- should ERROR: ffnp(anyarray) not matched by ffnp(int[])
@@ -664,46 +538,53 @@ CREATE AGGREGATE myaggn20a (
     SFUNC = tfp,
     STYPE = anyarray,
     FINALFUNC = ffnp,
-    INITCOND = '{}'
-);
+    INITCOND = '{}');
 
 -- multi-arg polymorphic
-CREATE AGGREGATE mysum2 (anyelement, anyelement) (
-    SFUNC = sum3,
-    STYPE = anyelement,
-    INITCOND = '0'
-);
+CREATE AGGREGATE mysum2 (anyelement, anyelement) (SFUNC = sum3, STYPE = anyelement, INITCOND = '0');
 
 -- create test data for polymorphic aggregates
-CREATE temp TABLE t (
-    f1 int,
-    f2 int[],
-    f3 text
-);
+CREATE TEMP TABLE t (f1 int, f2 INT[], f3 text);
 
-INSERT INTO t
-    VALUES (1, ARRAY[1], 'a');
+INSERT INTO
+    t
+VALUES
+    (1, ARRAY[1], 'a');
 
-INSERT INTO t
-    VALUES (1, ARRAY[11], 'b');
+INSERT INTO
+    t
+VALUES
+    (1, ARRAY[11], 'b');
 
-INSERT INTO t
-    VALUES (1, ARRAY[111], 'c');
+INSERT INTO
+    t
+VALUES
+    (1, ARRAY[111], 'c');
 
-INSERT INTO t
-    VALUES (2, ARRAY[2], 'a');
+INSERT INTO
+    t
+VALUES
+    (2, ARRAY[2], 'a');
 
-INSERT INTO t
-    VALUES (2, ARRAY[22], 'b');
+INSERT INTO
+    t
+VALUES
+    (2, ARRAY[22], 'b');
 
-INSERT INTO t
-    VALUES (2, ARRAY[222], 'c');
+INSERT INTO
+    t
+VALUES
+    (2, ARRAY[222], 'c');
 
-INSERT INTO t
-    VALUES (3, ARRAY[3], 'a');
+INSERT INTO
+    t
+VALUES
+    (3, ARRAY[3], 'a');
 
-INSERT INTO t
-    VALUES (3, ARRAY[3], 'b');
+INSERT INTO
+    t
+VALUES
+    (3, ARRAY[3], 'b');
 
 -- test the successfully created polymorphic aggregates
 SELECT
@@ -942,27 +823,14 @@ FROM
     t;
 
 -- test inlining of polymorphic SQL functions
-CREATE FUNCTION bleat (int)
-    RETURNS int
-    AS $$
-BEGIN
-    RAISE NOTICE 'bleat %', $1;
-    RETURN $1;
-END
-$$
-LANGUAGE plpgsql;
+CREATE FUNCTION bleat (int) returns int AS $$
+begin
+  raise notice 'bleat %', $1;
+  return $1;
+end$$ language plpgsql;
 
-CREATE FUNCTION sql_if (bool, anyelement, anyelement)
-    RETURNS anyelement
-    AS $$
-    SELECT
-        CASE WHEN $1 THEN
-            $2
-        ELSE
-            $3
-        END
-$$
-LANGUAGE sql;
+CREATE FUNCTION sql_if (bool, anyelement, anyelement) returns anyelement AS $$
+select case when $1 then $2 else $3 end $$ language sql;
 
 -- Note this would fail with integer overflow, never mind wrong bleat() output,
 -- if the CASE expression were not successfully inlined
@@ -980,44 +848,38 @@ FROM
 
 -- another sort of polymorphic aggregate
 CREATE AGGREGATE array_cat_accum (anyarray) (
-    SFUNC = array_cat,
-    STYPE = anyarray,
-    INITCOND = '{}'
-);
+    sfunc = array_cat,
+    stype = anyarray,
+    initcond = '{}');
 
 SELECT
     array_cat_accum (i)
 FROM (
-    VALUES (ARRAY[1, 2]),
-        (ARRAY[3, 4])) AS t (i);
+        VALUES
+            (ARRAY[1, 2]),
+            (ARRAY[3, 4])) AS t (i);
 
 SELECT
     array_cat_accum (i)
 FROM (
-    VALUES (ARRAY[ROW (1, 2), ROW (3, 4)]),
-        (ARRAY[ROW (5, 6), ROW (7, 8)])) AS t (i);
+        VALUES
+            (ARRAY[ROW (1, 2), ROW (3, 4)]),
+            (ARRAY[ROW (5, 6), ROW (7, 8)])) AS t (i);
 
 -- another kind of polymorphic aggregate
-CREATE FUNCTION add_group (grp anyarray, ad anyelement, size integer)
-    RETURNS anyarray
-    AS $$
-BEGIN
-    IF grp IS NULL THEN
-        RETURN ARRAY[ad];
-    END IF;
-    IF array_upper(grp, 1) < size THEN
-        RETURN grp || ad;
-    END IF;
-    RETURN grp;
-END;
-$$
-LANGUAGE plpgsql
-IMMUTABLE;
+CREATE FUNCTION add_group (grp anyarray, ad anyelement, size integer) returns anyarray AS $$
+begin
+  if grp is null then
+    return array[ad];
+  end if;
+  if array_upper(grp, 1) < size then
+    return grp || ad;
+  end if;
+  return grp;
+end;
+$$ language plpgsql immutable;
 
-CREATE AGGREGATE build_group (anyelement, integer) (
-    SFUNC = add_group,
-    STYPE = anyarray
-);
+CREATE AGGREGATE build_group (anyelement, integer) (SFUNC = add_group, STYPE = anyarray);
 
 SELECT
     build_group (q1, 3)
@@ -1025,38 +887,23 @@ FROM
     int8_tbl;
 
 -- this should fail because stype isn't compatible with arg
-CREATE AGGREGATE build_group (int8, integer) (
-    SFUNC = add_group,
-    STYPE = int2[]
-);
+CREATE AGGREGATE build_group (int8, integer) (SFUNC = add_group, STYPE = int2[]);
 
 -- but we can make a non-poly agg from a poly sfunc if types are OK
-CREATE AGGREGATE build_group (int8, integer) (
-    SFUNC = add_group,
-    STYPE = int8[]
-);
+CREATE AGGREGATE build_group (int8, integer) (SFUNC = add_group, STYPE = int8[]);
 
 -- check proper resolution of data types for polymorphic transfn/finalfn
-CREATE FUNCTION first_el (anyarray)
-    RETURNS anyelement
-    AS '
-    SELECT
-        $1[1];
-'
-LANGUAGE sql
-STRICT IMMUTABLE;
+CREATE FUNCTION first_el (anyarray) returns anyelement AS 'select $1[1]' language sql strict immutable;
 
 CREATE AGGREGATE first_el_agg_f8 (float8) (
     SFUNC = array_append,
     STYPE = float8[],
-    FINALFUNC = first_el
-);
+    FINALFUNC = first_el);
 
 CREATE AGGREGATE first_el_agg_any (anyelement) (
     SFUNC = array_append,
     STYPE = anyarray,
-    FINALFUNC = first_el
-);
+    FINALFUNC = first_el);
 
 SELECT
     first_el_agg_f8 (x::float8)
@@ -1069,12 +916,16 @@ FROM
     generate_series(1, 10) x;
 
 SELECT
-    first_el_agg_f8 (x::float8) OVER (ORDER BY x)
+    first_el_agg_f8 (x::float8) OVER (
+        ORDER BY
+            x)
 FROM
     generate_series(1, 10) x;
 
 SELECT
-    first_el_agg_any (x) OVER (ORDER BY x)
+    first_el_agg_any (x) OVER (
+        ORDER BY
+            x)
 FROM
     generate_series(1, 10) x;
 
@@ -1096,16 +947,9 @@ WHERE
     tablename = 'pg_am';
 
 -- test variadic polymorphic functions
-CREATE FUNCTION myleast (VARIADIC anyarray)
-    RETURNS anyelement
-    AS $$
-    SELECT
-        min($1[i])
-    FROM
-        generate_subscripts($1, 1) g (i)
-$$
-LANGUAGE sql
-IMMUTABLE STRICT;
+CREATE FUNCTION myleast (VARIADIC anyarray) returns anyelement AS $$
+  select min($1[i]) from generate_subscripts($1,1) g(i)
+$$ language sql immutable strict;
 
 SELECT
     myleast (10, 1, 20, 33);
@@ -1129,17 +973,12 @@ SELECT
 
 --test with empty variadic call parameter
 SELECT
-    myleast (VARIADIC ARRAY[]::int[]);
+    myleast (VARIADIC ARRAY[]::INT[]);
 
 -- an example with some ordinary arguments too
-CREATE FUNCTION concat (text, VARIADIC anyarray)
-    RETURNS text
-    AS $$
-    SELECT
-        array_to_string($2, $1);
-$$
-LANGUAGE sql
-IMMUTABLE STRICT;
+CREATE FUNCTION concat(text, VARIADIC anyarray) returns text AS $$
+  select array_to_string($2, $1);
+$$ language sql immutable strict;
 
 SELECT
     concat('%', 1, 2, 3, 4, 5);
@@ -1151,19 +990,14 @@ SELECT
     concat('|', VARIADIC ARRAY[1, 2, 33]);
 
 SELECT
-    concat('|', VARIADIC ARRAY[]::int[]);
+    concat('|', VARIADIC ARRAY[]::INT[]);
 
 DROP FUNCTION concat(text, anyarray);
 
 -- mix variadic with anyelement
-CREATE FUNCTION formarray (anyelement, VARIADIC anyarray)
-    RETURNS anyarray
-    AS $$
-    SELECT
-        array_prepend($1, $2);
-$$
-LANGUAGE sql
-IMMUTABLE STRICT;
+CREATE FUNCTION formarray (anyelement, VARIADIC anyarray) returns anyarray AS $$
+  select array_prepend($1, $2);
+$$ language sql immutable strict;
 
 SELECT
     formarray (1, 2, 3, 4, 5);
@@ -1224,13 +1058,9 @@ SELECT
 -- polymorphic input
 -- test functions with default parameters
 -- test basic functionality
-CREATE FUNCTION dfunc (a int = 1, int = 2)
-    RETURNS int
-    AS $$
-    SELECT
-        $1 + $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a int = 1, int = 2) returns int AS $$
+  select $1 + $2;
+$$ language sql;
 
 SELECT
     dfunc ();
@@ -1255,21 +1085,14 @@ DROP FUNCTION dfunc (int, int);
 
 -- ok
 -- fail: defaults must be at end of argument list
-CREATE FUNCTION dfunc (a int = 1, b int)
-    RETURNS int
-    AS $$
-    SELECT
-        $1 + $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a int = 1, b int) returns int AS $$
+  select $1 + $2;
+$$ language sql;
 
 -- however, this should work:
-CREATE FUNCTION dfunc (a int = 1, out sum int, b int = 2)
-AS $$
-    SELECT
-        $1 + $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a int = 1, OUT sum int, b int = 2) AS $$
+  select $1 + $2;
+$$ language sql;
 
 SELECT
     dfunc ();
@@ -1279,24 +1102,16 @@ SELECT
 DROP FUNCTION dfunc (int, int);
 
 -- check implicit coercion
-CREATE FUNCTION dfunc (a int DEFAULT 1.0, int DEFAULT '-1')
-    RETURNS int
-    AS $$
-    SELECT
-        $1 + $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a int DEFAULT 1.0, int DEFAULT '-1') returns int AS $$
+  select $1 + $2;
+$$ language sql;
 
 SELECT
     dfunc ();
 
-CREATE FUNCTION dfunc (a text DEFAULT 'Hello', b text DEFAULT 'World')
-    RETURNS text
-    AS $$
-    SELECT
-        $1 || ', ' || $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a text DEFAULT 'Hello', b text DEFAULT 'World') returns text AS $$
+  select $1 || ', ' || $2;
+$$ language sql;
 
 SELECT
     dfunc ();
@@ -1322,21 +1137,13 @@ DROP FUNCTION dfunc (int, int);
 
 DROP FUNCTION dfunc (text, text);
 
-CREATE FUNCTION dfunc (int = 1, int = 2)
-    RETURNS int
-    AS $$
-    SELECT
-        2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (int = 1, int = 2) returns int AS $$
+  select 2;
+$$ language sql;
 
-CREATE FUNCTION dfunc (int = 1, int = 2, int = 3, int = 4)
-    RETURNS int
-    AS $$
-    SELECT
-        4;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (int = 1, int = 2, int = 3, int = 4) returns int AS $$
+  select 4;
+$$ language sql;
 
 -- Now, dfunc(nargs = 2) and dfunc(nargs = 4) are ambiguous when called
 -- with 0 to 2 arguments.
@@ -1365,22 +1172,14 @@ DROP FUNCTION dfunc (int, int);
 DROP FUNCTION dfunc (int, int, int, int);
 
 -- default values are not allowed for output parameters
-CREATE FUNCTION dfunc (out int = 20)
-    RETURNS int
-    AS $$
-    SELECT
-        1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (OUT int = 20) returns int AS $$
+  select 1;
+$$ language sql;
 
 -- polymorphic parameter test
-CREATE FUNCTION dfunc (anyelement = 'World'::text)
-    RETURNS text
-    AS $$
-    SELECT
-        'Hello, ' || $1::text;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (anyelement = 'World'::text) returns text AS $$
+  select 'Hello, ' || $1::text;
+$$ language sql;
 
 SELECT
     dfunc ();
@@ -1397,13 +1196,7 @@ SELECT
 DROP FUNCTION dfunc (anyelement);
 
 -- check defaults for variadics
-CREATE FUNCTION dfunc (a VARIADIC int[])
-    RETURNS int
-    AS $$
-    SELECT
-        array_upper($1, 1)
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a VARIADIC INT[]) returns int AS $$ select array_upper($1, 1) $$ language sql;
 
 SELECT
     dfunc ();
@@ -1415,13 +1208,7 @@ SELECT
 SELECT
     dfunc (10, 20);
 
-CREATE OR REPLACE FUNCTION dfunc (a VARIADIC int[] DEFAULT ARRAY[]::int[])
-    RETURNS int
-    AS $$
-    SELECT
-        array_upper($1, 1)
-$$
-LANGUAGE sql;
+CREATE OR REPLACE FUNCTION dfunc (a VARIADIC INT[] DEFAULT ARRAY[]::INT[]) returns int AS $$ select array_upper($1, 1) $$ language sql;
 
 SELECT
     dfunc ();
@@ -1434,41 +1221,23 @@ SELECT
     dfunc (10, 20);
 
 -- can't remove the default once it exists
-CREATE OR REPLACE FUNCTION dfunc (a VARIADIC int[])
-    RETURNS int
-    AS $$
-    SELECT
-        array_upper($1, 1)
-$$
-LANGUAGE sql;
+CREATE OR REPLACE FUNCTION dfunc (a VARIADIC INT[]) returns int AS $$ select array_upper($1, 1) $$ language sql;
 
 \df dfunc
-DROP FUNCTION dfunc (a VARIADIC int[]);
+DROP FUNCTION dfunc (a VARIADIC INT[]);
 
 -- Ambiguity should be reported only if there's not a better match available
-CREATE FUNCTION dfunc (int = 1, int = 2, int = 3)
-    RETURNS int
-    AS $$
-    SELECT
-        3;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (int = 1, int = 2, int = 3) returns int AS $$
+  select 3;
+$$ language sql;
 
-CREATE FUNCTION dfunc (int = 1, int = 2)
-    RETURNS int
-    AS $$
-    SELECT
-        2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (int = 1, int = 2) returns int AS $$
+  select 2;
+$$ language sql;
 
-CREATE FUNCTION dfunc (text)
-    RETURNS text
-    AS $$
-    SELECT
-        $1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (text) returns text AS $$
+  select $1;
+$$ language sql;
 
 -- dfunc(narg=2) and dfunc(narg=3) are ambiguous
 SELECT
@@ -1488,21 +1257,9 @@ DROP FUNCTION dfunc (text);
 --
 -- Tests for named- and mixed-notation function calling
 --
-CREATE FUNCTION dfunc (a int, b int, c int = 0, d int = 0)
-    RETURNS TABLE (
-        a int,
-        b int,
-        c int,
-        d int
-    )
-    AS $$
-    SELECT
-        $1,
-        $2,
-        $3,
-        $4;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a int, b int, c int = 0, d int = 0) returns TABLE (a int, b int, c int, d int) AS $$
+  select $1, $2, $3, $4;
+$$ language sql;
 
 SELECT
     (dfunc (10, 20, 30)).*;
@@ -1574,19 +1331,9 @@ FROM
 DROP FUNCTION dfunc (int, int, int, int);
 
 -- test with different parameter types
-CREATE FUNCTION dfunc (a varchar, b numeric, c date = CURRENT_DATE)
-    RETURNS TABLE (
-        a varchar,
-        b numeric,
-        c date
-    )
-    AS $$
-    SELECT
-        $1,
-        $2,
-        $3;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (a varchar, b numeric, c date = current_date) returns TABLE (a varchar, b numeric, c date) AS $$
+  select $1, $2, $3;
+$$ language sql;
 
 SELECT
     (dfunc ('Hello World', 20, '2009-07-25'::date)).*;
@@ -1599,7 +1346,10 @@ FROM
 SELECT
     *
 FROM
-    dfunc (c := '2009-07-25'::date, a := 'Hello World', b := 20);
+    dfunc (
+        c := '2009-07-25'::date,
+        a := 'Hello World',
+        b := 20);
 
 SELECT
     *
@@ -1620,14 +1370,13 @@ FROM
 DROP FUNCTION dfunc (varchar, numeric, date);
 
 -- test out parameters with named params
-CREATE FUNCTION dfunc (a varchar = 'def a', out _a varchar, c numeric = NULL, out _c numeric)
-    RETURNS record
-    AS $$
-    SELECT
-        $1,
-        $2;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (
+    a varchar = 'def a',
+    OUT _a varchar,
+    c numeric = NULL,
+    OUT _c numeric) returns record AS $$
+  select $1, $2;
+$$ language sql;
 
 SELECT
     (dfunc ()).*;
@@ -1668,82 +1417,42 @@ FROM
     dfunc (c := 100);
 
 -- fail, can no longer change an input parameter's name
-CREATE OR REPLACE FUNCTION dfunc (a varchar = 'def a', out _a varchar, x numeric = NULL, out _c numeric)
-    RETURNS record
-    AS $$
-    SELECT
-        $1,
-        $2;
-$$
-LANGUAGE sql;
+CREATE OR REPLACE FUNCTION dfunc (
+    a varchar = 'def a',
+    OUT _a varchar,
+    x numeric = NULL,
+    OUT _c numeric) returns record AS $$
+  select $1, $2;
+$$ language sql;
 
-CREATE OR REPLACE FUNCTION dfunc (a varchar = 'def a', out _a varchar, numeric = NULL, out _c numeric)
-    RETURNS record
-    AS $$
-    SELECT
-        $1,
-        $2;
-$$
-LANGUAGE sql;
+CREATE OR REPLACE FUNCTION dfunc (
+    a varchar = 'def a',
+    OUT _a varchar,
+    numeric = NULL,
+    OUT _c numeric) returns record AS $$
+  select $1, $2;
+$$ language sql;
 
 DROP FUNCTION dfunc (varchar, numeric);
 
 --fail, named parameters are not unique
-CREATE FUNCTION testpolym (a int, a int)
-    RETURNS int
-    AS $$
-    SELECT
-        1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (a int, a int) returns int AS $$ select 1;$$ language sql;
 
-CREATE FUNCTION testpolym (int, out a int, out a int)
-    RETURNS int
-    AS $$
-    SELECT
-        1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (int, OUT a int, OUT a int) returns int AS $$ select 1;$$ language sql;
 
-CREATE FUNCTION testpolym (out a int, INOUT a int)
-    RETURNS int
-    AS $$
-    SELECT
-        1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (OUT a int, INOUT a int) returns int AS $$ select 1;$$ language sql;
 
-CREATE FUNCTION testpolym (a int, INOUT a int)
-    RETURNS int
-    AS $$
-    SELECT
-        1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (a int, INOUT a int) returns int AS $$ select 1;$$ language sql;
 
 -- valid
-CREATE FUNCTION testpolym (a int, out a int)
-    RETURNS int
-    AS $$
-    SELECT
-        $1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (a int, OUT a int) returns int AS $$ select $1;$$ language sql;
 
 SELECT
     testpolym (37);
 
 DROP FUNCTION testpolym (int);
 
-CREATE FUNCTION testpolym (a int)
-    RETURNS TABLE (
-        a int
-    )
-    AS $$
-    SELECT
-        $1;
-$$
-LANGUAGE sql;
+CREATE FUNCTION testpolym (a int) returns TABLE (a int) AS $$ select $1;$$ language sql;
 
 SELECT
     *
@@ -1753,17 +1462,12 @@ FROM
 DROP FUNCTION testpolym (int);
 
 -- test polymorphic params and defaults
-CREATE FUNCTION dfunc (a anyelement, b anyelement = NULL, flag bool = TRUE)
-    RETURNS anyelement
-    AS $$
-    SELECT
-        CASE WHEN $3 THEN
-            $1
-        ELSE
-            $2
-        END;
-$$
-LANGUAGE sql;
+CREATE FUNCTION dfunc (
+    a anyelement,
+    b anyelement = NULL,
+    flag bool = TRUE) returns anyelement AS $$
+  select case when $3 then $1 else $2 end;
+$$ language sql;
 
 SELECT
     dfunc (1, 2);
@@ -1859,7 +1563,7 @@ SELECT
 -- mixed notation
 -- this tests lexer edge cases around =>
 SELECT
-    dfunc (a => - 1);
+    dfunc (a => -1);
 
 SELECT
     dfunc (a => + 1);
@@ -1868,19 +1572,18 @@ SELECT
     dfunc (a => /**/ 1);
 
 SELECT
-    dfunc (a => --comment to be removed by psql
+    dfunc (
+        a => --comment to be removed by psql
         1);
 
 -- need DO to protect the -- from psql
 DO $$
-DECLARE
-    r integer;
-BEGIN
-    SELECT
-        dfunc (a => -- comment
-            1) INTO r;
-    RAISE info 'r = %', r;
-END;
+  declare r integer;
+  begin
+    select dfunc(a=>-- comment
+      1) into r;
+    raise info 'r = %', r;
+  end;
 $$;
 
 -- check reverse-listing of named-arg calls
@@ -1902,4 +1605,3 @@ FROM
 DROP VIEW dfview;
 
 DROP FUNCTION dfunc (anyelement, anyelement, bool);
-

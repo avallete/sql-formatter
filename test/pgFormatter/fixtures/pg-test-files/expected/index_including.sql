@@ -5,14 +5,10 @@
  * coverage.
  */
 -- Regular index with included columns
-CREATE TABLE tbl_include_reg (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_reg (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_reg
+INSERT INTO
+    tbl_include_reg
 SELECT
     x,
     2 * x,
@@ -38,14 +34,10 @@ ORDER BY
 
 \d tbl_include_reg_idx
 -- Unique index and unique constraint
-CREATE TABLE tbl_include_unique1 (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_unique1 (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_unique1
+INSERT INTO
+    tbl_include_unique1
 SELECT
     x,
     2 * x,
@@ -57,11 +49,10 @@ FROM
 CREATE UNIQUE INDEX tbl_include_unique1_idx_unique ON tbl_include_unique1 USING btree (c1, c2) INCLUDE (c3, c4);
 
 ALTER TABLE tbl_include_unique1
-    ADD UNIQUE
-    USING INDEX tbl_include_unique1_idx_unique;
+ADD UNIQUE USING INDEX tbl_include_unique1_idx_unique;
 
 ALTER TABLE tbl_include_unique1
-    ADD UNIQUE (c1, c2) INCLUDE (c3, c4);
+ADD UNIQUE (c1, c2) INCLUDE (c3, c4);
 
 SELECT
     pg_get_indexdef(i.indexrelid)
@@ -74,14 +65,10 @@ ORDER BY
     c.relname;
 
 -- Unique index and unique constraint. Both must fail.
-CREATE TABLE tbl_include_unique2 (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_unique2 (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_unique2
+INSERT INTO
+    tbl_include_unique2
 SELECT
     1,
     2,
@@ -93,17 +80,13 @@ FROM
 CREATE UNIQUE INDEX tbl_include_unique2_idx_unique ON tbl_include_unique2 USING btree (c1, c2) INCLUDE (c3, c4);
 
 ALTER TABLE tbl_include_unique2
-    ADD UNIQUE (c1, c2) INCLUDE (c3, c4);
+ADD UNIQUE (c1, c2) INCLUDE (c3, c4);
 
 -- PK constraint
-CREATE TABLE tbl_include_pk (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_pk (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_pk
+INSERT INTO
+    tbl_include_pk
 SELECT
     1,
     2 * x,
@@ -113,7 +96,7 @@ FROM
     generate_series(1, 10) AS x;
 
 ALTER TABLE tbl_include_pk
-    ADD PRIMARY KEY (c1, c2) INCLUDE (c3, c4);
+ADD PRIMARY KEY (c1, c2) INCLUDE (c3, c4);
 
 SELECT
     pg_get_indexdef(i.indexrelid)
@@ -125,14 +108,10 @@ WHERE
 ORDER BY
     c.relname;
 
-CREATE TABLE tbl_include_box (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_box (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_box
+INSERT INTO
+    tbl_include_box
 SELECT
     1,
     2 * x,
@@ -144,7 +123,7 @@ FROM
 CREATE UNIQUE INDEX tbl_include_box_idx_unique ON tbl_include_box USING btree (c1, c2) INCLUDE (c3, c4);
 
 ALTER TABLE tbl_include_box
-    ADD PRIMARY KEY USING INDEX tbl_include_box_idx_unique;
+ADD PRIMARY KEY USING INDEX tbl_include_box_idx_unique;
 
 SELECT
     pg_get_indexdef(i.indexrelid)
@@ -157,14 +136,10 @@ ORDER BY
     c.relname;
 
 -- PK constraint. Must fail.
-CREATE TABLE tbl_include_box_pk (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl_include_box_pk (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl_include_box_pk
+INSERT INTO
+    tbl_include_box_pk
 SELECT
     1,
     2,
@@ -174,8 +149,7 @@ FROM
     generate_series(1, 10) AS x;
 
 ALTER TABLE tbl_include_box_pk
-    ADD PRIMARY KEY (c1, c2) INCLUDE (c3, c4);
-
+ADD PRIMARY KEY (c1, c2) INCLUDE (c3, c4);
 
 /*
  * 2. Test CREATE TABLE with constraint
@@ -185,8 +159,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    CONSTRAINT covering UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    CONSTRAINT covering UNIQUE (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexrelid::regclass,
@@ -211,7 +184,8 @@ WHERE
     conrelid = 'tbl'::regclass::oid;
 
 -- ensure that constraint works
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     2,
@@ -227,8 +201,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    CONSTRAINT covering PRIMARY KEY (c1, c2) INCLUDE (c3, c4)
-);
+    CONSTRAINT covering PRIMARY KEY (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexrelid::regclass,
@@ -253,7 +226,8 @@ WHERE
     conrelid = 'tbl'::regclass::oid;
 
 -- ensure that constraint works
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     2,
@@ -262,7 +236,8 @@ SELECT
 FROM
     generate_series(1, 10) AS x;
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     NULL,
@@ -271,7 +246,8 @@ SELECT
 FROM
     generate_series(1, 10) AS x;
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -280,40 +256,43 @@ SELECT
 FROM
     generate_series(1, 300) AS x;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     tbl
-WHERE (c1, c2, c3) < (2, 5, 1);
+WHERE
+    (c1, c2, c3) < (2, 5, 1);
 
 SELECT
     *
 FROM
     tbl
-WHERE (c1, c2, c3) < (2, 5, 1);
+WHERE
+    (c1, c2, c3) < (2, 5, 1);
 
 -- row comparison that compares high key at page boundary
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = off;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     tbl
-WHERE (c1, c2, c3) < (262, 1, 1)
-LIMIT 1;
+WHERE
+    (c1, c2, c3) < (262, 1, 1)
+LIMIT
+    1;
 
 SELECT
     *
 FROM
     tbl
-WHERE (c1, c2, c3) < (262, 1, 1)
-LIMIT 1;
+WHERE
+    (c1, c2, c3) < (262, 1, 1)
+LIMIT
+    1;
 
 DROP TABLE tbl;
 
@@ -324,8 +303,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    UNIQUE (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexrelid::regclass,
@@ -350,7 +328,8 @@ WHERE
     conrelid = 'tbl'::regclass::oid;
 
 -- ensure that constraint works
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     2,
@@ -366,8 +345,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    PRIMARY KEY (c1, c2) INCLUDE (c3, c4)
-);
+    PRIMARY KEY (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexrelid::regclass,
@@ -392,7 +370,8 @@ WHERE
     conrelid = 'tbl'::regclass::oid;
 
 -- ensure that constraint works
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     2,
@@ -401,7 +380,8 @@ SELECT
 FROM
     generate_series(1, 10) AS x;
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     NULL,
@@ -410,7 +390,8 @@ SELECT
 FROM
     generate_series(1, 10) AS x;
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -426,8 +407,10 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    EXCLUDE USING btree (c1 WITH =) INCLUDE (c3, c4)
-);
+    EXCLUDE USING btree (
+        c1
+        WITH
+            =) INCLUDE (c3, c4));
 
 SELECT
     indexrelid::regclass,
@@ -452,7 +435,8 @@ WHERE
     conrelid = 'tbl'::regclass::oid;
 
 -- ensure that constraint works
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     1,
     2,
@@ -461,7 +445,8 @@ SELECT
 FROM
     generate_series(1, 10) AS x;
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -471,18 +456,12 @@ FROM
     generate_series(1, 10) AS x;
 
 DROP TABLE tbl;
-
 
 /*
  * 3.0 Test ALTER TABLE DROP COLUMN.
  * Any column deletion leads to index deletion.
  */
-CREATE TABLE tbl (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 int
-);
+CREATE TABLE tbl (c1 int, c2 int, c3 int, c4 int);
 
 CREATE UNIQUE INDEX tbl_idx ON tbl USING btree (c1, c2, c3, c4);
 
@@ -496,7 +475,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c3;
+DROP COLUMN c3;
 
 SELECT
     indexdef
@@ -509,18 +488,12 @@ ORDER BY
 
 DROP TABLE tbl;
 
-
 /*
  * 3.1 Test ALTER TABLE DROP COLUMN.
  * Included column deletion leads to the index deletion,
  * AS well AS key columns deletion. It's explained in documentation.
  */
-CREATE TABLE tbl (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl (c1 int, c2 int, c3 int, c4 box);
 
 CREATE UNIQUE INDEX tbl_idx ON tbl USING btree (c1, c2) INCLUDE (c3, c4);
 
@@ -534,7 +507,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c3;
+DROP COLUMN c3;
 
 SELECT
     indexdef
@@ -546,7 +519,6 @@ ORDER BY
     indexname;
 
 DROP TABLE tbl;
-
 
 /*
  * 3.2 Test ALTER TABLE DROP COLUMN.
@@ -558,8 +530,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    UNIQUE (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexdef
@@ -571,7 +542,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c3;
+DROP COLUMN c3;
 
 SELECT
     indexdef
@@ -583,7 +554,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c1;
+DROP COLUMN c1;
 
 SELECT
     indexdef
@@ -595,32 +566,35 @@ ORDER BY
     indexname;
 
 DROP TABLE tbl;
-
 
 /*
  * 3.3 Test ALTER TABLE SET STATISTICS
  */
-CREATE TABLE tbl (
-    c1 int,
-    c2 int
-);
+CREATE TABLE tbl (c1 int, c2 int);
 
 CREATE INDEX tbl_idx ON tbl (c1, (c1 + 0)) INCLUDE (c2);
 
 ALTER INDEX tbl_idx
-    ALTER COLUMN 1 SET STATISTICS 1000;
+ALTER COLUMN 1
+SET
+    STATISTICS 1000;
 
 ALTER INDEX tbl_idx
-    ALTER COLUMN 2 SET STATISTICS 1000;
+ALTER COLUMN 2
+SET
+    STATISTICS 1000;
 
 ALTER INDEX tbl_idx
-    ALTER COLUMN 3 SET STATISTICS 1000;
+ALTER COLUMN 3
+SET
+    STATISTICS 1000;
 
 ALTER INDEX tbl_idx
-    ALTER COLUMN 4 SET STATISTICS 1000;
+ALTER COLUMN 4
+SET
+    STATISTICS 1000;
 
 DROP TABLE tbl;
-
 
 /*
  * 4. CREATE INDEX CONCURRENTLY
@@ -630,10 +604,10 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    UNIQUE (c1, c2) INCLUDE (c3, c4));
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -655,7 +629,6 @@ ORDER BY
 
 DROP TABLE tbl;
 
-
 /*
  * 5. REINDEX
  */
@@ -664,8 +637,7 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    UNIQUE (c1, c2) INCLUDE (c3, c4));
 
 SELECT
     indexdef
@@ -677,7 +649,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c3;
+DROP COLUMN c3;
 
 SELECT
     indexdef
@@ -700,7 +672,7 @@ ORDER BY
     indexname;
 
 ALTER TABLE tbl
-    DROP COLUMN c1;
+DROP COLUMN c1;
 
 SELECT
     indexdef
@@ -713,16 +685,10 @@ ORDER BY
 
 DROP TABLE tbl;
 
-
 /*
  * 7. Check various AMs. All but btree and gist must fail.
  */
-CREATE TABLE tbl (
-    c1 int,
-    c2 int,
-    c3 box,
-    c4 box
-);
+CREATE TABLE tbl (c1 int, c2 int, c3 box, c4 box);
 
 CREATE INDEX ON tbl USING brin (c1, c2) INCLUDE (c3, c4);
 
@@ -732,7 +698,7 @@ CREATE INDEX ON tbl USING spgist (c3) INCLUDE (c4);
 
 CREATE INDEX ON tbl USING gin (c1, c2) INCLUDE (c3, c4);
 
-CREATE INDEX ON tbl USING HASH (c1, c2) INCLUDE (c3, c4);
+CREATE INDEX ON tbl USING hash (c1, c2) INCLUDE (c3, c4);
 
 CREATE INDEX ON tbl USING rtree (c3) INCLUDE (c1, c4);
 
@@ -740,18 +706,13 @@ CREATE INDEX ON tbl USING btree (c1, c2) INCLUDE (c3, c4);
 
 DROP TABLE tbl;
 
-
 /*
  * 8. Update, delete values in indexed table.
  */
-CREATE TABLE tbl (
-    c1 int,
-    c2 int,
-    c3 int,
-    c4 box
-);
+CREATE TABLE tbl (c1 int, c2 int, c3 int, c4 box);
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -762,39 +723,35 @@ FROM
 
 CREATE UNIQUE INDEX tbl_idx_unique ON tbl USING btree (c1, c2) INCLUDE (c3, c4);
 
-UPDATE
-    tbl
+UPDATE tbl
 SET
     c1 = 100
 WHERE
     c1 = 2;
 
-UPDATE
-    tbl
+UPDATE tbl
 SET
     c1 = 1
 WHERE
     c1 = 3;
 
 -- should fail
-UPDATE
-    tbl
+UPDATE tbl
 SET
     c2 = 2
 WHERE
     c1 = 1;
 
-UPDATE
-    tbl
+UPDATE tbl
 SET
     c3 = 1;
 
 DELETE FROM tbl
-WHERE c1 = 5
+WHERE
+    c1 = 5
     OR c3 = 12;
 
 DROP TABLE tbl;
-
 
 /*
  * 9. Alter column type.
@@ -804,10 +761,10 @@ CREATE TABLE tbl (
     c2 int,
     c3 int,
     c4 box,
-    UNIQUE (c1, c2) INCLUDE (c3, c4)
-);
+    UNIQUE (c1, c2) INCLUDE (c3, c4));
 
-INSERT INTO tbl
+INSERT INTO
+    tbl
 SELECT
     x,
     2 * x,
@@ -817,11 +774,10 @@ FROM
     generate_series(1, 10) AS x;
 
 ALTER TABLE tbl
-    ALTER c1 TYPE bigint;
+ALTER c1 TYPE bigint;
 
 ALTER TABLE tbl
-    ALTER c3 TYPE bigint;
+ALTER c3 TYPE bigint;
 
 \d tbl
 DROP TABLE tbl;
-

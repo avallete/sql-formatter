@@ -1,13 +1,10 @@
-CREATE TABLE test_tablesample (
-    id int,
-    name text
-)
-WITH (
-    fillfactor = 10
-);
+CREATE TABLE test_tablesample (id int, name text)
+WITH
+    (fillfactor = 10);
 
 -- use fillfactor so we don't have to load too much data to get multiple pages
-INSERT INTO test_tablesample
+INSERT INTO
+    test_tablesample
 SELECT
     i,
     repeat(i::text, 200)
@@ -17,32 +14,27 @@ FROM
 SELECT
     t.id
 FROM
-    test_tablesample AS t TABLESAMPLE SYSTEM (50)
-    REPEATABLE (0);
+    test_tablesample AS t TABLESAMPLE SYSTEM (50) REPEATABLE (0);
 
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (100.0 / 11)
-    REPEATABLE (0);
+    test_tablesample TABLESAMPLE SYSTEM (100.0 / 11) REPEATABLE (0);
 
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (50)
-    REPEATABLE (0);
+    test_tablesample TABLESAMPLE SYSTEM (50) REPEATABLE (0);
 
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE BERNOULLI (50)
-    REPEATABLE (0);
+    test_tablesample TABLESAMPLE BERNOULLI (50) REPEATABLE (0);
 
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE BERNOULLI (5.5)
-    REPEATABLE (0);
+    test_tablesample TABLESAMPLE BERNOULLI (5.5) REPEATABLE (0);
 
 -- 100% should give repeatable count results (ie, all rows) in any case
 SELECT
@@ -53,21 +45,18 @@ FROM
 SELECT
     count(*)
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (100)
-    REPEATABLE (1 + 2);
+    test_tablesample TABLESAMPLE SYSTEM (100) REPEATABLE (1 + 2);
 
 SELECT
     count(*)
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (100)
-    REPEATABLE (0.4);
+    test_tablesample TABLESAMPLE SYSTEM (100) REPEATABLE (0.4);
 
 CREATE VIEW test_tablesample_v1 AS
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (10 * 2)
-    REPEATABLE (2);
+    test_tablesample TABLESAMPLE SYSTEM (10 * 2) REPEATABLE (2);
 
 CREATE VIEW test_tablesample_v2 AS
 SELECT
@@ -79,198 +68,260 @@ FROM
 \d+ test_tablesample_v2
 -- check a sampled query doesn't affect cursor in progress
 BEGIN;
+
 DECLARE tablesample_cur CURSOR FOR
-    SELECT
-        id
-    FROM
-        test_tablesample TABLESAMPLE SYSTEM (50)
-        REPEATABLE (0);
-FETCH FIRST FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (50)
-    REPEATABLE (0);
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH FIRST FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
-FETCH NEXT FROM tablesample_cur;
+    test_tablesample TABLESAMPLE SYSTEM (50) REPEATABLE (0);
+
+FETCH FIRST
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+SELECT
+    id
+FROM
+    test_tablesample TABLESAMPLE SYSTEM (50) REPEATABLE (0);
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH FIRST
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
+FETCH NEXT
+FROM
+    tablesample_cur;
+
 CLOSE tablesample_cur;
+
 END;
-EXPLAIN (
-    COSTS OFF
-)
+
+EXPLAIN (COSTS OFF)
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (50)
-    REPEATABLE (2);
-EXPLAIN (
-    COSTS OFF
-)
+    test_tablesample TABLESAMPLE SYSTEM (50) REPEATABLE (2);
+
+EXPLAIN (COSTS OFF)
 SELECT
     *
 FROM
     test_tablesample_v1;
+
 -- check inheritance behavior
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM
-    person TABLESAMPLE BERNOULLI (100);
+    person TABLESAMPLE bernoulli (100);
+
 SELECT
     count(*)
 FROM
-    person TABLESAMPLE BERNOULLI (100);
+    person TABLESAMPLE bernoulli (100);
+
 SELECT
     count(*)
 FROM
     person;
+
 -- check that collations get assigned within the tablesample arguments
 SELECT
     count(*)
 FROM
-    test_tablesample TABLESAMPLE BERNOULLI (('1'::text < '0'::text)::int);
+    test_tablesample TABLESAMPLE bernoulli (('1'::text < '0'::text)::int);
+
 -- check behavior during rescans, as well as correct handling of min/max pct
 SELECT
     *
 FROM (
-    VALUES (0),
-        (100)) v (pct),
+        VALUES
+            (0),
+            (100)) v (pct),
     LATERAL (
         SELECT
             count(*)
         FROM
-            tenk1 TABLESAMPLE BERNOULLI (pct)) ss;
+            tenk1 TABLESAMPLE bernoulli (pct)) ss;
+
 SELECT
     *
 FROM (
-    VALUES (0),
-        (100)) v (pct),
+        VALUES
+            (0),
+            (100)) v (pct),
     LATERAL (
         SELECT
             count(*)
         FROM
-            tenk1 TABLESAMPLE SYSTEM (pct)) ss;
-EXPLAIN (
-    COSTS OFF
-)
+            tenk1 TABLESAMPLE system (pct)) ss;
+
+EXPLAIN (costs off)
 SELECT
     pct,
     count(unique1)
 FROM (
-    VALUES (0),
-        (100)) v (pct),
+        VALUES
+            (0),
+            (100)) v (pct),
     LATERAL (
         SELECT
             *
         FROM
-            tenk1 TABLESAMPLE BERNOULLI (pct)) ss
+            tenk1 TABLESAMPLE bernoulli (pct)) ss
 GROUP BY
     pct;
+
 SELECT
     pct,
     count(unique1)
 FROM (
-    VALUES (0),
-        (100)) v (pct),
+        VALUES
+            (0),
+            (100)) v (pct),
     LATERAL (
         SELECT
             *
         FROM
-            tenk1 TABLESAMPLE BERNOULLI (pct)) ss
+            tenk1 TABLESAMPLE bernoulli (pct)) ss
 GROUP BY
     pct;
+
 SELECT
     pct,
     count(unique1)
 FROM (
-    VALUES (0),
-        (100)) v (pct),
+        VALUES
+            (0),
+            (100)) v (pct),
     LATERAL (
         SELECT
             *
         FROM
-            tenk1 TABLESAMPLE SYSTEM (pct)) ss
+            tenk1 TABLESAMPLE system (pct)) ss
 GROUP BY
     pct;
+
 -- errors
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE FOOBAR (1);
+
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE SYSTEM (NULL);
+
 SELECT
     id
 FROM
-    test_tablesample TABLESAMPLE SYSTEM (50)
-    REPEATABLE (NULL);
+    test_tablesample TABLESAMPLE SYSTEM (50) REPEATABLE (NULL);
+
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE BERNOULLI (-1);
+
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE BERNOULLI (200);
+
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE SYSTEM (-1);
+
 SELECT
     id
 FROM
     test_tablesample TABLESAMPLE SYSTEM (200);
+
 SELECT
     id
 FROM
     test_tablesample_v1 TABLESAMPLE BERNOULLI (1);
-INSERT INTO test_tablesample_v1
-    VALUES (1);
-WITH query_select AS (
-    SELECT
-        *
-    FROM
-        test_tablesample
-)
+
+INSERT INTO
+    test_tablesample_v1
+VALUES
+    (1);
+
+WITH
+    query_select AS (
+        SELECT
+            *
+        FROM
+            test_tablesample)
 SELECT
     *
 FROM
-    query_select TABLESAMPLE BERNOULLI (5.5)
-    REPEATABLE (1);
+    query_select TABLESAMPLE BERNOULLI (5.5) REPEATABLE (1);
+
 SELECT
     q.*
 FROM (
-    SELECT
-        *
-    FROM
-        test_tablesample) AS q TABLESAMPLE BERNOULLI (5);
+        SELECT
+            *
+        FROM
+            test_tablesample) AS q TABLESAMPLE BERNOULLI (5);
+
 -- check partitioned tables support tablesample
-CREATE TABLE parted_sample (
-    a int
-)
-PARTITION BY LIST (a);
-CREATE TABLE parted_sample_1 PARTITION OF parted_sample
-FOR VALUES IN (1);
-CREATE TABLE parted_sample_2 PARTITION OF parted_sample
-FOR VALUES IN (2);
-EXPLAIN (
-    COSTS OFF
-)
+CREATE TABLE parted_sample (a int)
+PARTITION BY
+    list (a);
+
+CREATE TABLE parted_sample_1 partition of parted_sample FOR
+VALUES
+    IN (1);
+
+CREATE TABLE parted_sample_2 partition of parted_sample FOR
+VALUES
+    IN (2);
+
+EXPLAIN (costs off)
 SELECT
     *
 FROM
-    parted_sample TABLESAMPLE BERNOULLI (100);
-DROP TABLE parted_sample, parted_sample_1, parted_sample_2;
+    parted_sample TABLESAMPLE bernoulli (100);
+
+DROP TABLE parted_sample,
+parted_sample_1,
+parted_sample_2;

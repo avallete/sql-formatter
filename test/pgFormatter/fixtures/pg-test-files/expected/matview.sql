@@ -2,10 +2,10 @@
 CREATE TABLE mvtest_t (
     id int NOT NULL PRIMARY KEY,
     type text NOT NULL,
-    amt numeric NOT NULL
-);
+    amt numeric NOT NULL);
 
-INSERT INTO mvtest_t
+INSERT INTO
+    mvtest_t
 VALUES
     (1, 'x', 2),
     (2, 'x', 3),
@@ -31,16 +31,17 @@ ORDER BY
     type;
 
 -- create a materialized view with no data, and confirm correct behavior
-EXPLAIN (
-    COSTS OFF
-) CREATE MATERIALIZED VIEW mvtest_tm AS
+EXPLAIN (costs off)
+CREATE MATERIALIZED VIEW mvtest_tm AS
 SELECT
     type,
     sum(amt) AS totamt
 FROM
     mvtest_t
 GROUP BY
-    type WITH NO DATA;
+    type
+WITH
+    NO DATA;
 
 CREATE MATERIALIZED VIEW mvtest_tm AS
 SELECT
@@ -49,7 +50,9 @@ SELECT
 FROM
     mvtest_t
 GROUP BY
-    type WITH NO DATA;
+    type
+WITH
+    NO DATA;
 
 SELECT
     relispopulated
@@ -84,9 +87,8 @@ ORDER BY
     type;
 
 -- create various views
-EXPLAIN (
-    COSTS OFF
-) CREATE MATERIALIZED VIEW mvtest_tvm AS
+EXPLAIN (costs off)
+CREATE MATERIALIZED VIEW mvtest_tvm AS
 SELECT
     *
 FROM
@@ -131,9 +133,8 @@ SELECT
 FROM
     mvtest_tv;
 
-EXPLAIN (
-    COSTS OFF
-) CREATE MATERIALIZED VIEW mvtest_tvvm AS
+EXPLAIN (costs off)
+CREATE MATERIALIZED VIEW mvtest_tvvm AS
 SELECT
     *
 FROM
@@ -167,16 +168,21 @@ CREATE INDEX mvtest_aa ON mvtest_bb (grandtot);
 -- test schema behavior
 CREATE SCHEMA mvtest_mvschema;
 
-ALTER MATERIALIZED VIEW mvtest_tvm SET SCHEMA mvtest_mvschema;
+ALTER MATERIALIZED VIEW mvtest_tvm
+SET SCHEMA mvtest_mvschema;
 
 \d+ mvtest_tvm
 \d+ mvtest_tvmm
-SET search_path = mvtest_mvschema, public;
+SET
+    search_path = mvtest_mvschema,
+    public;
 
 \d+ mvtest_tvm
 -- modify the underlying table data
-INSERT INTO mvtest_t
-    VALUES (6, 'z', 13);
+INSERT INTO
+    mvtest_t
+VALUES
+    (6, 'z', 13);
 
 -- confirm pre- and post-refresh contents of fairly simple materialized views
 SELECT
@@ -214,25 +220,19 @@ ORDER BY
 RESET search_path;
 
 -- confirm pre- and post-refresh contents of nested materialized views
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     mvtest_tmm;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     mvtest_tvmm;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -261,25 +261,19 @@ REFRESH MATERIALIZED VIEW mvtest_tvmm;
 
 REFRESH MATERIALIZED VIEW mvtest_tvvm;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     mvtest_tmm;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
     mvtest_tvmm;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -304,13 +298,16 @@ FROM
 DROP MATERIALIZED VIEW IF EXISTS no_such_mv;
 
 -- make sure invalid combination of options is prohibited
-REFRESH MATERIALIZED VIEW CONCURRENTLY mvtest_tvmm WITH NO DATA;
+REFRESH MATERIALIZED VIEW CONCURRENTLY mvtest_tvmm
+WITH
+    NO DATA;
 
 -- no tuple locks on materialized views
 SELECT
     *
 FROM
-    mvtest_tvvm FOR SHARE;
+    mvtest_tvvm
+FOR SHARE;
 
 -- test join of mv and view
 SELECT
@@ -330,7 +327,9 @@ DROP TABLE mvtest_t;
 -- and make sure that transactional behavior is correct on rollback
 -- incidentally leaving some interesting materialized views for pg_dump testing
 BEGIN;
+
 DROP TABLE mvtest_t CASCADE;
+
 ROLLBACK;
 
 -- some additional tests not using base tables
@@ -384,14 +383,9 @@ WHERE
 DROP VIEW mvtest_vt1 CASCADE;
 
 -- test that duplicate values on unique index prevent refresh
-CREATE TABLE mvtest_foo (
-    a,
-    b
-) AS
-VALUES (
-    1,
-    10
-);
+CREATE TABLE mvtest_foo (a, b) AS
+VALUES
+    (1, 10);
 
 CREATE MATERIALIZED VIEW mvtest_mv AS
 SELECT
@@ -401,7 +395,8 @@ FROM
 
 CREATE UNIQUE INDEX ON mvtest_mv (a);
 
-INSERT INTO mvtest_foo
+INSERT INTO
+    mvtest_foo
 SELECT
     *
 FROM
@@ -414,16 +409,9 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY mvtest_mv;
 DROP TABLE mvtest_foo CASCADE;
 
 -- make sure that all columns covered by unique indexes works
-CREATE TABLE mvtest_foo (
-    a,
-    b,
-    c
-) AS
-VALUES (
-    1,
-    2,
-    3
-);
+CREATE TABLE mvtest_foo (a, b, c) AS
+VALUES
+    (1, 2, 3);
 
 CREATE MATERIALIZED VIEW mvtest_mv AS
 SELECT
@@ -437,11 +425,15 @@ CREATE UNIQUE INDEX ON mvtest_mv (b);
 
 CREATE UNIQUE INDEX ON mvtest_mv (c);
 
-INSERT INTO mvtest_foo
-    VALUES (2, 3, 4);
+INSERT INTO
+    mvtest_foo
+VALUES
+    (2, 3, 4);
 
-INSERT INTO mvtest_foo
-    VALUES (3, 4, 5);
+INSERT INTO
+    mvtest_foo
+VALUES
+    (3, 4, 5);
 
 REFRESH MATERIALIZED VIEW mvtest_mv;
 
@@ -452,7 +444,9 @@ DROP TABLE mvtest_foo CASCADE;
 -- allow subquery to reference unpopulated matview if WITH NO DATA is specified
 CREATE MATERIALIZED VIEW mvtest_mv1 AS
 SELECT
-    1 AS col1 WITH NO DATA;
+    1 AS col1
+WITH
+    NO DATA;
 
 CREATE MATERIALIZED VIEW mvtest_mv2 AS
 SELECT
@@ -462,21 +456,19 @@ FROM
 WHERE
     col1 = (
         SELECT
-            LEAST (col1)
+            LEAST(col1)
         FROM
-            mvtest_mv1
-)
-    WITH NO DATA;
+            mvtest_mv1)
+WITH
+    NO DATA;
 
 DROP MATERIALIZED VIEW mvtest_mv1 CASCADE;
 
 -- make sure that types with unusual equality tests work
-CREATE TABLE mvtest_boxes (
-    id serial PRIMARY KEY,
-    b box
-);
+CREATE TABLE mvtest_boxes (id serial PRIMARY KEY, b box);
 
-INSERT INTO mvtest_boxes (b)
+INSERT INTO
+    mvtest_boxes (b)
 VALUES
     ('(32,32),(31,31)'),
     ('(2.0000004,2.0000004),(1,1)'),
@@ -490,8 +482,7 @@ FROM
 
 CREATE UNIQUE INDEX mvtest_boxmv_id ON mvtest_boxmv (id);
 
-UPDATE
-    mvtest_boxes
+UPDATE mvtest_boxes
 SET
     b = '(2,2),(1,1)'
 WHERE
@@ -509,10 +500,7 @@ ORDER BY
 DROP TABLE mvtest_boxes CASCADE;
 
 -- make sure that column names are handled correctly
-CREATE TABLE mvtest_v (
-    i int,
-    j int
-);
+CREATE TABLE mvtest_v (i int, j int);
 
 CREATE MATERIALIZED VIEW mvtest_mv_v (ii, jj, kk) AS
 SELECT
@@ -543,7 +531,9 @@ SELECT
     i,
     j
 FROM
-    mvtest_v WITH NO DATA;
+    mvtest_v
+WITH
+    NO DATA;
 
 -- error
 CREATE MATERIALIZED VIEW mvtest_mv_v_3 (ii, jj) AS
@@ -551,7 +541,9 @@ SELECT
     i,
     j
 FROM
-    mvtest_v WITH NO DATA;
+    mvtest_v
+WITH
+    NO DATA;
 
 -- ok
 CREATE MATERIALIZED VIEW mvtest_mv_v_4 (ii) AS
@@ -559,20 +551,24 @@ SELECT
     i,
     j
 FROM
-    mvtest_v WITH NO DATA;
+    mvtest_v
+WITH
+    NO DATA;
 
 -- ok
-ALTER TABLE mvtest_v RENAME COLUMN i TO x;
+ALTER TABLE mvtest_v
+RENAME COLUMN i TO x;
 
-INSERT INTO mvtest_v
-    VALUES (1, 2);
+INSERT INTO
+    mvtest_v
+VALUES
+    (1, 2);
 
 CREATE UNIQUE INDEX mvtest_mv_v_ii ON mvtest_mv_v (ii);
 
 REFRESH MATERIALIZED VIEW mvtest_mv_v;
 
-UPDATE
-    mvtest_v
+UPDATE mvtest_v
 SET
     j = 3
 WHERE
@@ -639,7 +635,9 @@ SELECT
 -- fail
 CREATE MATERIALIZED VIEW mvtest_error AS
 SELECT
-    1 / 0 AS x WITH NO data;
+    1 / 0 AS x
+WITH
+    no data;
 
 REFRESH MATERIALIZED VIEW mvtest_error;
 
@@ -660,7 +658,8 @@ WHERE
     a <= 5;
 
 DELETE FROM mvtest_v
-WHERE EXISTS (
+WHERE
+    EXISTS (
         SELECT
             *
         FROM
@@ -724,28 +723,25 @@ DROP ROLE regress_user_mvtest;
 
 -- make sure that create WITH NO DATA works via SPI
 BEGIN;
-CREATE FUNCTION mvtest_func ()
-    RETURNS void
-    AS $$
+
+CREATE FUNCTION mvtest_func () RETURNS void AS $$
 BEGIN
-    CREATE MATERIALIZED VIEW mvtest1 AS
-    SELECT
-        1 AS x;
-    CREATE MATERIALIZED VIEW mvtest2 AS
-    SELECT
-        1 AS x WITH NO DATA;
+  CREATE MATERIALIZED VIEW mvtest1 AS SELECT 1 AS x;
+  CREATE MATERIALIZED VIEW mvtest2 AS SELECT 1 AS x WITH NO DATA;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
+
 SELECT
     mvtest_func ();
+
 SELECT
     *
 FROM
     mvtest1;
+
 SELECT
     *
 FROM
     mvtest2;
-ROLLBACK;
 
+ROLLBACK;

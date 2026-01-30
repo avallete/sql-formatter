@@ -42,10 +42,7 @@ COMMENT ON VIEW toyemp IS 'is a view';
 COMMENT ON VIEW toyemp IS NULL;
 
 -- These views are left around mainly to exercise special cases in pg_dump.
-CREATE TABLE view_base_table (
-    key int PRIMARY KEY,
-    data varchar(20)
-);
+CREATE TABLE view_base_table (key int PRIMARY KEY, data varchar(20));
 
 CREATE VIEW key_dependent_view AS
 SELECT
@@ -56,7 +53,7 @@ GROUP BY
     key;
 
 ALTER TABLE view_base_table
-    DROP CONSTRAINT view_base_table_pkey;
+DROP CONSTRAINT view_base_table_pkey;
 
 -- fails
 CREATE VIEW key_dependent_view_no_cols AS
@@ -146,20 +143,14 @@ DROP TABLE viewtest_tbl;
 
 -- tests for temporary views
 CREATE SCHEMA temp_view_test
-    CREATE TABLE base_table (
-        a int,
-        id int)
-    CREATE TABLE base_table2 (
-        a int,
-        id int
-);
+CREATE TABLE base_table (a int, id int)
+CREATE TABLE base_table2 (a int, id int);
 
-SET search_path TO temp_view_test, public;
+SET
+    search_path TO temp_view_test,
+    public;
 
-CREATE TEMPORARY TABLE temp_table (
-    a int,
-    id int
-);
+CREATE TEMPORARY TABLE temp_table (a int, id int);
 
 -- should be created in temp_view_test schema
 CREATE VIEW v1 AS
@@ -198,9 +189,9 @@ FROM
 
 -- should fail
 CREATE SCHEMA test_view_schema
-    CREATE TEMP VIEW testview AS
-    SELECT
-        1;
+CREATE TEMP VIEW testview AS
+SELECT
+    1;
 
 -- joins: if any of the join relations are temporary, the view
 -- should also be temporary
@@ -258,8 +249,7 @@ SELECT
     t1.id,
     t2.a
 FROM
-    base_table t1,
-    (
+    base_table t1, (
         SELECT
             *
         FROM
@@ -316,8 +306,7 @@ SELECT
     t1.id,
     t2.a
 FROM
-    base_table t1,
-    (
+    base_table t1, (
         SELECT
             *
         FROM
@@ -419,22 +408,15 @@ ORDER BY
 
 CREATE SCHEMA testviewschm2;
 
-SET search_path TO testviewschm2, public;
+SET
+    search_path TO testviewschm2,
+    public;
 
-CREATE TABLE t1 (
-    num int,
-    name text
-);
+CREATE TABLE t1 (num int, name text);
 
-CREATE TABLE t2 (
-    num2 int,
-    value text
-);
+CREATE TABLE t2 (num2 int, value text);
 
-CREATE TEMP TABLE tt (
-    num2 int,
-    value text
-);
+CREATE TEMP TABLE tt (num2 int, value text);
 
 CREATE VIEW nontemp1 AS
 SELECT
@@ -484,7 +466,7 @@ SELECT
 FROM
     t1
     LEFT JOIN t2 ON t1.num = t2.num2
-        AND t2.value = 'xxx';
+    AND t2.value = 'xxx';
 
 CREATE VIEW temporal4 AS
 SELECT
@@ -492,7 +474,7 @@ SELECT
 FROM
     t1
     LEFT JOIN tt ON t1.num = tt.num2
-        AND tt.value = 'xxx';
+    AND tt.value = 'xxx';
 
 SELECT
     relname
@@ -526,30 +508,15 @@ WHERE
 ORDER BY
     relname;
 
-CREATE TABLE tbl1 (
-    a int,
-    b int
-);
+CREATE TABLE tbl1 (a int, b int);
 
-CREATE TABLE tbl2 (
-    c int,
-    d int
-);
+CREATE TABLE tbl2 (c int, d int);
 
-CREATE TABLE tbl3 (
-    e int,
-    f int
-);
+CREATE TABLE tbl3 (e int, f int);
 
-CREATE TABLE tbl4 (
-    g int,
-    h int
-);
+CREATE TABLE tbl4 (g int, h int);
 
-CREATE TEMP TABLE tmptbl (
-    i int,
-    j int
-);
+CREATE TEMP TABLE tmptbl (i int, j int);
 
 --Should be in testviewschm2
 CREATE VIEW pubview AS
@@ -564,8 +531,7 @@ WHERE
         FROM
             tbl2
         WHERE
-            c = 1)
-    AND (
+            c = 1) AND (
         SELECT
             e
         FROM
@@ -577,7 +543,7 @@ WHERE
             g
         FROM
             tbl4
-        LEFT JOIN tbl3 ON tbl4.h = tbl3.f);
+            LEFT JOIN tbl3 ON tbl4.h = tbl3.f);
 
 SELECT
     count(*)
@@ -606,8 +572,7 @@ WHERE
         FROM
             tbl2
         WHERE
-            c = 1)
-    AND (
+            c = 1) AND (
         SELECT
             e
         FROM
@@ -619,13 +584,13 @@ WHERE
             g
         FROM
             tbl4
-        LEFT JOIN tbl3 ON tbl4.h = tbl3.f)
+            LEFT JOIN tbl3 ON tbl4.h = tbl3.f)
     AND NOT EXISTS (
         SELECT
             g
         FROM
             tbl4
-    LEFT JOIN tmptbl ON tbl4.h = tmptbl.j);
+            LEFT JOIN tmptbl ON tbl4.h = tmptbl.j);
 
 SELECT
     count(*)
@@ -652,8 +617,9 @@ FROM
 WHERE
     a = 0;
 
-CREATE VIEW mysecview2 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW mysecview2
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     *
 FROM
@@ -661,8 +627,9 @@ FROM
 WHERE
     a > 0;
 
-CREATE VIEW mysecview3 WITH ( security_barrier = FALSE
-) AS
+CREATE VIEW mysecview3
+WITH
+    (security_barrier = FALSE) AS
 SELECT
     *
 FROM
@@ -670,8 +637,9 @@ FROM
 WHERE
     a < 0;
 
-CREATE VIEW mysecview4 WITH ( security_barrier
-) AS
+CREATE VIEW mysecview4
+WITH
+    (security_barrier) AS
 SELECT
     *
 FROM
@@ -679,8 +647,10 @@ FROM
 WHERE
     a <> 0;
 
-CREATE VIEW mysecview5 WITH ( security_barrier = 100) -- Error
-AS
+CREATE VIEW mysecview5
+WITH
+    (security_barrier = 100) -- Error
+    AS
 SELECT
     *
 FROM
@@ -688,8 +658,10 @@ FROM
 WHERE
     a > 100;
 
-CREATE VIEW mysecview6 WITH ( invalid_option) -- Error
-AS
+CREATE VIEW mysecview6
+WITH
+    (invalid_option) -- Error
+    AS
 SELECT
     *
 FROM
@@ -704,7 +676,11 @@ SELECT
 FROM
     pg_class
 WHERE
-    oid IN ('mysecview1'::regclass, 'mysecview2'::regclass, 'mysecview3'::regclass, 'mysecview4'::regclass)
+    oid IN (
+        'mysecview1'::regclass,
+        'mysecview2'::regclass,
+        'mysecview3'::regclass,
+        'mysecview4'::regclass)
 ORDER BY
     relname;
 
@@ -724,8 +700,9 @@ FROM
 WHERE
     a > 256;
 
-CREATE OR REPLACE VIEW mysecview3 WITH ( security_barrier = TRUE
-) AS
+CREATE OR REPLACE VIEW mysecview3
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     *
 FROM
@@ -733,8 +710,9 @@ FROM
 WHERE
     a < 256;
 
-CREATE OR REPLACE VIEW mysecview4 WITH ( security_barrier = FALSE
-) AS
+CREATE OR REPLACE VIEW mysecview4
+WITH
+    (security_barrier = FALSE) AS
 SELECT
     *
 FROM
@@ -749,7 +727,11 @@ SELECT
 FROM
     pg_class
 WHERE
-    oid IN ('mysecview1'::regclass, 'mysecview2'::regclass, 'mysecview3'::regclass, 'mysecview4'::regclass)
+    oid IN (
+        'mysecview1'::regclass,
+        'mysecview2'::regclass,
+        'mysecview3'::regclass,
+        'mysecview4'::regclass)
 ORDER BY
     relname;
 
@@ -774,13 +756,15 @@ CREATE VIEW tt1 AS
 SELECT
     *
 FROM (
-    VALUES ('abc'::varchar(3),
-            '0123456789',
-            42,
-            'abcd'::varchar(4)),
-        ('0123456789', 'abc'::varchar(3),
-            42.12,
-            'abc'::varchar(4))) vv (a, b, c, d);
+        VALUES (
+                'abc'::varchar(3),
+                '0123456789',
+                42,
+                'abcd'::varchar(4)), (
+                '0123456789',
+                'abc'::varchar(3),
+                42.12,
+                'abc'::varchar(4))) vv (a, b, c, d);
 
 \d+ tt1
 SELECT
@@ -796,23 +780,11 @@ FROM
 DROP VIEW tt1;
 
 -- Test view decompilation in the face of relation renaming conflicts
-CREATE TABLE tt1 (
-    f1 int,
-    f2 int,
-    f3 text
-);
+CREATE TABLE tt1 (f1 int, f2 int, f3 text);
 
-CREATE TABLE tx1 (
-    x1 int,
-    x2 int,
-    x3 text
-);
+CREATE TABLE tx1 (x1 int, x2 int, x3 text);
 
-CREATE TABLE temp_view_test.tt1 (
-    y1 int,
-    f2 int,
-    f3 text
-);
+CREATE TABLE temp_view_test.tt1 (y1 int, f2 int, f3 text);
 
 CREATE VIEW aliased_view_1 AS
 SELECT
@@ -874,60 +846,56 @@ WHERE
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
-ALTER TABLE tx1 RENAME TO a1;
+ALTER TABLE tx1
+RENAME TO a1;
 
 \d+ aliased_view_1
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
-ALTER TABLE tt1 RENAME TO a2;
+ALTER TABLE tt1
+RENAME TO a2;
 
 \d+ aliased_view_1
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
-ALTER TABLE a1 RENAME TO tt1;
+ALTER TABLE a1
+RENAME TO tt1;
 
 \d+ aliased_view_1
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
-ALTER TABLE a2 RENAME TO tx1;
+ALTER TABLE a2
+RENAME TO tx1;
 
-ALTER TABLE tx1 SET SCHEMA temp_view_test;
+ALTER TABLE tx1
+SET SCHEMA temp_view_test;
 
 \d+ aliased_view_1
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
-ALTER TABLE temp_view_test.tt1 RENAME TO tmp1;
+ALTER TABLE temp_view_test.tt1
+RENAME TO tmp1;
 
-ALTER TABLE temp_view_test.tmp1 SET SCHEMA testviewschm2;
+ALTER TABLE temp_view_test.tmp1
+SET SCHEMA testviewschm2;
 
-ALTER TABLE tmp1 RENAME TO tx1;
+ALTER TABLE tmp1
+RENAME TO tx1;
 
 \d+ aliased_view_1
 \d+ aliased_view_2
 \d+ aliased_view_3
 \d+ aliased_view_4
 -- Test view decompilation in the face of column addition/deletion/renaming
-CREATE TABLE tt2 (
-    a int,
-    b int,
-    c int
-);
+CREATE TABLE tt2 (a int, b int, c int);
 
-CREATE TABLE tt3 (
-    ax int8,
-    b int2,
-    c numeric
-);
+CREATE TABLE tt3 (ax int8, b int2, c numeric);
 
-CREATE TABLE tt4 (
-    ay int,
-    b int,
-    q int
-);
+CREATE TABLE tt4 (ay int, b int, q int);
 
 CREATE VIEW v1 AS
 SELECT
@@ -939,8 +907,9 @@ FROM
 CREATE VIEW v1a AS
 SELECT
     *
-FROM (tt2
-    NATURAL JOIN tt3) j;
+FROM (
+        tt2
+        NATURAL JOIN tt3) j;
 
 CREATE VIEW v2 AS
 SELECT
@@ -953,9 +922,10 @@ FROM
 CREATE VIEW v2a AS
 SELECT
     *
-FROM (tt2
-    JOIN tt3 USING (b, c)
-    JOIN tt4 USING (b)) j;
+FROM (
+        tt2
+        JOIN tt3 USING (b, c)
+        JOIN tt4 USING (b)) j;
 
 CREATE VIEW v3 AS
 SELECT
@@ -981,27 +951,10 @@ SELECT
     pg_get_viewdef('v3', TRUE);
 
 ALTER TABLE tt2
-    ADD COLUMN d int;
+ADD COLUMN d int;
 
 ALTER TABLE tt2
-    ADD COLUMN e int;
-
-SELECT
-    pg_get_viewdef('v1', TRUE);
-
-SELECT
-    pg_get_viewdef('v1a', TRUE);
-
-SELECT
-    pg_get_viewdef('v2', TRUE);
-
-SELECT
-    pg_get_viewdef('v2a', TRUE);
-
-SELECT
-    pg_get_viewdef('v3', TRUE);
-
-ALTER TABLE tt3 RENAME c TO d;
+ADD COLUMN e int;
 
 SELECT
     pg_get_viewdef('v1', TRUE);
@@ -1019,10 +972,28 @@ SELECT
     pg_get_viewdef('v3', TRUE);
 
 ALTER TABLE tt3
-    ADD COLUMN c int;
+RENAME c TO d;
+
+SELECT
+    pg_get_viewdef('v1', TRUE);
+
+SELECT
+    pg_get_viewdef('v1a', TRUE);
+
+SELECT
+    pg_get_viewdef('v2', TRUE);
+
+SELECT
+    pg_get_viewdef('v2a', TRUE);
+
+SELECT
+    pg_get_viewdef('v3', TRUE);
 
 ALTER TABLE tt3
-    ADD COLUMN e int;
+ADD COLUMN c int;
+
+ALTER TABLE tt3
+ADD COLUMN e int;
 
 SELECT
     pg_get_viewdef('v1', TRUE);
@@ -1040,7 +1011,7 @@ SELECT
     pg_get_viewdef('v3', TRUE);
 
 ALTER TABLE tt2
-    DROP COLUMN d;
+DROP COLUMN d;
 
 SELECT
     pg_get_viewdef('v1', TRUE);
@@ -1057,66 +1028,52 @@ SELECT
 SELECT
     pg_get_viewdef('v3', TRUE);
 
-CREATE TABLE tt5 (
-    a int,
-    b int
-);
+CREATE TABLE tt5 (a int, b int);
 
-CREATE TABLE tt6 (
-    c int,
-    d int
-);
+CREATE TABLE tt6 (c int, d int);
 
 CREATE VIEW vv1 AS
 SELECT
     *
-FROM (tt5
-    CROSS JOIN tt6) j (aa,
-        bb,
-        cc,
-        dd);
+FROM (
+        tt5
+        CROSS JOIN tt6) j (aa, bb, cc, dd);
 
 SELECT
     pg_get_viewdef('vv1', TRUE);
 
 ALTER TABLE tt5
-    ADD COLUMN c int;
+ADD COLUMN c int;
 
 SELECT
     pg_get_viewdef('vv1', TRUE);
 
 ALTER TABLE tt5
-    ADD COLUMN cc int;
+ADD COLUMN cc int;
 
 SELECT
     pg_get_viewdef('vv1', TRUE);
 
 ALTER TABLE tt5
-    DROP COLUMN c;
+DROP COLUMN c;
 
 SELECT
     pg_get_viewdef('vv1', TRUE);
 
 -- Unnamed FULL JOIN USING is lots of fun too
-CREATE TABLE tt7 (
-    x int,
-    xx int,
-    y int
-);
+CREATE TABLE tt7 (x int, xx int, y int);
 
 ALTER TABLE tt7
-    DROP COLUMN xx;
+DROP COLUMN xx;
 
-CREATE TABLE tt8 (
-    x int,
-    z int
-);
+CREATE TABLE tt8 (x int, z int);
 
 CREATE VIEW vv2 AS
 SELECT
     *
 FROM (
-    VALUES (1, 2, 3, 4, 5)) v (a, b, c, d, e)
+        VALUES
+            (1, 2, 3, 4, 5)) v (a, b, c, d, e)
 UNION ALL
 SELECT
     *
@@ -1132,7 +1089,8 @@ CREATE VIEW vv3 AS
 SELECT
     *
 FROM (
-    VALUES (1, 2, 3, 4, 5, 6)) v (a, b, c, x, e, f)
+        VALUES
+            (1, 2, 3, 4, 5, 6)) v (a, b, c, x, e, f)
 UNION ALL
 SELECT
     *
@@ -1149,7 +1107,8 @@ CREATE VIEW vv4 AS
 SELECT
     *
 FROM (
-    VALUES (1, 2, 3, 4, 5, 6, 7)) v (a, b, c, x, e, f, g)
+        VALUES
+            (1, 2, 3, 4, 5, 6, 7)) v (a, b, c, x, e, f, g)
 UNION ALL
 SELECT
     *
@@ -1164,16 +1123,16 @@ SELECT
     pg_get_viewdef('vv4', TRUE);
 
 ALTER TABLE tt7
-    ADD COLUMN zz int;
+ADD COLUMN zz int;
 
 ALTER TABLE tt7
-    ADD COLUMN z int;
+ADD COLUMN z int;
 
 ALTER TABLE tt7
-    DROP COLUMN zz;
+DROP COLUMN zz;
 
 ALTER TABLE tt8
-    ADD COLUMN z2 int;
+ADD COLUMN z2 int;
 
 SELECT
     pg_get_viewdef('vv2', TRUE);
@@ -1185,29 +1144,19 @@ SELECT
     pg_get_viewdef('vv4', TRUE);
 
 -- Implicit coercions in a JOIN USING create issues similar to FULL JOIN
-CREATE TABLE tt7a (
-    x date,
-    xx int,
-    y int
-);
+CREATE TABLE tt7a (x date, xx int, y int);
 
 ALTER TABLE tt7a
-    DROP COLUMN xx;
+DROP COLUMN xx;
 
-CREATE TABLE tt8a (
-    x timestamptz,
-    z int
-);
+CREATE TABLE tt8a (x timestamptz, z int);
 
 CREATE VIEW vv2a AS
 SELECT
     *
 FROM (
-    VALUES (now(),
-            2,
-            3,
-            now(),
-            5)) v (a, b, c, d, e)
+        VALUES
+            (now(), 2, 3, now(), 5)) v (a, b, c, d, e)
 UNION ALL
 SELECT
     *
@@ -1222,16 +1171,9 @@ SELECT
 --
 -- Also check dropping a column that existed when the view was made
 --
-CREATE TABLE tt9 (
-    x int,
-    xx int,
-    y int
-);
+CREATE TABLE tt9 (x int, xx int, y int);
 
-CREATE TABLE tt10 (
-    x int,
-    z int
-);
+CREATE TABLE tt10 (x int, z int);
 
 CREATE VIEW vv5 AS
 SELECT
@@ -1246,7 +1188,7 @@ SELECT
     pg_get_viewdef('vv5', TRUE);
 
 ALTER TABLE tt9
-    DROP COLUMN xx;
+DROP COLUMN xx;
 
 SELECT
     pg_get_viewdef('vv5', TRUE);
@@ -1255,20 +1197,11 @@ SELECT
 -- Another corner case is that we might add a column to a table below a
 -- JOIN USING, and thereby make the USING column name ambiguous
 --
-CREATE TABLE tt11 (
-    x int,
-    y int
-);
+CREATE TABLE tt11 (x int, y int);
 
-CREATE TABLE tt12 (
-    x int,
-    z int
-);
+CREATE TABLE tt12 (x int, z int);
 
-CREATE TABLE tt13 (
-    z int,
-    q int
-);
+CREATE TABLE tt13 (z int, q int);
 
 CREATE VIEW vv6 AS
 SELECT
@@ -1276,15 +1209,16 @@ SELECT
     y,
     z,
     q
-FROM (tt11
-    JOIN tt12 USING (x))
-JOIN tt13 USING (z);
+FROM (
+        tt11
+        JOIN tt12 USING (x))
+    JOIN tt13 USING (z);
 
 SELECT
     pg_get_viewdef('vv6', TRUE);
 
 ALTER TABLE tt11
-    ADD COLUMN z int;
+ADD COLUMN z int;
 
 SELECT
     pg_get_viewdef('vv6', TRUE);
@@ -1292,35 +1226,26 @@ SELECT
 --
 -- Check cases involving dropped/altered columns in a function's rowtype result
 --
-CREATE TABLE tt14t (
-    f1 text,
-    f2 text,
-    f3 text,
-    f4 text
-);
+CREATE TABLE tt14t (f1 text, f2 text, f3 text, f4 text);
 
-INSERT INTO tt14t
-    VALUES ('foo', 'bar', 'baz', '42');
+INSERT INTO
+    tt14t
+VALUES
+    ('foo', 'bar', 'baz', '42');
 
 ALTER TABLE tt14t
-    DROP COLUMN f2;
+DROP COLUMN f2;
 
-CREATE FUNCTION tt14f ()
-    RETURNS SETOF tt14t
-    AS $$
-DECLARE
+CREATE FUNCTION tt14f () returns setof tt14t AS $$
+declare
     rec1 record;
-BEGIN
-    FOR rec1 IN
-    SELECT
-        *
-    FROM
-        tt14t LOOP
-            RETURN NEXT rec1;
-        END LOOP;
-END;
-$$
-LANGUAGE plpgsql;
+begin
+    for rec1 in select * from tt14t
+    loop
+        return next rec1;
+    end loop;
+end;
+$$ language plpgsql;
 
 CREATE VIEW tt14v AS
 SELECT
@@ -1337,48 +1262,55 @@ FROM
     tt14v;
 
 BEGIN;
+
 -- this perhaps should be rejected, but it isn't:
 ALTER TABLE tt14t
-    DROP COLUMN f3;
+DROP COLUMN f3;
+
 -- f3 is still in the view ...
 SELECT
     pg_get_viewdef('tt14v', TRUE);
+
 -- but will fail at execution
 SELECT
     f1,
     f4
 FROM
     tt14v;
+
 SELECT
     *
 FROM
     tt14v;
+
 ROLLBACK;
 
 BEGIN;
+
 -- this perhaps should be rejected, but it isn't:
 ALTER TABLE tt14t
-    ALTER COLUMN f4 TYPE integer
-    USING f4::integer;
+ALTER COLUMN f4 type integer USING f4::integer;
+
 -- f4 is still in the view ...
 SELECT
     pg_get_viewdef('tt14v', TRUE);
+
 -- but will fail at execution
 SELECT
     f1,
     f3
 FROM
     tt14v;
+
 SELECT
     *
 FROM
     tt14v;
+
 ROLLBACK;
 
 -- check display of whole-row variables in some corner cases
-CREATE TYPE nestedcomposite AS (
-    x int8_tbl
-);
+CREATE TYPE nestedcomposite AS (x int8_tbl);
 
 CREATE VIEW tt15v AS
 SELECT
@@ -1405,7 +1337,8 @@ SELECT
 FROM
     int8_tbl i,
     LATERAL (
-        VALUES (i)) ss;
+        VALUES
+            (i)) ss;
 
 SELECT
     *
@@ -1420,7 +1353,8 @@ SELECT
 FROM
     int8_tbl i,
     LATERAL (
-        VALUES (i.*::int8_tbl)) ss;
+        VALUES
+            (i.*::int8_tbl)) ss;
 
 CREATE VIEW tt17v AS
 SELECT
@@ -1429,7 +1363,8 @@ FROM
     int8_tbl i
 WHERE
     i IN (
-        VALUES (i));
+        VALUES
+            (i));
 
 SELECT
     *
@@ -1445,7 +1380,8 @@ FROM
     int8_tbl i
 WHERE
     i.* IN (
-        VALUES (i.*::int8_tbl));
+        VALUES
+            (i.*::int8_tbl));
 
 -- check unique-ification of overlength names
 CREATE VIEW tt18v AS
@@ -1462,9 +1398,7 @@ FROM
 SELECT
     pg_get_viewdef('tt18v', TRUE);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -1472,25 +1406,25 @@ FROM
 
 -- check display of ScalarArrayOp with a sub-select
 SELECT
-    'foo'::text = ANY (ARRAY['abc', 'def', 'foo']::text[]);
+    'foo'::text = ANY (ARRAY['abc', 'def', 'foo']::TEXT[]);
 
 SELECT
-    'foo'::text = ANY ((
+    'foo'::text = ANY ( (
             SELECT
-                ARRAY['abc', 'def', 'foo']::text[]));
+                ARRAY['abc', 'def', 'foo']::TEXT[]));
 
 -- fail
 SELECT
-    'foo'::text = ANY ((
+    'foo'::text = ANY ( (
             SELECT
-                ARRAY['abc', 'def', 'foo']::text[])::text[]);
+                ARRAY['abc', 'def', 'foo']::TEXT[])::TEXT[]);
 
 CREATE VIEW tt19v AS
 SELECT
-    'foo'::text = ANY (ARRAY['abc', 'def', 'foo']::text[]) c1,
-    'foo'::text = ANY ((
+    'foo'::text = ANY (ARRAY['abc', 'def', 'foo']::TEXT[]) c1,
+    'foo'::text = ANY ( (
             SELECT
-                ARRAY['abc', 'def', 'foo']::text[])::text[]) c2;
+                ARRAY['abc', 'def', 'foo']::TEXT[])::TEXT[]) c2;
 
 SELECT
     pg_get_viewdef('tt19v', TRUE);
@@ -1502,7 +1436,7 @@ SELECT
 FROM
     coalesce(1, 2) AS c,
     COLLATION FOR ('x'::text) col,
-    CURRENT_DATE AS d,
+    current_date AS d,
     localtimestamp(3) AS t,
     cast(1 + 2 AS int4) AS i4,
     cast(1 + 2 AS int8) AS i8;
@@ -1526,8 +1460,7 @@ SELECT
     *
 FROM
     tt5
-    NATURAL
-    LEFT JOIN tt6;
+    NATURAL LEFT JOIN tt6;
 
 SELECT
     pg_get_viewdef('tt22v', TRUE);
@@ -1559,4 +1492,3 @@ WHERE
 DROP SCHEMA temp_view_test CASCADE;
 
 DROP SCHEMA testviewschm2 CASCADE;
-

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Tokenizer tokenizes multiline SQL tokens 1`] = `
+exports[`Tokenizer > tokenizes multiline SQL tokens 1`] = `
 [
   {
     "precedingWhitespace": undefined,
@@ -41,7 +41,7 @@ exports[`Tokenizer tokenizes multiline SQL tokens 1`] = `
 ]
 `;
 
-exports[`Tokenizer tokenizes single line SQL tokens 1`] = `
+exports[`Tokenizer > tokenizes single line SQL tokens 1`] = `
 [
   {
     "precedingWhitespace": undefined,

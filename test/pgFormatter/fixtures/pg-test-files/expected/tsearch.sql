@@ -64,13 +64,14 @@ WHERE
 SELECT
     *
 FROM (
-    SELECT
-        oid AS cfgid,
-        (ts_token_type(cfgparser)).tokid AS tokid
-    FROM
-        pg_ts_config) AS tt
-    RIGHT JOIN pg_ts_config_map AS m ON (tt.cfgid = m.mapcfg
-            AND tt.tokid = m.maptokentype)
+        SELECT
+            oid AS cfgid,
+            (ts_token_type(cfgparser)).tokid AS tokid
+        FROM
+            pg_ts_config) AS tt
+    RIGHT JOIN pg_ts_config_map AS m ON (
+        tt.cfgid = m.mapcfg
+        AND tt.tokid = m.maptokentype)
 WHERE
     tt.cfgid IS NULL
     OR tt.tokid IS NULL;
@@ -148,15 +149,16 @@ WHERE
 
 CREATE INDEX wowidx ON test_tsvector USING gist (a);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
-SET enable_indexscan = ON;
+SET
+    enable_indexscan = ON;
 
-SET enable_bitmapscan = OFF;
+SET
+    enable_bitmapscan = OFF;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM
@@ -234,13 +236,13 @@ FROM
 WHERE
     a @@ '!no_such_lexeme';
 
-SET enable_indexscan = OFF;
+SET
+    enable_indexscan = OFF;
 
-SET enable_bitmapscan = ON;
+SET
+    enable_bitmapscan = ON;
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM
@@ -328,12 +330,11 @@ DROP INDEX wowidx;
 
 CREATE INDEX wowidx ON test_tsvector USING gin (a);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
 -- GIN only supports bitmapscan, so no need to test plain indexscan
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     count(*)
 FROM
@@ -413,8 +414,10 @@ WHERE
 
 RESET enable_seqscan;
 
-INSERT INTO test_tsvector
-    VALUES ('???', 'DFG:1A,2B,6C,10 FGH');
+INSERT INTO
+    test_tsvector
+VALUES
+    ('???', 'DFG:1A,2B,6C,10 FGH');
 
 SELECT
     *
@@ -424,7 +427,8 @@ ORDER BY
     ndoc DESC,
     nentry DESC,
     word
-LIMIT 10;
+LIMIT
+    10;
 
 SELECT
     *
@@ -450,17 +454,24 @@ FROM
 SELECT
     *
 FROM
-    ts_parse('default', '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
+    ts_parse (
+        'default',
+        '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
 /usr/local/fff /awdf/dwqe/4325 rewt/ewr wefjn /wqe-324/ewr gist.h gist.h.c gist.c. readline 4.2 4.2. 4.2, readline-4.2 readline-4.2. 234
 <i <b> wow  < jqw <> qwerty');
 
 SELECT
-    to_tsvector('english', '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
+    to_tsvector (
+        'english',
+        '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
 /usr/local/fff /awdf/dwqe/4325 rewt/ewr wefjn /wqe-324/ewr gist.h gist.h.c gist.c. readline 4.2 4.2. 4.2, readline-4.2 readline-4.2. 234
 <i <b> wow  < jqw <> qwerty');
 
 SELECT
-    length(to_tsvector('english', '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
+    length (
+        to_tsvector (
+            'english',
+            '345 qwe@efd.r '' http://www.com/ http://aew.werc.ewr/?ad=qwe&dw 1aew.werc.ewr/?ad=qwe&dw 2aew.werc.ewr http://3aew.werc.ewr/?ad=qwe&dw http://4aew.werc.ewr http://5aew.werc.ewr:8100/?  ad=qwe&dw 6aew.werc.ewr:8100/?ad=qwe&dw 7aew.werc.ewr:8100/?ad=qwe&dw=%20%32 +4.0e-10 qwe qwe qwqwe 234.435 455 5.005 teodor@stack.net teodor@123-stack.net 123_teodor@stack.net 123-teodor@stack.net qwe-wer asdf <fr>qwer jf sdjk<we hjwer <werrwe> ewr1> ewri2 <a href="qwe<qwe>">
 /usr/local/fff /awdf/dwqe/4325 rewt/ewr wefjn /wqe-324/ewr gist.h gist.h.c gist.c. readline 4.2 4.2. 4.2, readline-4.2 readline-4.2. 234
 <i <b> wow  < jqw <> qwerty'));
 
@@ -468,18 +479,24 @@ SELECT
 SELECT
     *
 FROM
-    ts_debug('english', '<myns:foo-bar_baz.blurfl>abc&nm1;def&#xa9;ghi&#245;jkl</myns:foo-bar_baz.blurfl>');
+    ts_debug (
+        'english',
+        '<myns:foo-bar_baz.blurfl>abc&nm1;def&#xa9;ghi&#245;jkl</myns:foo-bar_baz.blurfl>');
 
 -- check parsing of URLs
 SELECT
     *
 FROM
-    ts_debug('english', 'http://www.harewoodsolutions.co.uk/press.aspx</span>');
+    ts_debug (
+        'english',
+        'http://www.harewoodsolutions.co.uk/press.aspx</span>');
 
 SELECT
     *
 FROM
-    ts_debug('english', 'http://aew.wer0c.ewr/id?ad=qwe&dw<span>');
+    ts_debug (
+        'english',
+        'http://aew.wer0c.ewr/id?ad=qwe&dw<span>');
 
 SELECT
     *
@@ -511,7 +528,9 @@ SELECT
     to_tsquery('simple', 'qwe & sKies ');
 
 SELECT
-    to_tsquery('english', '''the wether'':dc & ''           sKies '':BC ');
+    to_tsquery (
+        'english',
+        '''the wether'':dc & ''           sKies '':BC ');
 
 SELECT
     to_tsquery('english', 'asd&(and|fghj)');
@@ -659,10 +678,15 @@ SELECT
     to_tsquery('english', 'foo <-> a <-> the <-> bar');
 
 SELECT
-    phraseto_tsquery('english', 'PostgreSQL can be extended by the user in many ways');
+    phraseto_tsquery (
+        'english',
+        'PostgreSQL can be extended by the user in many ways');
 
 SELECT
-    ts_rank_cd(to_tsvector('english', '
+    ts_rank_cd (
+        to_tsvector (
+            'english',
+            '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -672,10 +696,14 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-'), to_tsquery('english', 'paint&water'));
+'),
+        to_tsquery('english', 'paint&water'));
 
 SELECT
-    ts_rank_cd(to_tsvector('english', '
+    ts_rank_cd (
+        to_tsvector (
+            'english',
+            '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -685,10 +713,14 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-'), to_tsquery('english', 'breath&motion&water'));
+'),
+        to_tsquery('english', 'breath&motion&water'));
 
 SELECT
-    ts_rank_cd(to_tsvector('english', '
+    ts_rank_cd (
+        to_tsvector (
+            'english',
+            '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -698,10 +730,14 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-'), to_tsquery('english', 'ocean'));
+'),
+        to_tsquery('english', 'ocean'));
 
 SELECT
-    ts_rank_cd(to_tsvector('english', '
+    ts_rank_cd (
+        to_tsvector (
+            'english',
+            '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -711,17 +747,24 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-'), to_tsquery('english', 'painted <-> Ship'));
+'),
+        to_tsquery('english', 'painted <-> Ship'));
 
 SELECT
-    ts_rank_cd(strip(to_tsvector('both stripped')), to_tsquery('both & stripped'));
+    ts_rank_cd (
+        strip(to_tsvector('both stripped')),
+        to_tsquery('both & stripped'));
 
 SELECT
-    ts_rank_cd(to_tsvector('unstripped') || strip(to_tsvector('stripped')), to_tsquery('unstripped & stripped'));
+    ts_rank_cd (
+        to_tsvector('unstripped') || strip(to_tsvector('stripped')),
+        to_tsquery('unstripped & stripped'));
 
 --headline tests
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -731,10 +774,13 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'paint&water'));
+',
+        to_tsquery('english', 'paint&water'));
 
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -744,10 +790,13 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'breath&motion&water'));
+',
+        to_tsquery('english', 'breath&motion&water'));
 
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -757,10 +806,13 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'ocean'));
+',
+        to_tsquery('english', 'ocean'));
 
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -770,10 +822,13 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', phraseto_tsquery('english', 'painted Ocean'));
+',
+        phraseto_tsquery('english', 'painted Ocean'));
 
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -783,10 +838,13 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', phraseto_tsquery('english', 'idle as a painted Ship'));
+',
+        phraseto_tsquery('english', 'idle as a painted Ship'));
 
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 <html>
 <!-- some comment -->
 <body>
@@ -797,21 +855,36 @@ ff-bg
        document.write(15);
 </script>
 </body>
-</html>'
-, to_tsquery('english', 'sea&foo'), 'HighlightAll=true');
+</html>',
+        to_tsquery('english', 'sea&foo'),
+        'HighlightAll=true');
 
 SELECT
-    ts_headline('simple', '1 2 3 1 3'::text, '1 <-> 3', 'MaxWords=2, MinWords=1');
+    ts_headline (
+        'simple',
+        '1 2 3 1 3'::text,
+        '1 <-> 3',
+        'MaxWords=2, MinWords=1');
 
 SELECT
-    ts_headline('simple', '1 2 3 1 3'::text, '1 & 3', 'MaxWords=4, MinWords=1');
+    ts_headline (
+        'simple',
+        '1 2 3 1 3'::text,
+        '1 & 3',
+        'MaxWords=4, MinWords=1');
 
 SELECT
-    ts_headline('simple', '1 2 3 1 3'::text, '1 <-> 3', 'MaxWords=4, MinWords=1');
+    ts_headline (
+        'simple',
+        '1 2 3 1 3'::text,
+        '1 <-> 3',
+        'MaxWords=4, MinWords=1');
 
 --Check if headline fragments work
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -821,11 +894,15 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'ocean'), 'MaxFragments=1');
+',
+        to_tsquery('english', 'ocean'),
+        'MaxFragments=1');
 
 --Check if more than one fragments are displayed
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -835,11 +912,15 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'Coleridge & stuck'), 'MaxFragments=2');
+',
+        to_tsquery('english', 'Coleridge & stuck'),
+        'MaxFragments=2');
 
 --Fragments when there all query words are not in the document
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -849,11 +930,15 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'ocean & seahorse'), 'MaxFragments=1');
+',
+        to_tsquery('english', 'ocean & seahorse'),
+        'MaxFragments=1');
 
 --FragmentDelimiter option
 SELECT
-    ts_headline('english', '
+    ts_headline (
+        'english',
+        '
 Day after day, day after day,
   We stuck, nor breath nor motion,
 As idle as a painted Ship
@@ -863,29 +948,26 @@ Water, water, every where
 Water, water, every where,
   Nor any drop to drink.
 S. T. Coleridge (1772-1834)
-', to_tsquery('english', 'Coleridge & stuck'), 'MaxFragments=2,FragmentDelimiter=***');
+',
+        to_tsquery('english', 'Coleridge & stuck'),
+        'MaxFragments=2,FragmentDelimiter=***');
 
 --Rewrite sub system
-CREATE TABLE test_tsquery (
-    txtkeyword text,
-    txtsample text
-);
+CREATE TABLE test_tsquery (txtkeyword TEXT, txtsample TEXT);
 
 \set ECHO none
 \set ECHO all
 ALTER TABLE test_tsquery
-    ADD COLUMN keyword tsquery;
+ADD COLUMN keyword tsquery;
 
-UPDATE
-    test_tsquery
+UPDATE test_tsquery
 SET
     keyword = to_tsquery('english', txtkeyword);
 
 ALTER TABLE test_tsquery
-    ADD COLUMN sample tsquery;
+ADD COLUMN sample tsquery;
 
-UPDATE
-    test_tsquery
+UPDATE test_tsquery
 SET
     sample = to_tsquery('english', txtsample::text);
 
@@ -926,7 +1008,8 @@ WHERE
 
 CREATE UNIQUE INDEX bt_tsq ON test_tsquery (keyword);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
 SELECT
     COUNT(*)
@@ -966,44 +1049,73 @@ WHERE
 RESET enable_seqscan;
 
 SELECT
-    ts_rewrite('foo & bar & qq & new & york', 'new & york'::tsquery, 'big & apple | nyc | new & york & city');
+    ts_rewrite (
+        'foo & bar & qq & new & york',
+        'new & york'::tsquery,
+        'big & apple | nyc | new & york & city');
 
 SELECT
-    ts_rewrite(ts_rewrite('new & !york ', 'york', '!jersey'), 'jersey', 'mexico');
+    ts_rewrite (
+        ts_rewrite('new & !york ', 'york', '!jersey'),
+        'jersey',
+        'mexico');
 
 SELECT
-    ts_rewrite('moscow', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        'moscow',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('moscow & hotel', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        'moscow & hotel',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('bar & new & qq & foo & york', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        'bar & new & qq & foo & york',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('moscow', 'SELECT keyword, sample FROM test_tsquery');
+    ts_rewrite (
+        'moscow',
+        'SELECT keyword, sample FROM test_tsquery');
 
 SELECT
-    ts_rewrite('moscow & hotel', 'SELECT keyword, sample FROM test_tsquery');
+    ts_rewrite (
+        'moscow & hotel',
+        'SELECT keyword, sample FROM test_tsquery');
 
 SELECT
-    ts_rewrite('bar & new & qq & foo & york', 'SELECT keyword, sample FROM test_tsquery');
+    ts_rewrite (
+        'bar & new & qq & foo & york',
+        'SELECT keyword, sample FROM test_tsquery');
 
 SELECT
-    ts_rewrite('1 & (2 <-> 3)', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        '1 & (2 <-> 3)',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('1 & (2 <2> 3)', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        '1 & (2 <2> 3)',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('5 <-> (1 & (2 <-> 3))', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        '5 <-> (1 & (2 <-> 3))',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 SELECT
-    ts_rewrite('5 <-> (6 | 8)', 'SELECT keyword, sample FROM test_tsquery'::text);
+    ts_rewrite (
+        '5 <-> (6 | 8)',
+        'SELECT keyword, sample FROM test_tsquery'::text);
 
 -- Check empty substitution
 SELECT
-    ts_rewrite(to_tsquery('5 & (6 | 5)'), to_tsquery('5'), to_tsquery(''));
+    ts_rewrite (
+        to_tsquery('5 & (6 | 5)'),
+        to_tsquery('5'),
+        to_tsquery(''));
 
 SELECT
     ts_rewrite(to_tsquery('!5'), to_tsquery('5'), to_tsquery(''));
@@ -1068,7 +1180,8 @@ FROM
 
 CREATE INDEX qq ON test_tsquery USING gist (keyword tsquery_ops);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = OFF;
 
 SELECT
     keyword
@@ -1140,7 +1253,8 @@ SELECT
 RESET enable_seqscan;
 
 --test GUC
-SET default_text_search_config = simple;
+SET
+    default_text_search_config = simple;
 
 SELECT
     to_tsvector('SKIES My booKs');
@@ -1151,7 +1265,8 @@ SELECT
 SELECT
     to_tsquery('SKIES & My | booKs');
 
-SET default_text_search_config = english;
+SET
+    default_text_search_config = english;
 
 SELECT
     to_tsvector('SKIES My booKs');
@@ -1163,30 +1278,31 @@ SELECT
     to_tsquery('SKIES & My | booKs');
 
 --trigger
-CREATE TRIGGER tsvectorupdate
-    BEFORE UPDATE OR INSERT ON test_tsvector
-    FOR EACH ROW
-    EXECUTE PROCEDURE tsvector_update_trigger (a, 'pg_catalog.english', t);
-
-SELECT
-    count(*)
-FROM
-    test_tsvector
-WHERE
-    a @@ to_tsquery('345&qwerty');
-
-INSERT INTO test_tsvector (t)
-    VALUES ('345 qwerty');
-
-SELECT
-    count(*)
-FROM
-    test_tsvector
-WHERE
-    a @@ to_tsquery('345&qwerty');
-
+CREATE TRIGGER tsvectorupdate BEFORE
 UPDATE
+OR INSERT ON test_tsvector FOR EACH ROW
+EXECUTE PROCEDURE tsvector_update_trigger(a, 'pg_catalog.english', t);
+
+SELECT
+    count(*)
+FROM
     test_tsvector
+WHERE
+    a @@ to_tsquery('345&qwerty');
+
+INSERT INTO
+    test_tsvector (t)
+VALUES
+    ('345 qwerty');
+
+SELECT
+    count(*)
+FROM
+    test_tsvector
+WHERE
+    a @@ to_tsquery('345&qwerty');
+
+UPDATE test_tsvector
 SET
     t = NULL
 WHERE
@@ -1199,8 +1315,10 @@ FROM
 WHERE
     a @@ to_tsquery('345&qwerty');
 
-INSERT INTO test_tsvector (t)
-    VALUES ('345 qwerty');
+INSERT INTO
+    test_tsvector (t)
+VALUES
+    ('345 qwerty');
 
 SELECT
     count(*)
@@ -1210,17 +1328,19 @@ WHERE
     a @@ to_tsquery('345&qwerty');
 
 -- test finding items in GIN's pending list
-CREATE temp TABLE pendtest (
-    ts tsvector
-);
+CREATE TEMP TABLE pendtest (ts tsvector);
 
 CREATE INDEX pendtest_idx ON pendtest USING gin (ts);
 
-INSERT INTO pendtest
-    VALUES (to_tsvector('Lore ipsam'));
+INSERT INTO
+    pendtest
+VALUES
+    (to_tsvector('Lore ipsam'));
 
-INSERT INTO pendtest
-    VALUES (to_tsvector('Lore ipsum'));
+INSERT INTO
+    pendtest
+VALUES
+    (to_tsvector('Lore ipsum'));
 
 SELECT
     *
@@ -1258,19 +1378,22 @@ WHERE
     'ipi:*'::tsquery @@ ts;
 
 --check OP_PHRASE on index
-CREATE temp TABLE phrase_index_test (
-    fts tsvector
-);
+CREATE TEMP TABLE phrase_index_test (fts tsvector);
 
-INSERT INTO phrase_index_test
-    VALUES ('A fat cat has just eaten a rat.');
+INSERT INTO
+    phrase_index_test
+VALUES
+    ('A fat cat has just eaten a rat.');
 
-INSERT INTO phrase_index_test
-    VALUES (to_tsvector('english', 'A fat cat has just eaten a rat.'));
+INSERT INTO
+    phrase_index_test
+VALUES (
+        to_tsvector('english', 'A fat cat has just eaten a rat.'));
 
 CREATE INDEX phrase_index_test_idx ON phrase_index_test USING gin (fts);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = off;
 
 SELECT
     *
@@ -1279,7 +1402,8 @@ FROM
 WHERE
     fts @@ phraseto_tsquery('english', 'fat cat');
 
-SET enable_seqscan = ON;
+SET
+    enable_seqscan = ON;
 
 -- test websearch_to_tsquery function
 SELECT
@@ -1455,13 +1579,17 @@ SELECT
     websearch_to_tsquery('english', '"A fat cat" has just eaten OR !rat.');
 
 SELECT
-    websearch_to_tsquery('english', '"A fat cat" has just (+eaten OR -rat)');
+    websearch_to_tsquery (
+        'english',
+        '"A fat cat" has just (+eaten OR -rat)');
 
 SELECT
     websearch_to_tsquery('english', 'this is ----fine');
 
 SELECT
-    websearch_to_tsquery('english', '(()) )))) this ||| is && -fine, "dear friend" OR good');
+    websearch_to_tsquery (
+        'english',
+        '(()) )))) this ||| is && -fine, "dear friend" OR good');
 
 SELECT
     websearch_to_tsquery('english', 'an old <-> cat " is fine &&& too');
@@ -1490,4 +1618,3 @@ SELECT
 
 SELECT
     websearch_to_tsquery('\');
-

@@ -1,62 +1,47 @@
 /*
  * This test is for ICU collations.
  */
-SET client_encoding TO UTF8;
+SET
+    client_encoding TO UTF8;
 
 CREATE SCHEMA collate_tests;
 
-SET search_path = collate_tests;
+SET
+    search_path = collate_tests;
 
-CREATE TABLE collate_test1 (
-    a int,
-    b text COLLATE "en-x-icu" NOT NULL
-);
+CREATE TABLE collate_test1 (a int, b text COLLATE "en-x-icu" NOT NULL);
 
 \d collate_test1
-CREATE TABLE collate_test_fail (
-    a int,
-    b text COLLATE "ja_JP.eucjp-x-icu"
-);
+CREATE TABLE collate_test_fail (a int, b text COLLATE "ja_JP.eucjp-x-icu");
 
-CREATE TABLE collate_test_fail (
-    a int,
-    b text COLLATE "foo-x-icu"
-);
+CREATE TABLE collate_test_fail (a int, b text COLLATE "foo-x-icu");
 
-CREATE TABLE collate_test_fail (
-    a int COLLATE "en-x-icu",
-    b text
-);
+CREATE TABLE collate_test_fail (a int COLLATE "en-x-icu", b text);
 
-CREATE TABLE collate_test_like (
-    LIKE collate_test1
-);
+CREATE TABLE collate_test_like (LIKE collate_test1);
 
 \d collate_test_like
-CREATE TABLE collate_test2 (
-    a int,
-    b text COLLATE "sv-x-icu"
-);
+CREATE TABLE collate_test2 (a int, b text COLLATE "sv-x-icu");
 
-CREATE TABLE collate_test3 (
-    a int,
-    b text COLLATE "C"
-);
+CREATE TABLE collate_test3 (a int, b text COLLATE "C");
 
-INSERT INTO collate_test1
+INSERT INTO
+    collate_test1
 VALUES
     (1, 'abc'),
     (2, 'äbc'),
     (3, 'bbc'),
     (4, 'ABC');
 
-INSERT INTO collate_test2
+INSERT INTO
+    collate_test2
 SELECT
     *
 FROM
     collate_test1;
 
-INSERT INTO collate_test3
+INSERT INTO
+    collate_test3
 SELECT
     *
 FROM
@@ -123,12 +108,10 @@ CREATE DOMAIN testdomain_sv AS text COLLATE "sv-x-icu";
 CREATE DOMAIN testdomain_i AS int COLLATE "sv-x-icu";
 
 -- fails
-CREATE TABLE collate_test4 (
-    a int,
-    b testdomain_sv
-);
+CREATE TABLE collate_test4 (a int, b testdomain_sv);
 
-INSERT INTO collate_test4
+INSERT INTO
+    collate_test4
 SELECT
     *
 FROM
@@ -142,12 +125,10 @@ FROM
 ORDER BY
     b;
 
-CREATE TABLE collate_test5 (
-    a int,
-    b testdomain_sv COLLATE "en-x-icu"
-);
+CREATE TABLE collate_test5 (a int, b testdomain_sv COLLATE "en-x-icu");
 
-INSERT INTO collate_test5
+INSERT INTO
+    collate_test5
 SELECT
     *
 FROM
@@ -226,10 +207,10 @@ SELECT
 CREATE TABLE collate_test10 (
     a int,
     x text COLLATE "en-x-icu",
-    y text COLLATE "tr-x-icu"
-);
+    y text COLLATE "tr-x-icu");
 
-INSERT INTO collate_test10
+INSERT INTO
+    collate_test10
 VALUES
     (1, 'hij', 'hij'),
     (2, 'HIJ', 'HIJ');
@@ -368,12 +349,10 @@ FROM
 WHERE
     b ~* 'bc';
 
-CREATE TABLE collate_test6 (
-    a int,
-    b text COLLATE "en-x-icu"
-);
+CREATE TABLE collate_test6 (a int, b text COLLATE "en-x-icu");
 
-INSERT INTO collate_test6
+INSERT INTO
+    collate_test6
 VALUES
     (1, 'abc'),
     (2, 'ABC'),
@@ -422,14 +401,13 @@ FROM
 WHERE
     relname ~* '^abc';
 
-
 /* not run by default because it requires tr_TR system locale
 -- to_char
 
 SET lc_time TO 'tr_TR';
 SELECT to_char(date '2010-04-01', 'DD TMMON YYYY');
 SELECT to_char(date '2010-04-01', 'DD TMMON YYYY' COLLATE "tr-x-icu");
- */
+*/
 -- backwards parsing
 CREATE VIEW collview1 AS
 SELECT
@@ -451,8 +429,7 @@ ORDER BY
 CREATE VIEW collview3 AS
 SELECT
     a,
-    lower((x || x)
-    COLLATE "C")
+    lower((x || x) COLLATE "C")
 FROM
     collate_test10;
 
@@ -501,7 +478,7 @@ FROM
 SELECT
     a,
     b,
-    greatest (b, 'CCC')
+    greatest(b, 'CCC')
 FROM
     collate_test1
 ORDER BY
@@ -510,7 +487,7 @@ ORDER BY
 SELECT
     a,
     b,
-    greatest (b, 'CCC')
+    greatest(b, 'CCC')
 FROM
     collate_test2
 ORDER BY
@@ -519,7 +496,7 @@ ORDER BY
 SELECT
     a,
     b,
-    greatest (b, 'CCC')
+    greatest(b, 'CCC')
 FROM
     collate_test3
 ORDER BY
@@ -529,14 +506,14 @@ SELECT
     a,
     x,
     y,
-    lower(greatest (x, 'foo')),
-    lower(greatest (y, 'foo'))
+    lower(greatest(x, 'foo')),
+    lower(greatest(y, 'foo'))
 FROM
     collate_test10;
 
 SELECT
     a,
-    nullif (b, 'abc')
+    nullif(b, 'abc')
 FROM
     collate_test1
 ORDER BY
@@ -544,7 +521,7 @@ ORDER BY
 
 SELECT
     a,
-    nullif (b, 'abc')
+    nullif(b, 'abc')
 FROM
     collate_test2
 ORDER BY
@@ -552,7 +529,7 @@ ORDER BY
 
 SELECT
     a,
-    nullif (b, 'abc')
+    nullif(b, 'abc')
 FROM
     collate_test3
 ORDER BY
@@ -560,18 +537,18 @@ ORDER BY
 
 SELECT
     a,
-    lower(nullif (x, 'foo')),
-    lower(nullif (y, 'foo'))
+    lower(nullif(x, 'foo')),
+    lower(nullif(y, 'foo'))
 FROM
     collate_test10;
 
 SELECT
     a,
     CASE b
-    WHEN 'abc' THEN
-        'abcd'
-    ELSE
-        b
+        WHEN 'abc' THEN
+            'abcd'
+        ELSE
+            b
     END
 FROM
     collate_test1
@@ -581,10 +558,10 @@ ORDER BY
 SELECT
     a,
     CASE b
-    WHEN 'abc' THEN
-        'abcd'
-    ELSE
-        b
+        WHEN 'abc' THEN
+            'abcd'
+        ELSE
+            b
     END
 FROM
     collate_test2
@@ -594,10 +571,10 @@ ORDER BY
 SELECT
     a,
     CASE b
-    WHEN 'abc' THEN
-        'abcd'
-    ELSE
-        b
+        WHEN 'abc' THEN
+            'abcd'
+        ELSE
+            b
     END
 FROM
     collate_test3
@@ -664,17 +641,26 @@ FROM
     collate_test3;
 
 SELECT
-    array_agg(b ORDER BY b)
+    array_agg (
+        b
+        ORDER BY
+            b)
 FROM
     collate_test1;
 
 SELECT
-    array_agg(b ORDER BY b)
+    array_agg (
+        b
+        ORDER BY
+            b)
 FROM
     collate_test2;
 
 SELECT
-    array_agg(b ORDER BY b)
+    array_agg (
+        b
+        ORDER BY
+            b)
 FROM
     collate_test3;
 
@@ -865,23 +851,21 @@ ORDER BY
 
 -- not so ok
 -- collation mismatch between recursive and non-recursive term
-WITH RECURSIVE foo (
-    x
-) AS (
-    SELECT
-        x
-    FROM (
-        VALUES ('a' COLLATE "en-x-icu"),
-            ('b')) t (x)
-    UNION ALL
-    SELECT
-        (x || 'c')
-        COLLATE "de-x-icu"
-    FROM
-        foo
-    WHERE
-        length(x) < 10
-)
+WITH RECURSIVE
+    foo (x) AS (
+        SELECT
+            x
+        FROM (
+                VALUES
+                    ('a' COLLATE "en-x-icu"),
+                    ('b')) t (x)
+        UNION ALL
+        SELECT
+            (x || 'c') COLLATE "de-x-icu"
+        FROM
+            foo
+        WHERE
+            length(x) < 10)
 SELECT
     *
 FROM
@@ -917,31 +901,11 @@ ORDER BY
 
 -- propagation of collation in SQL functions (inlined and non-inlined cases)
 -- and plpgsql functions too
-CREATE FUNCTION mylt (text, text)
-    RETURNS boolean
-    LANGUAGE sql
-    AS $$
-    SELECT
-        $1 < $2
-$$;
+CREATE FUNCTION mylt (text, text) RETURNS boolean LANGUAGE sql AS $$ select $1 < $2 $$;
 
-CREATE FUNCTION mylt_noninline (text, text)
-    RETURNS boolean
-    LANGUAGE sql
-    AS $$
-    SELECT
-        $1 < $2
-    LIMIT 1
-$$;
+CREATE FUNCTION mylt_noninline (text, text) RETURNS boolean LANGUAGE sql AS $$ select $1 < $2 limit 1 $$;
 
-CREATE FUNCTION mylt_plpgsql (text, text)
-    RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN $1 < $2;
-END
-$$;
+CREATE FUNCTION mylt_plpgsql (text, text) RETURNS boolean LANGUAGE plpgsql AS $$ begin return $1 < $2; end $$;
 
 SELECT
     a.b AS a,
@@ -972,32 +936,26 @@ ORDER BY
     b.b;
 
 -- collation override in plpgsql
-CREATE FUNCTION mylt2 (x text, y text)
-    RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    xx text := x;
-    yy text := y;
-BEGIN
-    RETURN xx < yy;
-END
+CREATE FUNCTION mylt2 (x text, y text) RETURNS boolean LANGUAGE plpgsql AS $$
+declare
+  xx text := x;
+  yy text := y;
+begin
+  return xx < yy;
+end
 $$;
 
 SELECT
     mylt2 ('a', 'B' COLLATE "en-x-icu") AS t,
     mylt2 ('a', 'B' COLLATE "C") AS f;
 
-CREATE OR REPLACE FUNCTION mylt2 (x text, y text)
-    RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    xx text COLLATE "POSIX" := x;
-    yy text := y;
-BEGIN
-    RETURN xx < yy;
-END
+CREATE OR REPLACE FUNCTION mylt2 (x text, y text) RETURNS boolean LANGUAGE plpgsql AS $$
+declare
+  xx text COLLATE "POSIX" := x;
+  yy text := y;
+begin
+  return xx < yy;
+end
 $$;
 
 SELECT
@@ -1014,40 +972,46 @@ SELECT
 SELECT
     *
 FROM
-    unnest((
-        SELECT
-            array_agg(b ORDER BY b)
-        FROM collate_test1))
+    unnest ( (
+            SELECT
+                array_agg (
+                    b
+                    ORDER BY
+                        b)
+            FROM
+                collate_test1))
 ORDER BY
     1;
 
 SELECT
     *
 FROM
-    unnest((
-        SELECT
-            array_agg(b ORDER BY b)
-        FROM collate_test2))
+    unnest ( (
+            SELECT
+                array_agg (
+                    b
+                    ORDER BY
+                        b)
+            FROM
+                collate_test2))
 ORDER BY
     1;
 
 SELECT
     *
 FROM
-    unnest((
-        SELECT
-            array_agg(b ORDER BY b)
-        FROM collate_test3))
+    unnest ( (
+            SELECT
+                array_agg (
+                    b
+                    ORDER BY
+                        b)
+            FROM
+                collate_test3))
 ORDER BY
     1;
 
-CREATE FUNCTION dup (anyelement)
-    RETURNS anyelement
-    AS '
-    SELECT
-        $1;
-'
-LANGUAGE sql;
+CREATE FUNCTION dup (anyelement) RETURNS anyelement AS 'select $1' LANGUAGE sql;
 
 SELECT
     a,
@@ -1107,7 +1071,8 @@ CREATE SCHEMA test_schema;
 -- We need to do this this way to cope with varying names for encodings:
 DO $$
 BEGIN
-    EXECUTE 'CREATE COLLATION test0 (provider = icu, locale = ' || quote_literal(current_setting('lc_collate')) || ');';
+  EXECUTE 'CREATE COLLATION test0 (provider = icu, locale = ' ||
+          quote_literal(current_setting('lc_collate')) || ');';
 END
 $$;
 
@@ -1118,21 +1083,17 @@ FROM
 -- fail, duplicate name
 DO $$
 BEGIN
-    EXECUTE 'CREATE COLLATION test1 (provider = icu, lc_collate = ' || quote_literal(current_setting('lc_collate')) || ', lc_ctype = ' || quote_literal(current_setting('lc_ctype')) || ');';
+  EXECUTE 'CREATE COLLATION test1 (provider = icu, lc_collate = ' ||
+          quote_literal(current_setting('lc_collate')) ||
+          ', lc_ctype = ' ||
+          quote_literal(current_setting('lc_ctype')) || ');';
 END
 $$;
 
-CREATE COLLATION test3 (
-    provider = icu,
-    LC_COLLATE = 'en_US.utf8'
-);
+CREATE COLLATION test3 (provider = icu, lc_collate = 'en_US.utf8');
 
 -- fail, need lc_ctype
-CREATE COLLATION testx (
-    provider = icu,
-    locale = 'nonsense'
-);
-
+CREATE COLLATION testx (provider = icu, locale = 'nonsense');
 
 /* never fails with ICU */
 DROP COLLATION testx;
@@ -1154,19 +1115,23 @@ WHERE
 ORDER BY
     1;
 
-ALTER COLLATION test1 RENAME TO test11;
+ALTER COLLATION test1
+RENAME TO test11;
 
-ALTER COLLATION test0 RENAME TO test11;
+ALTER COLLATION test0
+RENAME TO test11;
 
 -- fail
-ALTER COLLATION test1 RENAME TO test22;
+ALTER COLLATION test1
+RENAME TO test22;
 
 -- fail
 ALTER COLLATION test11 OWNER TO regress_test_role;
 
 ALTER COLLATION test11 OWNER TO nonsense;
 
-ALTER COLLATION test11 SET SCHEMA test_schema;
+ALTER COLLATION test11
+SET SCHEMA test_schema;
 
 COMMENT ON COLLATION test0 IS 'US English';
 
@@ -1182,7 +1147,9 @@ WHERE
 ORDER BY
     1;
 
-DROP COLLATION test0, test_schema.test11, test5;
+DROP COLLATION test0,
+test_schema.test11,
+test5;
 
 DROP COLLATION test0;
 
@@ -1208,26 +1175,17 @@ CREATE COLLATION test0
 FROM
     "C";
 
-CREATE TABLE collate_dep_test1 (
-    a int,
-    b text COLLATE test0
-);
+CREATE TABLE collate_dep_test1 (a int, b text COLLATE test0);
 
 CREATE DOMAIN collate_dep_dom1 AS text COLLATE test0;
 
-CREATE TYPE collate_dep_test2 AS (
-    x int,
-    y text COLLATE test0
-);
+CREATE TYPE collate_dep_test2 AS (x int, y text COLLATE test0);
 
 CREATE VIEW collate_dep_test3 AS
 SELECT
     text 'foo' COLLATE test0 AS foo;
 
-CREATE TABLE collate_dep_test4t (
-    a int,
-    b text
-);
+CREATE TABLE collate_dep_test4t (a int, b text);
 
 CREATE INDEX collate_dep_test4i ON collate_dep_test4t (b COLLATE test0);
 
@@ -1238,20 +1196,15 @@ DROP COLLATION test0 CASCADE;
 
 \d collate_dep_test1
 \d collate_dep_test2
-DROP TABLE collate_dep_test1, collate_dep_test4t;
+DROP TABLE collate_dep_test1,
+collate_dep_test4t;
 
 DROP TYPE collate_dep_test2;
 
 -- test range types and collations
-CREATE TYPE textrange_c AS RANGE (
-    subtype = text,
-    COLLATION = "C"
-);
+CREATE TYPE textrange_c AS range (subtype = text, COLLATION = "C");
 
-CREATE TYPE textrange_en_us AS RANGE (
-    subtype = text,
-    COLLATION = "en-x-icu"
-);
+CREATE TYPE textrange_en_us AS range (subtype = text, COLLATION = "en-x-icu");
 
 SELECT
     textrange_c ('A', 'Z') @> 'b'::text;
@@ -1267,94 +1220,68 @@ DROP TYPE textrange_en_us;
 -- test the attributes handled by icu_set_collation_attributes()
 CREATE COLLATION testcoll_ignore_accents (
     provider = icu,
-    locale = '@colStrength=primary;colCaseLevel=yes'
-);
+    locale = '@colStrength=primary;colCaseLevel=yes');
 
 SELECT
     'aaá' > 'AAA' COLLATE "und-x-icu",
     'aaá' < 'AAA' COLLATE testcoll_ignore_accents;
 
-CREATE COLLATION testcoll_backwards (
-    provider = icu,
-    locale = '@colBackwards=yes'
-);
+CREATE COLLATION testcoll_backwards (provider = icu, locale = '@colBackwards=yes');
 
 SELECT
     'coté' < 'côte' COLLATE "und-x-icu",
     'coté' > 'côte' COLLATE testcoll_backwards;
 
-CREATE COLLATION testcoll_lower_first (
-    provider = icu,
-    locale = '@colCaseFirst=lower'
-);
+CREATE COLLATION testcoll_lower_first (provider = icu, locale = '@colCaseFirst=lower');
 
-CREATE COLLATION testcoll_upper_first (
-    provider = icu,
-    locale = '@colCaseFirst=upper'
-);
+CREATE COLLATION testcoll_upper_first (provider = icu, locale = '@colCaseFirst=upper');
 
 SELECT
     'aaa' < 'AAA' COLLATE testcoll_lower_first,
     'aaa' > 'AAA' COLLATE testcoll_upper_first;
 
-CREATE COLLATION testcoll_shifted (
-    provider = icu,
-    locale = '@colAlternate=shifted'
-);
+CREATE COLLATION testcoll_shifted (provider = icu, locale = '@colAlternate=shifted');
 
 SELECT
     'de-luge' < 'deanza' COLLATE "und-x-icu",
     'de-luge' > 'deanza' COLLATE testcoll_shifted;
 
-CREATE COLLATION testcoll_numeric (
-    provider = icu,
-    locale = '@colNumeric=yes'
-);
+CREATE COLLATION testcoll_numeric (provider = icu, locale = '@colNumeric=yes');
 
 SELECT
     'A-21' > 'A-123' COLLATE "und-x-icu",
     'A-21' < 'A-123' COLLATE testcoll_numeric;
 
-CREATE COLLATION testcoll_error1 (
-    provider = icu,
-    locale = '@colNumeric=lower'
-);
+CREATE COLLATION testcoll_error1 (provider = icu, locale = '@colNumeric=lower');
 
 -- test that attributes not handled by icu_set_collation_attributes()
 -- (handled by ucol_open() directly) also work
-CREATE COLLATION testcoll_de_phonebook (
-    provider = icu,
-    locale = 'de@collation=phonebook'
-);
+CREATE COLLATION testcoll_de_phonebook (provider = icu, locale = 'de@collation=phonebook');
 
 SELECT
     'Goldmann' < 'Götz' COLLATE "de-x-icu",
     'Goldmann' > 'Götz' COLLATE testcoll_de_phonebook;
 
 -- nondeterministic collations
-CREATE COLLATION ctest_det (
-    provider = icu,
-    locale = '',
-    deterministic = TRUE
-);
+CREATE COLLATION ctest_det (provider = icu, locale = '', deterministic = TRUE);
 
 CREATE COLLATION ctest_nondet (
     provider = icu,
     locale = '',
-    deterministic = FALSE
-);
+    deterministic = FALSE);
 
-CREATE TABLE test6 (
-    a int,
-    b text
-);
+CREATE TABLE test6 (a int, b text);
 
 -- same string in different normal forms
-INSERT INTO test6
-    VALUES (1, U & '\00E4bc');
+INSERT INTO
+    test6
+VALUES
+    (1, U&'\00E4bc');
 
-INSERT INTO test6
-    VALUES (2, U & '\0061\0308bc');
+INSERT INTO
+    test6
+VALUES
+    (2, U&'\0061\0308bc');
 
 SELECT
     *
@@ -1375,16 +1302,12 @@ FROM
 WHERE
     b = 'äbc' COLLATE ctest_nondet;
 
-CREATE COLLATION case_sensitive (
-    provider = icu,
-    locale = ''
-);
+CREATE COLLATION case_sensitive (provider = icu, locale = '');
 
 CREATE COLLATION case_insensitive (
     provider = icu,
     locale = '@colStrength=secondary',
-    deterministic = FALSE
-);
+    deterministic = FALSE);
 
 SELECT
     'abc' <= 'ABC' COLLATE case_sensitive,
@@ -1394,30 +1317,27 @@ SELECT
     'abc' <= 'ABC' COLLATE case_insensitive,
     'abc' >= 'ABC' COLLATE case_insensitive;
 
-CREATE TABLE test1cs (
-    x text COLLATE case_sensitive
-);
+CREATE TABLE test1cs (x text COLLATE case_sensitive);
 
-CREATE TABLE test2cs (
-    x text COLLATE case_sensitive
-);
+CREATE TABLE test2cs (x text COLLATE case_sensitive);
 
-CREATE TABLE test3cs (
-    x text COLLATE case_sensitive
-);
+CREATE TABLE test3cs (x text COLLATE case_sensitive);
 
-INSERT INTO test1cs
+INSERT INTO
+    test1cs
 VALUES
     ('abc'),
     ('def'),
     ('ghi');
 
-INSERT INTO test2cs
+INSERT INTO
+    test2cs
 VALUES
     ('ABC'),
     ('ghi');
 
-INSERT INTO test3cs
+INSERT INTO
+    test3cs
 VALUES
     ('abc'),
     ('ABC'),
@@ -1554,8 +1474,12 @@ ORDER BY
 
 SELECT
     x,
-    row_number() OVER (ORDER BY x),
-    rank() OVER (ORDER BY x)
+    row_number() OVER (
+        ORDER BY
+            x),
+    rank() OVER (
+        ORDER BY
+            x)
 FROM
     test3cs
 ORDER BY
@@ -1564,8 +1488,10 @@ ORDER BY
 CREATE UNIQUE INDEX ON test1cs (x);
 
 -- ok
-INSERT INTO test1cs
-    VALUES ('ABC');
+INSERT INTO
+    test1cs
+VALUES
+    ('ABC');
 
 -- ok
 CREATE UNIQUE INDEX ON test3cs (x);
@@ -1577,33 +1503,30 @@ SELECT
 SELECT
     string_to_array('ABCDEFGHI' COLLATE case_sensitive, NULL, 'b');
 
-CREATE TABLE test1ci (
-    x text COLLATE case_insensitive
-);
+CREATE TABLE test1ci (x text COLLATE case_insensitive);
 
-CREATE TABLE test2ci (
-    x text COLLATE case_insensitive
-);
+CREATE TABLE test2ci (x text COLLATE case_insensitive);
 
-CREATE TABLE test3ci (
-    x text COLLATE case_insensitive
-);
+CREATE TABLE test3ci (x text COLLATE case_insensitive);
 
 CREATE INDEX ON test3ci (x text_pattern_ops);
 
 -- error
-INSERT INTO test1ci
+INSERT INTO
+    test1ci
 VALUES
     ('abc'),
     ('def'),
     ('ghi');
 
-INSERT INTO test2ci
+INSERT INTO
+    test2ci
 VALUES
     ('ABC'),
     ('ghi');
 
-INSERT INTO test3ci
+INSERT INTO
+    test3ci
 VALUES
     ('abc'),
     ('ABC'),
@@ -1744,8 +1667,12 @@ ORDER BY
 
 SELECT
     x,
-    row_number() OVER (ORDER BY x),
-    rank() OVER (ORDER BY x)
+    row_number() OVER (
+        ORDER BY
+            x),
+    rank() OVER (
+        ORDER BY
+            x)
 FROM
     test3ci
 ORDER BY
@@ -1754,47 +1681,49 @@ ORDER BY
 CREATE UNIQUE INDEX ON test1ci (x);
 
 -- ok
-INSERT INTO test1ci
-    VALUES ('ABC');
+INSERT INTO
+    test1ci
+VALUES
+    ('ABC');
 
 -- error
 CREATE UNIQUE INDEX ON test3ci (x);
 
 -- error
 SELECT
-    string_to_array('ABC,DEF,GHI' COLLATE case_insensitive, ',', 'abc');
+    string_to_array (
+        'ABC,DEF,GHI' COLLATE case_insensitive,
+        ',',
+        'abc');
 
 SELECT
     string_to_array('ABCDEFGHI' COLLATE case_insensitive, NULL, 'b');
 
 -- bpchar
-CREATE TABLE test1bpci (
-    x char(3) COLLATE case_insensitive
-);
+CREATE TABLE test1bpci (x char(3) COLLATE case_insensitive);
 
-CREATE TABLE test2bpci (
-    x char(3) COLLATE case_insensitive
-);
+CREATE TABLE test2bpci (x char(3) COLLATE case_insensitive);
 
-CREATE TABLE test3bpci (
-    x char(3) COLLATE case_insensitive
-);
+CREATE TABLE test3bpci (x char(3) COLLATE case_insensitive);
 
 CREATE INDEX ON test3bpci (x bpchar_pattern_ops);
 
 -- error
-INSERT INTO test1bpci
+INSERT INTO
+    test1bpci
 VALUES
     ('abc'),
     ('def'),
     ('ghi');
 
-INSERT INTO test2bpci
+INSERT INTO
+    test2bpci
 VALUES
     ('ABC'),
     ('ghi');
 
-INSERT INTO test3bpci
+INSERT INTO
+    test3bpci
 VALUES
     ('abc'),
     ('ABC'),
@@ -1935,8 +1864,12 @@ ORDER BY
 
 SELECT
     x,
-    row_number() OVER (ORDER BY x),
-    rank() OVER (ORDER BY x)
+    row_number() OVER (
+        ORDER BY
+            x),
+    rank() OVER (
+        ORDER BY
+            x)
 FROM
     test3bpci
 ORDER BY
@@ -1945,34 +1878,41 @@ ORDER BY
 CREATE UNIQUE INDEX ON test1bpci (x);
 
 -- ok
-INSERT INTO test1bpci
-    VALUES ('ABC');
+INSERT INTO
+    test1bpci
+VALUES
+    ('ABC');
 
 -- error
 CREATE UNIQUE INDEX ON test3bpci (x);
 
 -- error
 SELECT
-    string_to_array('ABC,DEF,GHI'::char(11)
-        COLLATE case_insensitive, ',', 'abc');
+    string_to_array (
+        'ABC,DEF,GHI'::char(11) COLLATE case_insensitive,
+        ',',
+        'abc');
 
 SELECT
-    string_to_array('ABCDEFGHI'::char(9)
-        COLLATE case_insensitive, NULL, 'b');
+    string_to_array (
+        'ABCDEFGHI'::char(9) COLLATE case_insensitive,
+        NULL,
+        'b');
 
 -- This tests the issue described in match_pattern_prefix().  In the
 -- absence of that check, the case_insensitive tests below would
 -- return no rows where they should logically return one.
-CREATE TABLE test4c (
-    x text COLLATE "C"
-);
+CREATE TABLE test4c (x text COLLATE "C");
 
-INSERT INTO test4c
-    VALUES ('abc');
+INSERT INTO
+    test4c
+VALUES
+    ('abc');
 
 CREATE INDEX ON test4c (x);
 
-SET enable_seqscan = OFF;
+SET
+    enable_seqscan = off;
 
 SELECT
     x
@@ -2052,55 +1992,56 @@ WHERE
 ;
 
 -- test case adapted from subselect.sql
-CREATE TEMP TABLE outer_text (
-    f1 text COLLATE case_insensitive,
-    f2 text
-);
+CREATE TEMP TABLE outer_text (f1 text COLLATE case_insensitive, f2 text);
 
-INSERT INTO outer_text
-    VALUES ('a', 'a');
+INSERT INTO
+    outer_text
+VALUES
+    ('a', 'a');
 
-INSERT INTO outer_text
-    VALUES ('b', 'a');
+INSERT INTO
+    outer_text
+VALUES
+    ('b', 'a');
 
-INSERT INTO outer_text
-    VALUES ('A', NULL);
+INSERT INTO
+    outer_text
+VALUES
+    ('A', NULL);
 
-INSERT INTO outer_text
-    VALUES ('B', NULL);
+INSERT INTO
+    outer_text
+VALUES
+    ('B', NULL);
 
-CREATE TEMP TABLE inner_text (
-    c1 text COLLATE case_insensitive,
-    c2 text
-);
+CREATE TEMP TABLE inner_text (c1 text COLLATE case_insensitive, c2 text);
 
-INSERT INTO inner_text
-    VALUES ('a', NULL);
+INSERT INTO
+    inner_text
+VALUES
+    ('a', NULL);
 
 SELECT
     *
 FROM
     outer_text
-WHERE (f1, f2)
-NOT IN (
-    SELECT
-        *
-    FROM
-        inner_text);
+WHERE
+    (f1, f2) NOT IN (
+        SELECT
+            *
+        FROM
+            inner_text);
 
 -- accents
 CREATE COLLATION ignore_accents (
     provider = icu,
     locale = '@colStrength=primary;colCaseLevel=yes',
-    deterministic = FALSE
-);
+    deterministic = FALSE);
 
-CREATE TABLE test4 (
-    a int,
-    b text
-);
+CREATE TABLE test4 (a int, b text);
 
-INSERT INTO test4
+INSERT INTO
+    test4
 VALUES
     (1, 'cote'),
     (2, 'côte'),
@@ -2138,30 +2079,34 @@ WHERE
 
 -- foreign keys (should use collation of primary key)
 -- PK is case-sensitive, FK is case-insensitive
-CREATE TABLE test10pk (
-    x text COLLATE case_sensitive PRIMARY KEY
-);
+CREATE TABLE test10pk (x text COLLATE case_sensitive PRIMARY KEY);
 
-INSERT INTO test10pk
+INSERT INTO
+    test10pk
 VALUES
     ('abc'),
     ('def'),
     ('ghi');
 
 CREATE TABLE test10fk (
-    x text COLLATE case_insensitive REFERENCES test10pk (x) ON UPDATE CASCADE ON DELETE CASCADE
-);
+    x text COLLATE case_insensitive REFERENCES test10pk (x) ON UPDATE CASCADE ON DELETE CASCADE);
 
-INSERT INTO test10fk
-    VALUES ('abc');
+INSERT INTO
+    test10fk
+VALUES
+    ('abc');
 
 -- ok
-INSERT INTO test10fk
-    VALUES ('ABC');
+INSERT INTO
+    test10fk
+VALUES
+    ('ABC');
 
 -- error
-INSERT INTO test10fk
-    VALUES ('xyz');
+INSERT INTO
+    test10fk
+VALUES
+    ('xyz');
 
 -- error
 SELECT
@@ -2175,8 +2120,7 @@ FROM
     test10fk;
 
 -- restrict update even though the values are "equal" in the FK table
-UPDATE
-    test10fk
+UPDATE test10fk
 SET
     x = 'ABC'
 WHERE
@@ -2189,7 +2133,8 @@ FROM
     test10fk;
 
 DELETE FROM test10pk
-WHERE x = 'abc';
+WHERE
+    x = 'abc';
 
 SELECT
     *
@@ -2202,30 +2147,34 @@ FROM
     test10fk;
 
 -- PK is case-insensitive, FK is case-sensitive
-CREATE TABLE test11pk (
-    x text COLLATE case_insensitive PRIMARY KEY
-);
+CREATE TABLE test11pk (x text COLLATE case_insensitive PRIMARY KEY);
 
-INSERT INTO test11pk
+INSERT INTO
+    test11pk
 VALUES
     ('abc'),
     ('def'),
     ('ghi');
 
 CREATE TABLE test11fk (
-    x text COLLATE case_sensitive REFERENCES test11pk (x) ON UPDATE CASCADE ON DELETE CASCADE
-);
+    x text COLLATE case_sensitive REFERENCES test11pk (x) ON UPDATE CASCADE ON DELETE CASCADE);
 
-INSERT INTO test11fk
-    VALUES ('abc');
-
--- ok
-INSERT INTO test11fk
-    VALUES ('ABC');
+INSERT INTO
+    test11fk
+VALUES
+    ('abc');
 
 -- ok
-INSERT INTO test11fk
-    VALUES ('xyz');
+INSERT INTO
+    test11fk
+VALUES
+    ('ABC');
+
+-- ok
+INSERT INTO
+    test11fk
+VALUES
+    ('xyz');
 
 -- error
 SELECT
@@ -2239,8 +2188,7 @@ FROM
     test11fk;
 
 -- cascade update even though the values are "equal" in the PK table
-UPDATE
-    test11pk
+UPDATE test11pk
 SET
     x = 'ABC'
 WHERE
@@ -2252,7 +2200,8 @@ FROM
     test11fk;
 
 DELETE FROM test11pk
-WHERE x = 'abc';
+WHERE
+    x = 'abc';
 
 SELECT
     *
@@ -2265,67 +2214,79 @@ FROM
     test11fk;
 
 -- partitioning
-CREATE TABLE test20 (
-    a int,
-    b text COLLATE case_insensitive
-)
-PARTITION BY LIST (b);
+CREATE TABLE test20 (a int, b text COLLATE case_insensitive)
+PARTITION BY
+    LIST (b);
 
-CREATE TABLE test20_1 PARTITION OF test20
-FOR VALUES IN ('abc');
+CREATE TABLE test20_1 PARTITION OF test20 FOR
+VALUES
+    IN ('abc');
 
-INSERT INTO test20
-    VALUES (1, 'abc');
+INSERT INTO
+    test20
+VALUES
+    (1, 'abc');
 
-INSERT INTO test20
-    VALUES (2, 'ABC');
+INSERT INTO
+    test20
+VALUES
+    (2, 'ABC');
 
 SELECT
     *
 FROM
     test20_1;
 
-CREATE TABLE test21 (
-    a int,
-    b text COLLATE case_insensitive
-)
-PARTITION BY RANGE (b);
+CREATE TABLE test21 (a int, b text COLLATE case_insensitive)
+PARTITION BY
+    RANGE (b);
 
-CREATE TABLE test21_1 PARTITION OF test21
-FOR VALUES FROM ('ABC') TO ('DEF');
+CREATE TABLE test21_1 PARTITION OF test21 FOR
+VALUES
+FROM
+    ('ABC') TO ('DEF');
 
-INSERT INTO test21
-    VALUES (1, 'abc');
+INSERT INTO
+    test21
+VALUES
+    (1, 'abc');
 
-INSERT INTO test21
-    VALUES (2, 'ABC');
+INSERT INTO
+    test21
+VALUES
+    (2, 'ABC');
 
 SELECT
     *
 FROM
     test21_1;
 
-CREATE TABLE test22 (
-    a int,
-    b text COLLATE case_sensitive
-)
-PARTITION BY HASH (b);
+CREATE TABLE test22 (a int, b text COLLATE case_sensitive)
+PARTITION BY
+    HASH (b);
 
-CREATE TABLE test22_0 PARTITION OF test22
-FOR VALUES WITH (MODULUS 2, REMAINDER 0);
+CREATE TABLE test22_0 PARTITION OF test22 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 0);
 
-CREATE TABLE test22_1 PARTITION OF test22
-FOR VALUES WITH (MODULUS 2, REMAINDER 1);
+CREATE TABLE test22_1 PARTITION OF test22 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 1);
 
-INSERT INTO test22
-    VALUES (1, 'def');
+INSERT INTO
+    test22
+VALUES
+    (1, 'def');
 
-INSERT INTO test22
-    VALUES (2, 'DEF');
+INSERT INTO
+    test22
+VALUES
+    (2, 'DEF');
 
 -- they end up in different partitions
-SELECT
-    (
+SELECT (
         SELECT
             count(*)
         FROM
@@ -2335,27 +2296,32 @@ SELECT
         FROM
             test22_1);
 
-CREATE TABLE test23 (
-    a int,
-    b text COLLATE case_insensitive
-)
-PARTITION BY HASH (b);
+CREATE TABLE test23 (a int, b text COLLATE case_insensitive)
+PARTITION BY
+    HASH (b);
 
-CREATE TABLE test23_0 PARTITION OF test23
-FOR VALUES WITH (MODULUS 2, REMAINDER 0);
+CREATE TABLE test23_0 PARTITION OF test23 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 0);
 
-CREATE TABLE test23_1 PARTITION OF test23
-FOR VALUES WITH (MODULUS 2, REMAINDER 1);
+CREATE TABLE test23_1 PARTITION OF test23 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 1);
 
-INSERT INTO test23
-    VALUES (1, 'def');
+INSERT INTO
+    test23
+VALUES
+    (1, 'def');
 
-INSERT INTO test23
-    VALUES (2, 'DEF');
+INSERT INTO
+    test23
+VALUES
+    (2, 'DEF');
 
 -- they end up in the same partition (but it's platform-dependent which one)
-SELECT
-    (
+SELECT (
         SELECT
             count(*)
         FROM
@@ -2365,67 +2331,79 @@ SELECT
         FROM
             test23_1);
 
-CREATE TABLE test30 (
-    a int,
-    b char(3) COLLATE case_insensitive
-)
-PARTITION BY LIST (b);
+CREATE TABLE test30 (a int, b char(3) COLLATE case_insensitive)
+PARTITION BY
+    LIST (b);
 
-CREATE TABLE test30_1 PARTITION OF test30
-FOR VALUES IN ('abc');
+CREATE TABLE test30_1 PARTITION OF test30 FOR
+VALUES
+    IN ('abc');
 
-INSERT INTO test30
-    VALUES (1, 'abc');
+INSERT INTO
+    test30
+VALUES
+    (1, 'abc');
 
-INSERT INTO test30
-    VALUES (2, 'ABC');
+INSERT INTO
+    test30
+VALUES
+    (2, 'ABC');
 
 SELECT
     *
 FROM
     test30_1;
 
-CREATE TABLE test31 (
-    a int,
-    b char(3) COLLATE case_insensitive
-)
-PARTITION BY RANGE (b);
+CREATE TABLE test31 (a int, b char(3) COLLATE case_insensitive)
+PARTITION BY
+    RANGE (b);
 
-CREATE TABLE test31_1 PARTITION OF test31
-FOR VALUES FROM ('ABC') TO ('DEF');
+CREATE TABLE test31_1 PARTITION OF test31 FOR
+VALUES
+FROM
+    ('ABC') TO ('DEF');
 
-INSERT INTO test31
-    VALUES (1, 'abc');
+INSERT INTO
+    test31
+VALUES
+    (1, 'abc');
 
-INSERT INTO test31
-    VALUES (2, 'ABC');
+INSERT INTO
+    test31
+VALUES
+    (2, 'ABC');
 
 SELECT
     *
 FROM
     test31_1;
 
-CREATE TABLE test32 (
-    a int,
-    b char(3) COLLATE case_sensitive
-)
-PARTITION BY HASH (b);
+CREATE TABLE test32 (a int, b char(3) COLLATE case_sensitive)
+PARTITION BY
+    HASH (b);
 
-CREATE TABLE test32_0 PARTITION OF test32
-FOR VALUES WITH (MODULUS 2, REMAINDER 0);
+CREATE TABLE test32_0 PARTITION OF test32 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 0);
 
-CREATE TABLE test32_1 PARTITION OF test32
-FOR VALUES WITH (MODULUS 2, REMAINDER 1);
+CREATE TABLE test32_1 PARTITION OF test32 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 1);
 
-INSERT INTO test32
-    VALUES (1, 'def');
+INSERT INTO
+    test32
+VALUES
+    (1, 'def');
 
-INSERT INTO test32
-    VALUES (2, 'DEF');
+INSERT INTO
+    test32
+VALUES
+    (2, 'DEF');
 
 -- they end up in different partitions
-SELECT
-    (
+SELECT (
         SELECT
             count(*)
         FROM
@@ -2435,27 +2413,32 @@ SELECT
         FROM
             test32_1);
 
-CREATE TABLE test33 (
-    a int,
-    b char(3) COLLATE case_insensitive
-)
-PARTITION BY HASH (b);
+CREATE TABLE test33 (a int, b char(3) COLLATE case_insensitive)
+PARTITION BY
+    HASH (b);
 
-CREATE TABLE test33_0 PARTITION OF test33
-FOR VALUES WITH (MODULUS 2, REMAINDER 0);
+CREATE TABLE test33_0 PARTITION OF test33 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 0);
 
-CREATE TABLE test33_1 PARTITION OF test33
-FOR VALUES WITH (MODULUS 2, REMAINDER 1);
+CREATE TABLE test33_1 PARTITION OF test33 FOR
+VALUES
+WITH
+    (MODULUS 2, REMAINDER 1);
 
-INSERT INTO test33
-    VALUES (1, 'def');
+INSERT INTO
+    test33
+VALUES
+    (1, 'def');
 
-INSERT INTO test33
-    VALUES (2, 'DEF');
+INSERT INTO
+    test33
+VALUES
+    (2, 'DEF');
 
 -- they end up in the same partition (but it's platform-dependent which one)
-SELECT
-    (
+SELECT (
         SELECT
             count(*)
         FROM
@@ -2466,7 +2449,8 @@ SELECT
             test33_1);
 
 -- cleanup
-SET client_min_messages TO warning;
+SET
+    client_min_messages TO warning;
 
 DROP SCHEMA collate_tests CASCADE;
 
@@ -2476,4 +2460,3 @@ RESET search_path;
 CREATE COLLATION coll_icu_upgrade
 FROM
     "und-x-icu";
-

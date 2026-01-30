@@ -1,4 +1,4 @@
-import { expect } from '@jest/globals';
+import { expect } from 'vitest';
 import dedent from 'dedent-js';
 import { FormatFn } from '../../src/sqlFormatter.js';
 

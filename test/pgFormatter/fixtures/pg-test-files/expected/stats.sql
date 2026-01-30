@@ -9,12 +9,15 @@ SHOW track_counts;
 
 -- must be on
 -- ensure that both seqscan and indexscan plans are allowed
-SET enable_seqscan TO ON;
+SET
+    enable_seqscan TO ON;
 
-SET enable_indexscan TO ON;
+SET
+    enable_indexscan TO ON;
 
 -- for the moment, we don't want index-only scans here
-SET enable_indexonlyscan TO OFF;
+SET
+    enable_indexonlyscan TO off;
 
 -- save counters
 CREATE TABLE prevstats AS
@@ -34,141 +37,197 @@ WHERE
     AND b.relname = 'tenk2';
 
 -- function to wait for counters to advance
-CREATE FUNCTION wait_for_stats ()
-    RETURNS void
-    AS $$
-DECLARE
-    start_time timestamptz := clock_timestamp();
-    updated1 bool;
-    updated2 bool;
-    updated3 bool;
-    updated4 bool;
-BEGIN
-    -- we don't want to wait forever; loop will exit after 30 seconds
-    FOR i IN 1..300 LOOP
-        -- With parallel query, the seqscan and indexscan on tenk2 might be done
-        -- in parallel worker processes, which will send their stats counters
-        -- asynchronously to what our own session does.  So we must check for
-        -- those counts to be registered separately from the update counts.
-        -- check to see if seqscan has been sensed
-        SELECT
-            (st.seq_scan >= pr.seq_scan + 1) INTO updated1
-        FROM
-            pg_stat_user_tables AS st,
-            pg_class AS cl,
-            prevstats AS pr
-        WHERE
-            st.relname = 'tenk2'
-            AND cl.relname = 'tenk2';
-        -- check to see if indexscan has been sensed
-        SELECT
-            (st.idx_scan >= pr.idx_scan + 1) INTO updated2
-        FROM
-            pg_stat_user_tables AS st,
-            pg_class AS cl,
-            prevstats AS pr
-        WHERE
-            st.relname = 'tenk2'
-            AND cl.relname = 'tenk2';
-        -- check to see if all updates have been sensed
-        SELECT
-            (n_tup_ins > 0) INTO updated3
-        FROM
-            pg_stat_user_tables
-        WHERE
-            relname = 'trunc_stats_test4';
-        -- We must also check explicitly that pg_stat_get_snapshot_timestamp has
-        -- advanced, because that comes from the global stats file which might
-        -- be older than the per-DB stats file we got the other values from.
-        SELECT
-            (pr.snap_ts < pg_stat_get_snapshot_timestamp ()) INTO updated4
-        FROM
-            prevstats AS pr;
-        exit
-        WHEN updated1
-            AND updated2
-            AND updated3
-            AND updated4;
-        -- wait a little
-        PERFORM
-            pg_sleep_for ('100 milliseconds');
-        -- reset stats snapshot so we can test again
-        PERFORM
-            pg_stat_clear_snapshot();
-    END LOOP;
-    -- report time waited in postmaster log (where it won't change test output)
-    RAISE log 'wait_for_stats delayed % seconds', extract(epoch FROM clock_timestamp() - start_time);
-END
-$$
-LANGUAGE plpgsql;
+CREATE FUNCTION wait_for_stats () returns void AS $$
+declare
+  start_time timestamptz := clock_timestamp();
+  updated1 bool;
+  updated2 bool;
+  updated3 bool;
+  updated4 bool;
+begin
+  -- we don't want to wait forever; loop will exit after 30 seconds
+  for i in 1 .. 300 loop
+
+    -- With parallel query, the seqscan and indexscan on tenk2 might be done
+    -- in parallel worker processes, which will send their stats counters
+    -- asynchronously to what our own session does.  So we must check for
+    -- those counts to be registered separately from the update counts.
+
+    -- check to see if seqscan has been sensed
+    SELECT (st.seq_scan >= pr.seq_scan + 1) INTO updated1
+      FROM pg_stat_user_tables AS st, pg_class AS cl, prevstats AS pr
+     WHERE st.relname='tenk2' AND cl.relname='tenk2';
+
+    -- check to see if indexscan has been sensed
+    SELECT (st.idx_scan >= pr.idx_scan + 1) INTO updated2
+      FROM pg_stat_user_tables AS st, pg_class AS cl, prevstats AS pr
+     WHERE st.relname='tenk2' AND cl.relname='tenk2';
+
+    -- check to see if all updates have been sensed
+    SELECT (n_tup_ins > 0) INTO updated3
+      FROM pg_stat_user_tables WHERE relname='trunc_stats_test4';
+
+    -- We must also check explicitly that pg_stat_get_snapshot_timestamp has
+    -- advanced, because that comes from the global stats file which might
+    -- be older than the per-DB stats file we got the other values from.
+    SELECT (pr.snap_ts < pg_stat_get_snapshot_timestamp()) INTO updated4
+      FROM prevstats AS pr;
+
+    exit when updated1 and updated2 and updated3 and updated4;
+
+    -- wait a little
+    perform pg_sleep_for('100 milliseconds');
+
+    -- reset stats snapshot so we can test again
+    perform pg_stat_clear_snapshot();
+
+  end loop;
+
+  -- report time waited in postmaster log (where it won't change test output)
+  raise log 'wait_for_stats delayed % seconds',
+    extract(epoch from clock_timestamp() - start_time);
+end
+$$ language plpgsql;
 
 -- test effects of TRUNCATE on n_live_tup/n_dead_tup counters
-CREATE TABLE trunc_stats_test (
-    id serial
-);
+CREATE TABLE trunc_stats_test (id serial);
 
-CREATE TABLE trunc_stats_test1 (
-    id serial,
-    stuff text
-);
+CREATE TABLE trunc_stats_test1 (id serial, stuff text);
 
-CREATE TABLE trunc_stats_test2 (
-    id serial
-);
+CREATE TABLE trunc_stats_test2 (id serial);
 
-CREATE TABLE trunc_stats_test3 (
-    id serial,
-    stuff text
-);
+CREATE TABLE trunc_stats_test3 (id serial, stuff text);
 
-CREATE TABLE trunc_stats_test4 (
-    id serial
-);
+CREATE TABLE trunc_stats_test4 (id serial);
 
 -- check that n_live_tup is reset to 0 after truncate
-INSERT INTO trunc_stats_test DEFAULT VALUES; INSERT INTO trunc_stats_test DEFAULT VALUES; INSERT INTO trunc_stats_test DEFAULT VALUES; TRUNCATE trunc_stats_test;
+INSERT INTO
+    trunc_stats_test
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test
+DEFAULT VALUES;
+
+TRUNCATE trunc_stats_test;
 
 -- test involving a truncate in a transaction; 4 ins but only 1 live
-INSERT INTO trunc_stats_test1 DEFAULT VALUES; INSERT INTO trunc_stats_test1 DEFAULT VALUES; INSERT INTO trunc_stats_test1 DEFAULT VALUES; UPDATE
+INSERT INTO
     trunc_stats_test1
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test1
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test1
+DEFAULT VALUES;
+
+UPDATE trunc_stats_test1
 SET
     id = id + 10
 WHERE
     id IN (1, 2);
 
 DELETE FROM trunc_stats_test1
-WHERE id = 3;
+WHERE
+    id = 3;
 
 BEGIN;
-UPDATE
-    trunc_stats_test1
+
+UPDATE trunc_stats_test1
 SET
     id = id + 100;
+
 TRUNCATE trunc_stats_test1;
-INSERT INTO trunc_stats_test1 DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test1
+DEFAULT VALUES;
+
 COMMIT;
 
 -- use a savepoint: 1 insert, 1 live
 BEGIN;
-INSERT INTO trunc_stats_test2 DEFAULT VALUES; INSERT INTO trunc_stats_test2 DEFAULT VALUES; SAVEPOINT p1;
-INSERT INTO trunc_stats_test2 DEFAULT VALUES; TRUNCATE trunc_stats_test2;
-INSERT INTO trunc_stats_test2 DEFAULT VALUES; RELEASE SAVEPOINT p1;
+
+INSERT INTO
+    trunc_stats_test2
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test2
+DEFAULT VALUES;
+
+SAVEPOINT p1;
+
+INSERT INTO
+    trunc_stats_test2
+DEFAULT VALUES;
+
+TRUNCATE trunc_stats_test2;
+
+INSERT INTO
+    trunc_stats_test2
+DEFAULT VALUES;
+
+RELEASE SAVEPOINT p1;
+
 COMMIT;
 
 -- rollback a savepoint: this should count 4 inserts and have 2
 -- live tuples after commit (and 2 dead ones due to aborted subxact)
 BEGIN;
-INSERT INTO trunc_stats_test3 DEFAULT VALUES; INSERT INTO trunc_stats_test3 DEFAULT VALUES; SAVEPOINT p1;
-INSERT INTO trunc_stats_test3 DEFAULT VALUES; INSERT INTO trunc_stats_test3 DEFAULT VALUES; TRUNCATE trunc_stats_test3;
-INSERT INTO trunc_stats_test3 DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test3
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test3
+DEFAULT VALUES;
+
+SAVEPOINT p1;
+
+INSERT INTO
+    trunc_stats_test3
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test3
+DEFAULT VALUES;
+
+TRUNCATE trunc_stats_test3;
+
+INSERT INTO
+    trunc_stats_test3
+DEFAULT VALUES;
+
 ROLLBACK TO SAVEPOINT p1;
 
 COMMIT;
 
 -- rollback a truncate: this should count 2 inserts and produce 2 dead tuples
 BEGIN;
-INSERT INTO trunc_stats_test4 DEFAULT VALUES; INSERT INTO trunc_stats_test4 DEFAULT VALUES; TRUNCATE trunc_stats_test4;
-INSERT INTO trunc_stats_test4 DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test4
+DEFAULT VALUES;
+
+INSERT INTO
+    trunc_stats_test4
+DEFAULT VALUES;
+
+TRUNCATE trunc_stats_test4;
+
+INSERT INTO
+    trunc_stats_test4
+DEFAULT VALUES;
+
 ROLLBACK;
 
 -- do a seqscan
@@ -179,7 +238,8 @@ FROM
 
 -- do an indexscan
 -- make sure it is not a bitmap scan, which might skip fetching heap tuples
-SET enable_bitmapscan TO OFF;
+SET
+    enable_bitmapscan TO off;
 
 SELECT
     count(*)
@@ -245,7 +305,11 @@ SELECT
 FROM
     prevstats AS pr;
 
-DROP TABLE trunc_stats_test, trunc_stats_test1, trunc_stats_test2, trunc_stats_test3, trunc_stats_test4;
+DROP TABLE trunc_stats_test,
+trunc_stats_test1,
+trunc_stats_test2,
+trunc_stats_test3,
+trunc_stats_test4;
 
 DROP TABLE prevstats;
 

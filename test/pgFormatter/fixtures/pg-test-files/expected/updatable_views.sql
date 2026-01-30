@@ -2,23 +2,23 @@
 -- UPDATABLE VIEWS
 --
 -- avoid bit-exact output here because operations may not be bit-exact.
-SET extra_float_digits = 0;
+SET
+    extra_float_digits = 0;
 
 -- check that non-updatable views and columns are rejected with useful error
 -- messages
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
 FROM
     generate_series(-2, 2) g (i);
 
-CREATE VIEW ro_view1 AS SELECT DISTINCT
+CREATE VIEW ro_view1 AS
+SELECT DISTINCT
     a,
     b
 FROM
@@ -75,13 +75,13 @@ FROM
 
 -- Set ops not supported
 CREATE VIEW ro_view7 AS
-WITH t AS (
-    SELECT
-        a,
-        b
-    FROM
-        base_tbl
-)
+WITH
+    t AS (
+        SELECT
+            a,
+            b
+        FROM
+            base_tbl)
 SELECT
     *
 FROM
@@ -95,7 +95,9 @@ SELECT
 FROM
     base_tbl
 ORDER BY
-    a OFFSET 1;
+    a
+OFFSET
+    1;
 
 -- OFFSET not supported
 CREATE VIEW ro_view9 AS
@@ -106,7 +108,8 @@ FROM
     base_tbl
 ORDER BY
     a
-LIMIT 1;
+LIMIT
+    1;
 
 -- LIMIT not supported
 CREATE VIEW ro_view10 AS
@@ -135,10 +138,10 @@ SELECT
     a,
     b
 FROM (
-    SELECT
-        *
-    FROM
-        base_tbl) AS t;
+        SELECT
+            *
+        FROM
+            base_tbl) AS t;
 
 -- Subselect in rangetable
 CREATE VIEW rw_view14 AS
@@ -178,7 +181,8 @@ CREATE VIEW ro_view18 AS
 SELECT
     *
 FROM (
-    VALUES (1)) AS tmp (a);
+        VALUES
+            (1)) AS tmp (a);
 
 -- VALUES in rangetable
 CREATE SEQUENCE uv_seq;
@@ -245,58 +249,56 @@ DELETE FROM ro_view5;
 
 DELETE FROM ro_view6;
 
-UPDATE
-    ro_view7
+UPDATE ro_view7
 SET
     a = a + 1;
 
-UPDATE
-    ro_view8
+UPDATE ro_view8
 SET
     a = a + 1;
 
-UPDATE
-    ro_view9
+UPDATE ro_view9
 SET
     a = a + 1;
 
-UPDATE
-    ro_view10
+UPDATE ro_view10
 SET
     a = a + 1;
 
-UPDATE
-    ro_view11
+UPDATE ro_view11
 SET
     a = a + 1;
 
-UPDATE
-    ro_view12
+UPDATE ro_view12
 SET
     a = a + 1;
 
-INSERT INTO ro_view13
-    VALUES (3, 'Row 3');
+INSERT INTO
+    ro_view13
+VALUES
+    (3, 'Row 3');
 
 -- Partially updatable view
-INSERT INTO rw_view14
-    VALUES (NULL, 3, 'Row 3');
+INSERT INTO
+    rw_view14
+VALUES
+    (NULL, 3, 'Row 3');
 
 -- should fail
-INSERT INTO rw_view14 (a, b)
-    VALUES (3, 'Row 3');
+INSERT INTO
+    rw_view14 (a, b)
+VALUES
+    (3, 'Row 3');
 
 -- should be OK
-UPDATE
-    rw_view14
+UPDATE rw_view14
 SET
     ctid = NULL
 WHERE
     a = 3;
 
 -- should fail
-UPDATE
-    rw_view14
+UPDATE rw_view14
 SET
     b = 'ROW 3'
 WHERE
@@ -309,22 +311,28 @@ FROM
     base_tbl;
 
 DELETE FROM rw_view14
-WHERE a = 3;
+WHERE
+    a = 3;
 
 -- should be OK
 -- Partially updatable view
-INSERT INTO rw_view15
-    VALUES (3, 'ROW 3');
+INSERT INTO
+    rw_view15
+VALUES
+    (3, 'ROW 3');
 
 -- should fail
-INSERT INTO rw_view15 (a)
-    VALUES (3);
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (3);
 
 -- should be OK
-INSERT INTO rw_view15 (a)
-    VALUES (3)
-ON CONFLICT
-    DO NOTHING;
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (3)
+ON CONFLICT DO NOTHING;
 
 -- succeeds
 SELECT
@@ -332,10 +340,11 @@ SELECT
 FROM
     rw_view15;
 
-INSERT INTO rw_view15 (a)
-    VALUES (3)
-ON CONFLICT (a)
-    DO NOTHING;
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (3)
+ON CONFLICT (a) DO NOTHING;
 
 -- succeeds
 SELECT
@@ -343,11 +352,13 @@ SELECT
 FROM
     rw_view15;
 
-INSERT INTO rw_view15 (a)
-    VALUES (3)
-ON CONFLICT (a)
-    DO UPDATE SET
-        a = excluded.a;
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (3)
+ON CONFLICT (a) DO UPDATE
+SET
+    a = excluded.a;
 
 -- succeeds
 SELECT
@@ -355,11 +366,13 @@ SELECT
 FROM
     rw_view15;
 
-INSERT INTO rw_view15 (a)
-    VALUES (3)
-ON CONFLICT (a)
-    DO UPDATE SET
-        upper = 'blarg';
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (3)
+ON CONFLICT (a) DO UPDATE
+SET
+    upper = 'blarg';
 
 -- fails
 SELECT
@@ -373,30 +386,30 @@ FROM
     rw_view15;
 
 ALTER VIEW rw_view15
-    ALTER COLUMN upper SET DEFAULT 'NOT SET';
+ALTER COLUMN upper
+SET DEFAULT 'NOT SET';
 
-INSERT INTO rw_view15 (a)
-    VALUES (4);
+INSERT INTO
+    rw_view15 (a)
+VALUES
+    (4);
 
 -- should fail
-UPDATE
-    rw_view15
+UPDATE rw_view15
 SET
     upper = 'ROW 3'
 WHERE
     a = 3;
 
 -- should fail
-UPDATE
-    rw_view15
+UPDATE rw_view15
 SET
     upper = DEFAULT
 WHERE
     a = 3;
 
 -- should fail
-UPDATE
-    rw_view15
+UPDATE rw_view15
 SET
     a = 4
 WHERE
@@ -409,20 +422,24 @@ FROM
     base_tbl;
 
 DELETE FROM rw_view15
-WHERE a = 4;
+WHERE
+    a = 4;
 
 -- should be OK
 -- Partially updatable view
-INSERT INTO rw_view16
-    VALUES (3, 'Row 3', 3);
+INSERT INTO
+    rw_view16
+VALUES
+    (3, 'Row 3', 3);
 
 -- should fail
-INSERT INTO rw_view16 (a, b)
-    VALUES (3, 'Row 3');
+INSERT INTO
+    rw_view16 (a, b)
+VALUES
+    (3, 'Row 3');
 
 -- should be OK
-UPDATE
-    rw_view16
+UPDATE rw_view16
 SET
     a = 3,
     aa = -3
@@ -430,8 +447,7 @@ WHERE
     a = 3;
 
 -- should fail
-UPDATE
-    rw_view16
+UPDATE rw_view16
 SET
     aa = -3
 WHERE
@@ -444,39 +460,39 @@ FROM
     base_tbl;
 
 DELETE FROM rw_view16
-WHERE a = -3;
+WHERE
+    a = -3;
 
 -- should be OK
 -- Read-only views
-INSERT INTO ro_view17
-    VALUES (3, 'ROW 3');
+INSERT INTO
+    ro_view17
+VALUES
+    (3, 'ROW 3');
 
 DELETE FROM ro_view18;
 
-UPDATE
-    ro_view19
+UPDATE ro_view19
 SET
     last_value = 1000;
 
-UPDATE
-    ro_view20
+UPDATE ro_view20
 SET
     b = upper(b);
 
 DROP TABLE base_tbl CASCADE;
 
-DROP VIEW ro_view10, ro_view12, ro_view18;
+DROP VIEW ro_view10,
+ro_view12,
+ro_view18;
 
-DROP SEQUENCE uv_seq
-    CASCADE;
+DROP SEQUENCE uv_seq CASCADE;
 
 -- simple updatable view
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
@@ -519,50 +535,50 @@ WHERE
 ORDER BY
     ordinal_position;
 
-INSERT INTO rw_view1
-    VALUES (3, 'Row 3');
-
-INSERT INTO rw_view1 (a)
-    VALUES (4);
-
-UPDATE
+INSERT INTO
     rw_view1
+VALUES
+    (3, 'Row 3');
+
+INSERT INTO
+    rw_view1 (a)
+VALUES
+    (4);
+
+UPDATE rw_view1
 SET
     a = 5
 WHERE
     a = 4;
 
 DELETE FROM rw_view1
-WHERE b = 'Row 2';
+WHERE
+    b = 'Row 2';
 
 SELECT
     *
 FROM
     base_tbl;
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view1
+EXPLAIN (costs off)
+UPDATE rw_view1
 SET
     a = 6
 WHERE
     a = 5;
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view1
-WHERE a = 5;
+EXPLAIN (costs off)
+DELETE FROM rw_view1
+WHERE
+    a = 5;
 
 DROP TABLE base_tbl CASCADE;
 
 -- view on top of view
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
@@ -615,55 +631,55 @@ WHERE
 ORDER BY
     ordinal_position;
 
-INSERT INTO rw_view2
-    VALUES (3, 'Row 3');
+INSERT INTO
+    rw_view2
+VALUES
+    (3, 'Row 3');
 
-INSERT INTO rw_view2 (aaa)
-    VALUES (4);
+INSERT INTO
+    rw_view2 (aaa)
+VALUES
+    (4);
 
 SELECT
     *
 FROM
     rw_view2;
 
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     bbb = 'Row 4'
 WHERE
     aaa = 4;
 
 DELETE FROM rw_view2
-WHERE aaa = 2;
+WHERE
+    aaa = 2;
 
 SELECT
     *
 FROM
     rw_view2;
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view2
+EXPLAIN (costs off)
+UPDATE rw_view2
 SET
     aaa = 5
 WHERE
     aaa = 4;
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view2
-WHERE aaa = 4;
+EXPLAIN (costs off)
+DELETE FROM rw_view2
+WHERE
+    aaa = 4;
 
 DROP TABLE base_tbl CASCADE;
 
 -- view on top of view with rules
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
@@ -676,7 +692,9 @@ SELECT
 FROM
     base_tbl
 WHERE
-    a > 0 OFFSET 0;
+    a > 0
+OFFSET
+    0;
 
 -- not updatable without rules/triggers
 CREATE VIEW rw_view2 AS
@@ -720,9 +738,11 @@ ORDER BY
     table_name,
     ordinal_position;
 
-CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1
-    DO INSTEAD
-    INSERT INTO base_tbl VALUES (NEW.a, NEW.b)
+CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1 DO INSTEAD
+INSERT INTO
+    base_tbl
+VALUES
+    (NEW.a, NEW.b)
 RETURNING
     *;
 
@@ -759,94 +779,96 @@ ORDER BY
     table_name,
     ordinal_position;
 
-CREATE RULE rw_view1_upd_rule AS ON UPDATE
-    TO rw_view1
-        DO INSTEAD
-        UPDATE
-            base_tbl SET
-            b = NEW.b WHERE
-            a = OLD.a RETURNING
-            NEW.*;
-
-SELECT
-    table_name,
-    is_insertable_into
-FROM
-    information_schema.tables
+CREATE RULE rw_view1_upd_rule AS ON UPDATE TO rw_view1 DO INSTEAD
+UPDATE base_tbl
+SET
+    b = NEW.b
 WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name;
-
-SELECT
-    table_name,
-    is_updatable,
-    is_insertable_into
-FROM
-    information_schema.views
-WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name;
-
-SELECT
-    table_name,
-    column_name,
-    is_updatable
-FROM
-    information_schema.columns
-WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name,
-    ordinal_position;
-
-CREATE RULE rw_view1_del_rule AS ON DELETE TO rw_view1
-    DO INSTEAD
-    DELETE FROM base_tbl
-    WHERE a = OLD.a RETURNING
-        OLD.*;
-
-SELECT
-    table_name,
-    is_insertable_into
-FROM
-    information_schema.tables
-WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name;
-
-SELECT
-    table_name,
-    is_updatable,
-    is_insertable_into
-FROM
-    information_schema.views
-WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name;
-
-SELECT
-    table_name,
-    column_name,
-    is_updatable
-FROM
-    information_schema.columns
-WHERE
-    table_name LIKE 'rw_view%'
-ORDER BY
-    table_name,
-    ordinal_position;
-
-INSERT INTO rw_view2
-    VALUES (3, 'Row 3')
+    a = OLD.a
 RETURNING
-    *;
+    NEW.*;
 
-UPDATE
+SELECT
+    table_name,
+    is_insertable_into
+FROM
+    information_schema.tables
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name;
+
+SELECT
+    table_name,
+    is_updatable,
+    is_insertable_into
+FROM
+    information_schema.views
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name;
+
+SELECT
+    table_name,
+    column_name,
+    is_updatable
+FROM
+    information_schema.columns
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name,
+    ordinal_position;
+
+CREATE RULE rw_view1_del_rule AS ON DELETE TO rw_view1 DO INSTEAD
+DELETE FROM base_tbl
+WHERE
+    a = OLD.a
+RETURNING
+    OLD.*;
+
+SELECT
+    table_name,
+    is_insertable_into
+FROM
+    information_schema.tables
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name;
+
+SELECT
+    table_name,
+    is_updatable,
+    is_insertable_into
+FROM
+    information_schema.views
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name;
+
+SELECT
+    table_name,
+    column_name,
+    is_updatable
+FROM
+    information_schema.columns
+WHERE
+    table_name LIKE 'rw_view%'
+ORDER BY
+    table_name,
+    ordinal_position;
+
+INSERT INTO
     rw_view2
+VALUES
+    (3, 'Row 3')
+RETURNING
+    *;
+
+UPDATE rw_view2
 SET
     b = 'Row three'
 WHERE
@@ -860,7 +882,8 @@ FROM
     rw_view2;
 
 DELETE FROM rw_view2
-WHERE a = 3
+WHERE
+    a = 3
 RETURNING
     *;
 
@@ -869,29 +892,25 @@ SELECT
 FROM
     rw_view2;
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view2
+EXPLAIN (costs off)
+UPDATE rw_view2
 SET
     a = 3
 WHERE
     a = 2;
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view2
-WHERE a = 2;
+EXPLAIN (costs off)
+DELETE FROM rw_view2
+WHERE
+    a = 2;
 
 DROP TABLE base_tbl CASCADE;
 
 -- view on top of view with triggers
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
@@ -904,7 +923,9 @@ SELECT
 FROM
     base_tbl
 WHERE
-    a > 0 OFFSET 0;
+    a > 0
+OFFSET
+    0;
 
 -- not updatable without rules/triggers
 CREATE VIEW rw_view2 AS
@@ -951,35 +972,23 @@ ORDER BY
     table_name,
     ordinal_position;
 
-CREATE FUNCTION rw_view1_trig_fn ()
-    RETURNS TRIGGER
-    AS $$
+CREATE FUNCTION rw_view1_trig_fn () RETURNS trigger AS $$
 BEGIN
-    IF TG_OP = 'INSERT' THEN
-        INSERT INTO base_tbl
-            VALUES (NEW.a, NEW.b);
-        RETURN NEW;
-    ELSIF TG_OP = 'UPDATE' THEN
-        UPDATE
-            base_tbl
-        SET
-            b = NEW.b
-        WHERE
-            a = OLD.a;
-        RETURN NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        DELETE FROM base_tbl
-        WHERE a = OLD.a;
-        RETURN OLD;
-    END IF;
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO base_tbl VALUES (NEW.a, NEW.b);
+    RETURN NEW;
+  ELSIF TG_OP = 'UPDATE' THEN
+    UPDATE base_tbl SET b=NEW.b WHERE a=OLD.a;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    DELETE FROM base_tbl WHERE a=OLD.a;
+    RETURN OLD;
+  END IF;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER rw_view1_ins_trig
-    INSTEAD OF INSERT ON rw_view1
-    FOR EACH ROW
-    EXECUTE PROCEDURE rw_view1_trig_fn ();
+CREATE TRIGGER rw_view1_ins_trig INSTEAD OF INSERT ON rw_view1 FOR EACH ROW
+EXECUTE PROCEDURE rw_view1_trig_fn ();
 
 SELECT
     table_name,
@@ -1017,10 +1026,9 @@ ORDER BY
     table_name,
     ordinal_position;
 
-CREATE TRIGGER rw_view1_upd_trig
-    INSTEAD OF UPDATE ON rw_view1
-    FOR EACH ROW
-    EXECUTE PROCEDURE rw_view1_trig_fn ();
+CREATE TRIGGER rw_view1_upd_trig INSTEAD OF
+UPDATE ON rw_view1 FOR EACH ROW
+EXECUTE PROCEDURE rw_view1_trig_fn ();
 
 SELECT
     table_name,
@@ -1058,10 +1066,8 @@ ORDER BY
     table_name,
     ordinal_position;
 
-CREATE TRIGGER rw_view1_del_trig
-    INSTEAD OF DELETE ON rw_view1
-    FOR EACH ROW
-    EXECUTE PROCEDURE rw_view1_trig_fn ();
+CREATE TRIGGER rw_view1_del_trig INSTEAD OF DELETE ON rw_view1 FOR EACH ROW
+EXECUTE PROCEDURE rw_view1_trig_fn ();
 
 SELECT
     table_name,
@@ -1099,13 +1105,14 @@ ORDER BY
     table_name,
     ordinal_position;
 
-INSERT INTO rw_view2
-    VALUES (3, 'Row 3')
+INSERT INTO
+    rw_view2
+VALUES
+    (3, 'Row 3')
 RETURNING
     *;
 
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'Row three'
 WHERE
@@ -1119,7 +1126,8 @@ FROM
     rw_view2;
 
 DELETE FROM rw_view2
-WHERE a = 3
+WHERE
+    a = 3
 RETURNING
     *;
 
@@ -1128,31 +1136,27 @@ SELECT
 FROM
     rw_view2;
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view2
+EXPLAIN (costs off)
+UPDATE rw_view2
 SET
     a = 3
 WHERE
     a = 2;
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view2
-WHERE a = 2;
+EXPLAIN (costs off)
+DELETE FROM rw_view2
+WHERE
+    a = 2;
 
 DROP TABLE base_tbl CASCADE;
 
 DROP FUNCTION rw_view1_trig_fn ();
 
 -- update using whole row from view
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i,
     'Row ' || i
@@ -1166,16 +1170,9 @@ SELECT
 FROM
     base_tbl;
 
-CREATE FUNCTION rw_view1_aa (x rw_view1)
-    RETURNS int
-    AS $$
-    SELECT
-        x.aa
-$$
-LANGUAGE sql;
+CREATE FUNCTION rw_view1_aa (x rw_view1) RETURNS int AS $$ SELECT x.aa $$ LANGUAGE sql;
 
-UPDATE
-    rw_view1 v
+UPDATE rw_view1 v
 SET
     bb = 'Updated row 2'
 WHERE
@@ -1189,10 +1186,8 @@ SELECT
 FROM
     base_tbl;
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view1 v
+EXPLAIN (costs off)
+UPDATE rw_view1 v
 SET
     bb = 'Updated row 2'
 WHERE
@@ -1210,14 +1205,12 @@ CREATE USER regress_view_user2;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
-CREATE TABLE base_tbl (
-    a int,
-    b text,
-    c float
-);
+CREATE TABLE base_tbl (a int, b text, c float);
 
-INSERT INTO base_tbl
-    VALUES (1, 'Row 1', 1.0);
+INSERT INTO
+    base_tbl
+VALUES
+    (1, 'Row 1', 1.0);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -1227,16 +1220,24 @@ SELECT
 FROM
     base_tbl;
 
-INSERT INTO rw_view1
-    VALUES ('Row 2', 2.0, 2);
+INSERT INTO
+    rw_view1
+VALUES
+    ('Row 2', 2.0, 2);
 
-GRANT SELECT ON base_tbl TO regress_view_user2;
+GRANT
+SELECT
+    ON base_tbl TO regress_view_user2;
 
-GRANT SELECT ON rw_view1 TO regress_view_user2;
+GRANT
+SELECT
+    ON rw_view1 TO regress_view_user2;
 
-GRANT UPDATE (a, c) ON base_tbl TO regress_view_user2;
+GRANT
+UPDATE (a, c) ON base_tbl TO regress_view_user2;
 
-GRANT UPDATE (bb, cc) ON rw_view1 TO regress_view_user2;
+GRANT
+UPDATE (bb, cc) ON rw_view1 TO regress_view_user2;
 
 RESET SESSION AUTHORIZATION;
 
@@ -1268,53 +1269,53 @@ FROM
     rw_view2;
 
 -- ok
-INSERT INTO base_tbl
-    VALUES (3, 'Row 3', 3.0);
-
--- not allowed
-INSERT INTO rw_view1
-    VALUES ('Row 3', 3.0, 3);
-
--- not allowed
-INSERT INTO rw_view2
-    VALUES ('Row 3', 3.0, 3);
-
--- not allowed
-UPDATE
+INSERT INTO
     base_tbl
+VALUES
+    (3, 'Row 3', 3.0);
+
+-- not allowed
+INSERT INTO
+    rw_view1
+VALUES
+    ('Row 3', 3.0, 3);
+
+-- not allowed
+INSERT INTO
+    rw_view2
+VALUES
+    ('Row 3', 3.0, 3);
+
+-- not allowed
+UPDATE base_tbl
 SET
     a = a,
     c = c;
 
 -- ok
-UPDATE
-    base_tbl
+UPDATE base_tbl
 SET
     b = b;
 
 -- not allowed
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     bb = bb,
     cc = cc;
 
 -- ok
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     aa = aa;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     aa = aa,
     cc = cc;
 
 -- ok
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     bb = bb;
 
@@ -1332,34 +1333,44 @@ RESET SESSION AUTHORIZATION;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
-GRANT INSERT, DELETE ON base_tbl TO regress_view_user2;
+GRANT INSERT,
+DELETE ON base_tbl TO regress_view_user2;
 
 RESET SESSION AUTHORIZATION;
 
 SET SESSION AUTHORIZATION regress_view_user2;
 
-INSERT INTO base_tbl
-    VALUES (3, 'Row 3', 3.0);
+INSERT INTO
+    base_tbl
+VALUES
+    (3, 'Row 3', 3.0);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES ('Row 4', 4.0, 4);
+INSERT INTO
+    rw_view1
+VALUES
+    ('Row 4', 4.0, 4);
 
 -- not allowed
-INSERT INTO rw_view2
-    VALUES ('Row 4', 4.0, 4);
+INSERT INTO
+    rw_view2
+VALUES
+    ('Row 4', 4.0, 4);
 
 -- ok
 DELETE FROM base_tbl
-WHERE a = 1;
+WHERE
+    a = 1;
 
 -- ok
 DELETE FROM rw_view1
-WHERE aa = 2;
+WHERE
+    aa = 2;
 
 -- not allowed
 DELETE FROM rw_view2
-WHERE aa = 2;
+WHERE
+    aa = 2;
 
 -- ok
 SELECT
@@ -1371,36 +1382,49 @@ RESET SESSION AUTHORIZATION;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
-REVOKE INSERT, DELETE ON base_tbl FROM regress_view_user2;
+REVOKE INSERT,
+DELETE ON base_tbl
+FROM
+    regress_view_user2;
 
-GRANT INSERT, DELETE ON rw_view1 TO regress_view_user2;
+GRANT INSERT,
+DELETE ON rw_view1 TO regress_view_user2;
 
 RESET SESSION AUTHORIZATION;
 
 SET SESSION AUTHORIZATION regress_view_user2;
 
-INSERT INTO base_tbl
-    VALUES (5, 'Row 5', 5.0);
+INSERT INTO
+    base_tbl
+VALUES
+    (5, 'Row 5', 5.0);
 
 -- not allowed
-INSERT INTO rw_view1
-    VALUES ('Row 5', 5.0, 5);
+INSERT INTO
+    rw_view1
+VALUES
+    ('Row 5', 5.0, 5);
 
 -- ok
-INSERT INTO rw_view2
-    VALUES ('Row 6', 6.0, 6);
+INSERT INTO
+    rw_view2
+VALUES
+    ('Row 6', 6.0, 6);
 
 -- not allowed
 DELETE FROM base_tbl
-WHERE a = 3;
+WHERE
+    a = 3;
 
 -- not allowed
 DELETE FROM rw_view1
-WHERE aa = 3;
+WHERE
+    aa = 3;
 
 -- ok
 DELETE FROM rw_view2
-WHERE aa = 4;
+WHERE
+    aa = 4;
 
 -- not allowed
 SELECT
@@ -1413,14 +1437,12 @@ RESET SESSION AUTHORIZATION;
 DROP TABLE base_tbl CASCADE;
 
 -- nested-view permissions
-CREATE TABLE base_tbl (
-    a int,
-    b text,
-    c float
-);
+CREATE TABLE base_tbl (a int, b text, c float);
 
-INSERT INTO base_tbl
-    VALUES (1, 'Row 1', 1.0);
+INSERT INTO
+    base_tbl
+VALUES
+    (1, 'Row 1', 1.0);
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
@@ -1443,8 +1465,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = 'foo'
 WHERE
@@ -1472,8 +1493,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1482,7 +1502,9 @@ WHERE
 -- not allowed
 RESET SESSION AUTHORIZATION;
 
-GRANT SELECT ON base_tbl TO regress_view_user1;
+GRANT
+SELECT
+    ON base_tbl TO regress_view_user1;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
@@ -1498,8 +1520,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = 'foo'
 WHERE
@@ -1521,8 +1542,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1531,7 +1551,9 @@ WHERE
 -- not allowed
 SET SESSION AUTHORIZATION regress_view_user1;
 
-GRANT SELECT ON rw_view1 TO regress_view_user2;
+GRANT
+SELECT
+    ON rw_view1 TO regress_view_user2;
 
 SET SESSION AUTHORIZATION regress_view_user2;
 
@@ -1547,8 +1569,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1557,7 +1578,8 @@ WHERE
 -- not allowed
 RESET SESSION AUTHORIZATION;
 
-GRANT UPDATE ON base_tbl TO regress_view_user1;
+GRANT
+UPDATE ON base_tbl TO regress_view_user1;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
@@ -1572,8 +1594,7 @@ FROM
     rw_view1
 FOR UPDATE;
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = 'foo'
 WHERE
@@ -1593,8 +1614,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1603,7 +1623,8 @@ WHERE
 -- not allowed
 SET SESSION AUTHORIZATION regress_view_user1;
 
-GRANT UPDATE ON rw_view1 TO regress_view_user2;
+GRANT
+UPDATE ON rw_view1 TO regress_view_user2;
 
 SET SESSION AUTHORIZATION regress_view_user2;
 
@@ -1618,8 +1639,7 @@ FROM
     rw_view2
 FOR UPDATE;
 
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1627,7 +1647,10 @@ WHERE
 
 RESET SESSION AUTHORIZATION;
 
-REVOKE UPDATE ON base_tbl FROM regress_view_user1;
+REVOKE
+UPDATE ON base_tbl
+FROM
+    regress_view_user1;
 
 SET SESSION AUTHORIZATION regress_view_user1;
 
@@ -1643,8 +1666,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = 'foo'
 WHERE
@@ -1665,8 +1687,7 @@ FROM
 FOR UPDATE;
 
 -- not allowed
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     b = 'bar'
 WHERE
@@ -1685,17 +1706,22 @@ DROP USER regress_view_user2;
 CREATE TABLE base_tbl (
     a int PRIMARY KEY,
     b text DEFAULT 'Unspecified',
-    c serial
-);
+    c serial);
 
-INSERT INTO base_tbl
-    VALUES (1, 'Row 1');
+INSERT INTO
+    base_tbl
+VALUES
+    (1, 'Row 1');
 
-INSERT INTO base_tbl
-    VALUES (2, 'Row 2');
+INSERT INTO
+    base_tbl
+VALUES
+    (2, 'Row 2');
 
-INSERT INTO base_tbl
-    VALUES (3);
+INSERT INTO
+    base_tbl
+VALUES
+    (3);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -1705,13 +1731,18 @@ FROM
     base_tbl;
 
 ALTER VIEW rw_view1
-    ALTER COLUMN bb SET DEFAULT 'View default';
+ALTER COLUMN bb
+SET DEFAULT 'View default';
 
-INSERT INTO rw_view1
-    VALUES (4, 'Row 4');
+INSERT INTO
+    rw_view1
+VALUES
+    (4, 'Row 4');
 
-INSERT INTO rw_view1 (aa)
-    VALUES (5);
+INSERT INTO
+    rw_view1 (aa)
+VALUES
+    (5);
 
 SELECT
     *
@@ -1721,39 +1752,31 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- Table having triggers
-CREATE TABLE base_tbl (
-    a int PRIMARY KEY,
-    b text DEFAULT 'Unspecified'
-);
+CREATE TABLE base_tbl (a int PRIMARY KEY, b text DEFAULT 'Unspecified');
 
-INSERT INTO base_tbl
-    VALUES (1, 'Row 1');
+INSERT INTO
+    base_tbl
+VALUES
+    (1, 'Row 1');
 
-INSERT INTO base_tbl
-    VALUES (2, 'Row 2');
+INSERT INTO
+    base_tbl
+VALUES
+    (2, 'Row 2');
 
-CREATE FUNCTION rw_view1_trig_fn ()
-    RETURNS TRIGGER
-    AS $$
+CREATE FUNCTION rw_view1_trig_fn () RETURNS trigger AS $$
 BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE
-            base_tbl
-        SET
-            b = NEW.b
-        WHERE
-            a = 1;
-        RETURN NULL;
-    END IF;
+  IF TG_OP = 'INSERT' THEN
+    UPDATE base_tbl SET b=NEW.b WHERE a=1;
     RETURN NULL;
+  END IF;
+  RETURN NULL;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER rw_view1_ins_trig
-    AFTER INSERT ON base_tbl
-    FOR EACH ROW
-    EXECUTE PROCEDURE rw_view1_trig_fn ();
+AFTER INSERT ON base_tbl FOR EACH ROW
+EXECUTE PROCEDURE rw_view1_trig_fn ();
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -1762,8 +1785,10 @@ SELECT
 FROM
     base_tbl;
 
-INSERT INTO rw_view1
-    VALUES (3, 'Row 3');
+INSERT INTO
+    rw_view1
+VALUES
+    (3, 'Row 3');
 
 SELECT
     *
@@ -1779,12 +1804,10 @@ DROP FUNCTION rw_view1_trig_fn ();
 DROP TABLE base_tbl;
 
 -- view with ORDER BY
-CREATE TABLE base_tbl (
-    a int,
-    b int
-);
+CREATE TABLE base_tbl (a int, b int);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 VALUES
     (1, 2),
     (4, 5),
@@ -1803,26 +1826,24 @@ SELECT
 FROM
     rw_view1;
 
-INSERT INTO rw_view1
-    VALUES (7, -8);
+INSERT INTO
+    rw_view1
+VALUES
+    (7, -8);
 
 SELECT
     *
 FROM
     rw_view1;
 
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-) UPDATE
-    rw_view1
+EXPLAIN (VERBOSE, costs off)
+UPDATE rw_view1
 SET
     b = b + 1
 RETURNING
     *;
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = b + 1
 RETURNING
@@ -1836,12 +1857,10 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- multiple array-column updates
-CREATE TABLE base_tbl (
-    a int,
-    arr int[]
-);
+CREATE TABLE base_tbl (a int, arr INT[]);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 VALUES
     (1, ARRAY[2]),
     (3, ARRAY[4]);
@@ -1852,8 +1871,7 @@ SELECT
 FROM
     base_tbl;
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     arr[1] = 42,
     arr[2] = 77
@@ -1868,11 +1886,10 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- views with updatable and non-updatable columns
-CREATE TABLE base_tbl (
-    a float
-);
+CREATE TABLE base_tbl (a float);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 SELECT
     i / 10.0
 FROM
@@ -1891,30 +1908,36 @@ WHERE
 ORDER BY
     abs(a);
 
-INSERT INTO rw_view1
-    VALUES (NULL, NULL, 1.1, NULL);
+INSERT INTO
+    rw_view1
+VALUES
+    (NULL, NULL, 1.1, NULL);
 
 -- should fail
-INSERT INTO rw_view1 (s, c, a)
-    VALUES (NULL, NULL, 1.1);
+INSERT INTO
+    rw_view1 (s, c, a)
+VALUES
+    (NULL, NULL, 1.1);
 
 -- should fail
-INSERT INTO rw_view1 (a)
-    VALUES (1.1)
+INSERT INTO
+    rw_view1 (a)
+VALUES
+    (1.1)
 RETURNING
-    a, s, c;
+    a,
+    s,
+    c;
 
 -- OK
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     s = s
 WHERE
     a = 1.1;
 
 -- should fail
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = 1.05
 WHERE
@@ -1924,7 +1947,8 @@ RETURNING
 
 -- OK
 DELETE FROM rw_view1
-WHERE a = 1.05;
+WHERE
+    a = 1.05;
 
 -- OK
 CREATE VIEW rw_view2 AS
@@ -1937,38 +1961,41 @@ SELECT
 FROM
     rw_view1;
 
-INSERT INTO rw_view2
-    VALUES (NULL, NULL, NULL, 1.1, NULL);
+INSERT INTO
+    rw_view2
+VALUES
+    (NULL, NULL, NULL, 1.1, NULL);
 
 -- should fail
-INSERT INTO rw_view2 (s, c, base_a)
-    VALUES (NULL, NULL, 1.1);
+INSERT INTO
+    rw_view2 (s, c, base_a)
+VALUES
+    (NULL, NULL, 1.1);
 
 -- should fail
-INSERT INTO rw_view2 (base_a)
-    VALUES (1.1)
+INSERT INTO
+    rw_view2 (base_a)
+VALUES
+    (1.1)
 RETURNING
     t;
 
 -- OK
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     s = s
 WHERE
     base_a = 1.1;
 
 -- should fail
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     t = t
 WHERE
     base_a = 1.1;
 
 -- should fail
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     base_a = 1.05
 WHERE
@@ -1976,7 +2003,8 @@ WHERE
 
 -- OK
 DELETE FROM rw_view2
-WHERE base_a = 1.05
+WHERE
+    base_a = 1.05
 RETURNING
     base_a,
     s,
@@ -1993,22 +2021,26 @@ SELECT
 FROM
     rw_view1;
 
-INSERT INTO rw_view3
-    VALUES (NULL, NULL, NULL, NULL);
-
--- should fail
-INSERT INTO rw_view3 (s)
-    VALUES (NULL);
-
--- should fail
-UPDATE
+INSERT INTO
     rw_view3
+VALUES
+    (NULL, NULL, NULL, NULL);
+
+-- should fail
+INSERT INTO
+    rw_view3 (s)
+VALUES
+    (NULL);
+
+-- should fail
+UPDATE rw_view3
 SET
     s = s;
 
 -- should fail
 DELETE FROM rw_view3
-WHERE s = sin(0.1);
+WHERE
+    s = sin(0.1);
 
 -- should be OK
 SELECT
@@ -2061,24 +2093,19 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- inheritance tests
-CREATE TABLE base_tbl_parent (
-    a int
-);
+CREATE TABLE base_tbl_parent (a int);
 
-CREATE TABLE base_tbl_child (
-    CHECK (a > 0)
-)
-INHERITS (
+CREATE TABLE base_tbl_child (CHECK (a > 0)) INHERITS (base_tbl_parent);
+
+INSERT INTO
     base_tbl_parent
-);
-
-INSERT INTO base_tbl_parent
 SELECT
     *
 FROM
     generate_series(-8, -1);
 
-INSERT INTO base_tbl_child
+INSERT INTO
+    base_tbl_child
 SELECT
     *
 FROM
@@ -2117,42 +2144,40 @@ FROM
 ORDER BY
     a;
 
-INSERT INTO rw_view1
+INSERT INTO
+    rw_view1
 VALUES
     (-100),
     (100);
 
-INSERT INTO rw_view2
+INSERT INTO
+    rw_view2
 VALUES
     (-200),
     (200);
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = a * 10
 WHERE
     a IN (-1, 1);
 
 -- Should produce -10 and 10
-UPDATE
-    ONLY rw_view1
+UPDATE ONLY rw_view1
 SET
     a = a * 10
 WHERE
     a IN (-2, 2);
 
 -- Should produce -20 and 20
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = a * 10
 WHERE
     a IN (-3, 3);
 
 -- Should produce -30 only
-UPDATE
-    ONLY rw_view2
+UPDATE ONLY rw_view2
 SET
     a = a * 10
 WHERE
@@ -2160,19 +2185,23 @@ WHERE
 
 -- Should produce -40 only
 DELETE FROM rw_view1
-WHERE a IN (-5, 5);
+WHERE
+    a IN (-5, 5);
 
 -- Should delete -5 and 5
 DELETE FROM ONLY rw_view1
-WHERE a IN (-6, 6);
+WHERE
+    a IN (-6, 6);
 
 -- Should delete -6 and 6
 DELETE FROM rw_view2
-WHERE a IN (-7, 7);
+WHERE
+    a IN (-7, 7);
 
 -- Should delete -7 only
 DELETE FROM ONLY rw_view2
-WHERE a IN (-8, 8);
+WHERE
+    a IN (-8, 8);
 
 -- Should delete -8 only
 SELECT
@@ -2189,29 +2218,24 @@ FROM
 ORDER BY
     a;
 
-CREATE TABLE other_tbl_parent (
-    id int
-);
+CREATE TABLE other_tbl_parent (id int);
 
-CREATE TABLE other_tbl_child ()
-INHERITS (
+CREATE TABLE other_tbl_child () INHERITS (other_tbl_parent);
+
+INSERT INTO
     other_tbl_parent
-);
-
-INSERT INTO other_tbl_parent
 VALUES
     (7),
     (200);
 
-INSERT INTO other_tbl_child
+INSERT INTO
+    other_tbl_child
 VALUES
     (8),
     (100);
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view1
+EXPLAIN (costs off)
+UPDATE rw_view1
 SET
     a = a + 1000
 FROM
@@ -2219,8 +2243,7 @@ FROM
 WHERE
     a = id;
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = a + 1000
 FROM
@@ -2242,17 +2265,16 @@ FROM
 ORDER BY
     a;
 
-DROP TABLE base_tbl_parent, base_tbl_child CASCADE;
+DROP TABLE base_tbl_parent,
+base_tbl_child CASCADE;
 
 DROP TABLE other_tbl_parent CASCADE;
 
 -- simple WITH CHECK OPTION
-CREATE TABLE base_tbl (
-    a int,
-    b int DEFAULT 10
-);
+CREATE TABLE base_tbl (a int, b int DEFAULT 10);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 VALUES
     (1, 2),
     (2, 3),
@@ -2264,7 +2286,9 @@ SELECT
 FROM
     base_tbl
 WHERE
-    a < b WITH LOCAL CHECK OPTION;
+    a < b
+WITH
+    LOCAL CHECK OPTION;
 
 \d+ rw_view1
 SELECT
@@ -2274,40 +2298,48 @@ FROM
 WHERE
     table_name = 'rw_view1';
 
-INSERT INTO rw_view1
-    VALUES (3, 4);
+INSERT INTO
+    rw_view1
+VALUES
+    (3, 4);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES (4, 3);
-
--- should fail
-INSERT INTO rw_view1
-    VALUES (5, NULL);
-
--- should fail
-UPDATE
+INSERT INTO
     rw_view1
+VALUES
+    (4, 3);
+
+-- should fail
+INSERT INTO
+    rw_view1
+VALUES
+    (5, NULL);
+
+-- should fail
+UPDATE rw_view1
 SET
     b = 5
 WHERE
     a = 3;
 
 -- ok
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b = -5
 WHERE
     a = 3;
 
 -- should fail
-INSERT INTO rw_view1 (a)
-    VALUES (9);
+INSERT INTO
+    rw_view1 (a)
+VALUES
+    (9);
 
 -- ok
-INSERT INTO rw_view1 (a)
-    VALUES (10);
+INSERT INTO
+    rw_view1 (a)
+VALUES
+    (10);
 
 -- should fail
 SELECT
@@ -2318,9 +2350,7 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- WITH LOCAL/CASCADED CHECK OPTION
-CREATE TABLE base_tbl (
-    a int
-);
+CREATE TABLE base_tbl (a int);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -2336,7 +2366,9 @@ SELECT
 FROM
     rw_view1
 WHERE
-    a < 10 WITH CHECK OPTION;
+    a < 10
+WITH
+    CHECK OPTION;
 
 -- implicitly cascaded
 \d+ rw_view2
@@ -2347,16 +2379,22 @@ FROM
 WHERE
     table_name = 'rw_view2';
 
-INSERT INTO rw_view2
-    VALUES (-5);
+INSERT INTO
+    rw_view2
+VALUES
+    (-5);
 
 -- should fail
-INSERT INTO rw_view2
-    VALUES (5);
+INSERT INTO
+    rw_view2
+VALUES
+    (5);
 
 -- ok
-INSERT INTO rw_view2
-    VALUES (15);
+INSERT INTO
+    rw_view2
+VALUES
+    (15);
 
 -- should fail
 SELECT
@@ -2364,14 +2402,12 @@ SELECT
 FROM
     base_tbl;
 
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = a - 10;
 
 -- should fail
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = a + 10;
 
@@ -2382,7 +2418,9 @@ SELECT
 FROM
     rw_view1
 WHERE
-    a < 10 WITH LOCAL CHECK OPTION;
+    a < 10
+WITH
+    LOCAL CHECK OPTION;
 
 \d+ rw_view2
 SELECT
@@ -2392,12 +2430,16 @@ FROM
 WHERE
     table_name = 'rw_view2';
 
-INSERT INTO rw_view2
-    VALUES (-10);
+INSERT INTO
+    rw_view2
+VALUES
+    (-10);
 
 -- ok, but not in view
-INSERT INTO rw_view2
-    VALUES (20);
+INSERT INTO
+    rw_view2
+VALUES
+    (20);
 
 -- should fail
 SELECT
@@ -2405,20 +2447,29 @@ SELECT
 FROM
     base_tbl;
 
-ALTER VIEW rw_view1 SET (check_option = here);
+ALTER VIEW rw_view1
+SET
+    (check_option = here);
 
 -- invalid
-ALTER VIEW rw_view1 SET (check_option = local);
+ALTER VIEW rw_view1
+SET
+    (check_option = local);
 
-INSERT INTO rw_view2
-    VALUES (-20);
+INSERT INTO
+    rw_view2
+VALUES
+    (-20);
 
 -- should fail
-INSERT INTO rw_view2
-    VALUES (30);
+INSERT INTO
+    rw_view2
+VALUES
+    (30);
 
 -- should fail
-ALTER VIEW rw_view2 RESET (check_option);
+ALTER VIEW rw_view2
+RESET (check_option);
 
 \d+ rw_view2
 SELECT
@@ -2428,8 +2479,10 @@ FROM
 WHERE
     table_name = 'rw_view2';
 
-INSERT INTO rw_view2
-    VALUES (30);
+INSERT INTO
+    rw_view2
+VALUES
+    (30);
 
 -- ok, but not in view
 SELECT
@@ -2440,15 +2493,15 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- WITH CHECK OPTION with no local view qual
-CREATE TABLE base_tbl (
-    a int
-);
+CREATE TABLE base_tbl (a int);
 
 CREATE VIEW rw_view1 AS
 SELECT
     *
 FROM
-    base_tbl WITH CHECK OPTION;
+    base_tbl
+WITH
+    CHECK OPTION;
 
 CREATE VIEW rw_view2 AS
 SELECT
@@ -2462,7 +2515,9 @@ CREATE VIEW rw_view3 AS
 SELECT
     *
 FROM
-    rw_view2 WITH CHECK OPTION;
+    rw_view2
+WITH
+    CHECK OPTION;
 
 SELECT
     *
@@ -2473,37 +2528,46 @@ WHERE
 ORDER BY
     table_name;
 
-INSERT INTO rw_view1
-    VALUES (-1);
+INSERT INTO
+    rw_view1
+VALUES
+    (-1);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES (1);
+INSERT INTO
+    rw_view1
+VALUES
+    (1);
 
 -- ok
-INSERT INTO rw_view2
-    VALUES (-2);
+INSERT INTO
+    rw_view2
+VALUES
+    (-2);
 
 -- ok, but not in view
-INSERT INTO rw_view2
-    VALUES (2);
+INSERT INTO
+    rw_view2
+VALUES
+    (2);
 
 -- ok
-INSERT INTO rw_view3
-    VALUES (-3);
+INSERT INTO
+    rw_view3
+VALUES
+    (-3);
 
 -- should fail
-INSERT INTO rw_view3
-    VALUES (3);
+INSERT INTO
+    rw_view3
+VALUES
+    (3);
 
 -- ok
 DROP TABLE base_tbl CASCADE;
 
 -- WITH CHECK OPTION with scalar array ops
-CREATE TABLE base_tbl (
-    a int,
-    b int[]
-);
+CREATE TABLE base_tbl (a int, b INT[]);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -2511,37 +2575,41 @@ SELECT
 FROM
     base_tbl
 WHERE
-    a = ANY (b
-)
-    WITH CHECK OPTION;
+    a = ANY (b)
+WITH
+    CHECK OPTION;
 
-INSERT INTO rw_view1
-    VALUES (1, ARRAY[1, 2, 3]);
+INSERT INTO
+    rw_view1
+VALUES
+    (1, ARRAY[1, 2, 3]);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES (10, ARRAY[4, 5]);
+INSERT INTO
+    rw_view1
+VALUES
+    (10, ARRAY[4, 5]);
 
 -- should fail
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b[2] = - b[2]
 WHERE
     a = 1;
 
 -- ok
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     b[1] = - b[1]
 WHERE
     a = 1;
 
 -- should fail
-PREPARE ins (int, int[]) AS
-INSERT INTO rw_view1
-    VALUES ($1, $2);
+PREPARE ins (int, INT[]) AS
+INSERT INTO
+    rw_view1
+VALUES
+    ($1, $2);
 
 EXECUTE ins (2, ARRAY[1, 2, 3]);
 
@@ -2549,20 +2617,18 @@ EXECUTE ins (2, ARRAY[1, 2, 3]);
 EXECUTE ins (10, ARRAY[4, 5]);
 
 -- should fail
-DEALLOCATE PREPARE ins;
+DEALLOCATE
+PREPARE ins;
 
 DROP TABLE base_tbl CASCADE;
 
 -- WITH CHECK OPTION with subquery
-CREATE TABLE base_tbl (
-    a int
-);
+CREATE TABLE base_tbl (a int);
 
-CREATE TABLE ref_tbl (
-    a int PRIMARY KEY
-);
+CREATE TABLE ref_tbl (a int PRIMARY KEY);
 
-INSERT INTO ref_tbl
+INSERT INTO
+    ref_tbl
 SELECT
     *
 FROM
@@ -2580,64 +2646,60 @@ WHERE
         FROM
             ref_tbl r
         WHERE
-            r.a = b.a
-)
-    WITH CHECK OPTION;
+            r.a = b.a)
+WITH
+    CHECK OPTION;
 
-INSERT INTO rw_view1
-    VALUES (5);
+INSERT INTO
+    rw_view1
+VALUES
+    (5);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES (15);
+INSERT INTO
+    rw_view1
+VALUES
+    (15);
 
 -- should fail
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = a + 5;
 
 -- ok
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = a + 5;
 
 -- should fail
-EXPLAIN (
-    COSTS OFF
-) INSERT INTO rw_view1
-    VALUES (5);
-
-EXPLAIN (
-    COSTS OFF
-) UPDATE
+EXPLAIN (costs off)
+INSERT INTO
     rw_view1
+VALUES
+    (5);
+
+EXPLAIN (costs off)
+UPDATE rw_view1
 SET
     a = a + 5;
 
-DROP TABLE base_tbl, ref_tbl CASCADE;
+DROP TABLE base_tbl,
+ref_tbl CASCADE;
 
 -- WITH CHECK OPTION with BEFORE trigger on base table
-CREATE TABLE base_tbl (
-    a int,
-    b int
-);
+CREATE TABLE base_tbl (a int, b int);
 
-CREATE FUNCTION base_tbl_trig_fn ()
-    RETURNS TRIGGER
-    AS $$
+CREATE FUNCTION base_tbl_trig_fn () RETURNS trigger AS $$
 BEGIN
-    NEW.b := 10;
-    RETURN NEW;
+  NEW.b := 10;
+  RETURN NEW;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER base_tbl_trig
-    BEFORE INSERT OR UPDATE ON base_tbl
-    FOR EACH ROW
-    EXECUTE PROCEDURE base_tbl_trig_fn ();
+CREATE TRIGGER base_tbl_trig BEFORE INSERT
+OR
+UPDATE ON base_tbl FOR EACH ROW
+EXECUTE PROCEDURE base_tbl_trig_fn ();
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -2645,18 +2707,23 @@ SELECT
 FROM
     base_tbl
 WHERE
-    a < b WITH CHECK OPTION;
+    a < b
+WITH
+    CHECK OPTION;
 
-INSERT INTO rw_view1
-    VALUES (5, 0);
+INSERT INTO
+    rw_view1
+VALUES
+    (5, 0);
 
 -- ok
-INSERT INTO rw_view1
-    VALUES (15, 20);
+INSERT INTO
+    rw_view1
+VALUES
+    (15, 20);
 
 -- should fail
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     a = 20,
     b = 30;
@@ -2667,10 +2734,7 @@ DROP TABLE base_tbl CASCADE;
 DROP FUNCTION base_tbl_trig_fn ();
 
 -- WITH LOCAL CHECK OPTION with INSTEAD OF trigger on base view
-CREATE TABLE base_tbl (
-    a int,
-    b int
-);
+CREATE TABLE base_tbl (a int, b int);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -2680,35 +2744,26 @@ FROM
 WHERE
     a < b;
 
-CREATE FUNCTION rw_view1_trig_fn ()
-    RETURNS TRIGGER
-    AS $$
+CREATE FUNCTION rw_view1_trig_fn () RETURNS trigger AS $$
 BEGIN
-    IF TG_OP = 'INSERT' THEN
-        INSERT INTO base_tbl
-            VALUES (NEW.a, 10);
-        RETURN NEW;
-    ELSIF TG_OP = 'UPDATE' THEN
-        UPDATE
-            base_tbl
-        SET
-            a = NEW.a
-        WHERE
-            a = OLD.a;
-        RETURN NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        DELETE FROM base_tbl
-        WHERE a = OLD.a;
-        RETURN OLD;
-    END IF;
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO base_tbl VALUES (NEW.a, 10);
+    RETURN NEW;
+  ELSIF TG_OP = 'UPDATE' THEN
+    UPDATE base_tbl SET a=NEW.a WHERE a=OLD.a;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    DELETE FROM base_tbl WHERE a=OLD.a;
+    RETURN OLD;
+  END IF;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER rw_view1_trig
-    INSTEAD OF INSERT OR UPDATE OR DELETE ON rw_view1
-    FOR EACH ROW
-    EXECUTE PROCEDURE rw_view1_trig_fn ();
+CREATE TRIGGER rw_view1_trig INSTEAD OF INSERT
+OR
+UPDATE
+OR DELETE ON rw_view1 FOR EACH ROW
+EXECUTE PROCEDURE rw_view1_trig_fn ();
 
 CREATE VIEW rw_view2 AS
 SELECT
@@ -2716,22 +2771,29 @@ SELECT
 FROM
     rw_view1
 WHERE
-    a > 0 WITH LOCAL CHECK OPTION;
+    a > 0
+WITH
+    LOCAL CHECK OPTION;
 
-INSERT INTO rw_view2
-    VALUES (-5);
+INSERT INTO
+    rw_view2
+VALUES
+    (-5);
 
 -- should fail
-INSERT INTO rw_view2
-    VALUES (5);
+INSERT INTO
+    rw_view2
+VALUES
+    (5);
 
 -- ok
-INSERT INTO rw_view2
-    VALUES (50);
+INSERT INTO
+    rw_view2
+VALUES
+    (50);
 
 -- ok, but not in view
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = a - 10;
 
@@ -2742,14 +2804,17 @@ FROM
     base_tbl;
 
 -- Check option won't cascade down to base view with INSTEAD OF triggers
-ALTER VIEW rw_view2 SET (check_option = cascaded);
+ALTER VIEW rw_view2
+SET
+    (check_option = cascaded);
 
-INSERT INTO rw_view2
-    VALUES (100);
+INSERT INTO
+    rw_view2
+VALUES
+    (100);
 
 -- ok, but not in view (doesn't fail rw_view1's check)
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = 200
 WHERE
@@ -2764,44 +2829,51 @@ FROM
 -- Neither local nor cascaded check options work with INSTEAD rules
 DROP TRIGGER rw_view1_trig ON rw_view1;
 
-CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1
-    DO INSTEAD
-    INSERT INTO base_tbl VALUES (NEW.a, 10);
+CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1 DO INSTEAD
+INSERT INTO
+    base_tbl
+VALUES
+    (NEW.a, 10);
 
-CREATE RULE rw_view1_upd_rule AS ON UPDATE
-    TO rw_view1
-        DO INSTEAD
-        UPDATE
-            base_tbl SET
-            a = NEW.a WHERE
-            a = OLD.a;
+CREATE RULE rw_view1_upd_rule AS ON UPDATE TO rw_view1 DO INSTEAD
+UPDATE base_tbl
+SET
+    a = NEW.a
+WHERE
+    a = OLD.a;
 
-INSERT INTO rw_view2
-    VALUES (-10);
+INSERT INTO
+    rw_view2
+VALUES
+    (-10);
 
 -- ok, but not in view (doesn't fail rw_view2's check)
-INSERT INTO rw_view2
-    VALUES (5);
+INSERT INTO
+    rw_view2
+VALUES
+    (5);
 
 -- ok
-INSERT INTO rw_view2
-    VALUES (20);
+INSERT INTO
+    rw_view2
+VALUES
+    (20);
 
 -- ok, but not in view (doesn't fail rw_view1's check)
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = 30
 WHERE
     a = 5;
 
 -- ok, but not in view (doesn't fail rw_view1's check)
-INSERT INTO rw_view2
-    VALUES (5);
+INSERT INTO
+    rw_view2
+VALUES
+    (5);
 
 -- ok
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     a = -5
 WHERE
@@ -2817,9 +2889,7 @@ DROP TABLE base_tbl CASCADE;
 
 DROP FUNCTION rw_view1_trig_fn ();
 
-CREATE TABLE base_tbl (
-    a int
-);
+CREATE TABLE base_tbl (a int);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -2828,9 +2898,11 @@ SELECT
 FROM
     base_tbl;
 
-CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1
-    DO INSTEAD
-    INSERT INTO base_tbl VALUES (NEW.a);
+CREATE RULE rw_view1_ins_rule AS ON INSERT TO rw_view1 DO INSTEAD
+INSERT INTO
+    base_tbl
+VALUES
+    (NEW.a);
 
 CREATE VIEW rw_view2 AS
 SELECT
@@ -2838,21 +2910,23 @@ SELECT
 FROM
     rw_view1
 WHERE
-    a > b WITH LOCAL CHECK OPTION;
+    a > b
+WITH
+    LOCAL CHECK OPTION;
 
-INSERT INTO rw_view2
-    VALUES (2, 3);
+INSERT INTO
+    rw_view2
+VALUES
+    (2, 3);
 
 -- ok, but not in view (doesn't fail rw_view2's check)
 DROP TABLE base_tbl CASCADE;
 
 -- security barrier view
-CREATE TABLE base_tbl (
-    person text,
-    visibility text
-);
+CREATE TABLE base_tbl (person text, visibility text);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 VALUES
     ('Tom', 'public'),
     ('Dick', 'private'),
@@ -2866,26 +2940,18 @@ FROM
 WHERE
     visibility = 'public';
 
-CREATE FUNCTION snoop (anyelement)
-    RETURNS boolean
-    AS $$
+CREATE FUNCTION snoop (anyelement) RETURNS boolean AS $$
 BEGIN
-    RAISE NOTICE 'snooped value: %', $1;
-    RETURN TRUE;
+  RAISE NOTICE 'snooped value: %', $1;
+  RETURN true;
 END;
-$$
-LANGUAGE plpgsql
-COST 0.000001;
+$$ LANGUAGE plpgsql COST 0.000001;
 
-CREATE OR REPLACE FUNCTION LEAKPROOF (anyelement)
-    RETURNS boolean
-    AS $$
+CREATE OR REPLACE FUNCTION leakproof (anyelement) RETURNS boolean AS $$
 BEGIN
-    RETURN TRUE;
+  RETURN true;
 END;
-$$
-LANGUAGE plpgsql
-STRICT IMMUTABLE LEAKPROOF;
+$$ LANGUAGE plpgsql STRICT IMMUTABLE LEAKPROOF;
 
 SELECT
     *
@@ -2894,17 +2960,19 @@ FROM
 WHERE
     snoop (person);
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     person = person
 WHERE
     snoop (person);
 
 DELETE FROM rw_view1
-WHERE NOT snoop (person);
+WHERE
+    NOT snoop (person);
 
-ALTER VIEW rw_view1 SET (security_barrier = TRUE);
+ALTER VIEW rw_view1
+SET
+    (security_barrier = TRUE);
 
 SELECT
     table_name,
@@ -2941,19 +3009,17 @@ FROM
 WHERE
     snoop (person);
 
-UPDATE
-    rw_view1
+UPDATE rw_view1
 SET
     person = person
 WHERE
     snoop (person);
 
 DELETE FROM rw_view1
-WHERE NOT snoop (person);
+WHERE
+    NOT snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -2961,30 +3027,28 @@ FROM
 WHERE
     snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view1
+EXPLAIN (costs off)
+UPDATE rw_view1
 SET
     person = person
 WHERE
     snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view1
-WHERE NOT snoop (person);
+EXPLAIN (costs off)
+DELETE FROM rw_view1
+WHERE
+    NOT snoop (person);
 
 -- security barrier view on top of security barrier view
-CREATE VIEW rw_view2 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW rw_view2
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     *
 FROM
     rw_view1
 WHERE
-    snoop (
-        person);
+    snoop (person);
 
 SELECT
     table_name,
@@ -3021,19 +3085,17 @@ FROM
 WHERE
     snoop (person);
 
-UPDATE
-    rw_view2
+UPDATE rw_view2
 SET
     person = person
 WHERE
     snoop (person);
 
 DELETE FROM rw_view2
-WHERE NOT snoop (person);
+WHERE
+    NOT snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-)
+EXPLAIN (costs off)
 SELECT
     *
 FROM
@@ -3041,56 +3103,55 @@ FROM
 WHERE
     snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-) UPDATE
-    rw_view2
+EXPLAIN (costs off)
+UPDATE rw_view2
 SET
     person = person
 WHERE
     snoop (person);
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view2
-WHERE NOT snoop (person);
+EXPLAIN (costs off)
+DELETE FROM rw_view2
+WHERE
+    NOT snoop (person);
 
 DROP TABLE base_tbl CASCADE;
 
 -- security barrier view on top of table with rules
-CREATE TABLE base_tbl (
-    id int PRIMARY KEY,
-    data text,
-    deleted boolean
-);
+CREATE TABLE base_tbl (id int PRIMARY KEY, data text, deleted boolean);
 
-INSERT INTO base_tbl
+INSERT INTO
+    base_tbl
 VALUES
     (1, 'Row 1', FALSE),
     (2, 'Row 2', TRUE);
 
-CREATE RULE base_tbl_ins_rule AS ON INSERT TO base_tbl WHERE
+CREATE RULE base_tbl_ins_rule AS ON INSERT TO base_tbl
+WHERE
     EXISTS (
         SELECT
-            1 FROM
-            base_tbl t WHERE
-            t.id = NEW.id)
-        DO INSTEAD
-        UPDATE
-            base_tbl SET
-            data = NEW.data,
-            deleted = FALSE WHERE
-            id = NEW.id;
+            1
+        FROM
+            base_tbl t
+        WHERE
+            t.id = new.id) DO INSTEAD
+UPDATE base_tbl
+SET
+    data = new.data,
+    deleted = FALSE
+WHERE
+    id = new.id;
 
-CREATE RULE base_tbl_del_rule AS ON DELETE TO base_tbl
-    DO INSTEAD
-    UPDATE
-        base_tbl SET
-        deleted = TRUE WHERE
-        id = OLD.id;
+CREATE RULE base_tbl_del_rule AS ON DELETE TO base_tbl DO INSTEAD
+UPDATE base_tbl
+SET
+    deleted = TRUE
+WHERE
+    id = old.id;
 
-CREATE VIEW rw_view1 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW rw_view1
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     id,
     data
@@ -3104,23 +3165,27 @@ SELECT
 FROM
     rw_view1;
 
-EXPLAIN (
-    COSTS OFF
-) DELETE FROM rw_view1
-WHERE id = 1
+EXPLAIN (costs off)
+DELETE FROM rw_view1
+WHERE
+    id = 1
     AND snoop (data);
 
 DELETE FROM rw_view1
-WHERE id = 1
+WHERE
+    id = 1
     AND snoop (data);
 
-EXPLAIN (
-    COSTS OFF
-) INSERT INTO rw_view1
-    VALUES (2, 'New row 2');
+EXPLAIN (costs off)
+INSERT INTO
+    rw_view1
+VALUES
+    (2, 'New row 2');
 
-INSERT INTO rw_view1
-    VALUES (2, 'New row 2');
+INSERT INTO
+    rw_view1
+VALUES
+    (2, 'New row 2');
 
 SELECT
     *
@@ -3130,15 +3195,12 @@ FROM
 DROP TABLE base_tbl CASCADE;
 
 -- security barrier view based on inheritance set
-CREATE TABLE t1 (
-    a int,
-    b float,
-    c text
-);
+CREATE TABLE t1 (a int, b float, c text);
 
 CREATE INDEX t1_a_idx ON t1 (a);
 
-INSERT INTO t1
+INSERT INTO
+    t1
 SELECT
     i,
     i,
@@ -3148,16 +3210,12 @@ FROM
 
 ANALYZE t1;
 
-CREATE TABLE t11 (
-    d text
-)
-INHERITS (
-    t1
-);
+CREATE TABLE t11 (d text) INHERITS (t1);
 
 CREATE INDEX t11_a_idx ON t11 (a);
 
-INSERT INTO t11
+INSERT INTO
+    t11
 SELECT
     i,
     i,
@@ -3168,59 +3226,52 @@ FROM
 
 ANALYZE t11;
 
-CREATE TABLE t12 (
-    e int[]
-)
-INHERITS (
-    t1
-);
+CREATE TABLE t12 (e INT[]) INHERITS (t1);
 
 CREATE INDEX t12_a_idx ON t12 (a);
 
-INSERT INTO t12
+INSERT INTO
+    t12
 SELECT
     i,
     i,
     't12',
-    '{1,2}'::int[]
+    '{1,2}'::INT[]
 FROM
     generate_series(1, 10) g (i);
 
 ANALYZE t12;
 
-CREATE TABLE t111 ()
-INHERITS (
-    t11,
-    t12
-);
+CREATE TABLE t111 () INHERITS (t11, t12);
 
 CREATE INDEX t111_a_idx ON t111 (a);
 
-INSERT INTO t111
+INSERT INTO
+    t111
 SELECT
     i,
     i,
     't111',
     't111d',
-    '{1,1,1}'::int[]
+    '{1,1,1}'::INT[]
 FROM
     generate_series(1, 10) g (i);
 
 ANALYZE t111;
 
-CREATE VIEW v1 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW v1
+WITH
+    (security_barrier = TRUE) AS
 SELECT
-    *,
-    (
+    *, (
         SELECT
             d
         FROM
             t11
         WHERE
             t11.a = t1.a
-        LIMIT 1
-) AS d
+        LIMIT
+            1) AS d
 FROM
     t1
 WHERE
@@ -3248,26 +3299,22 @@ FROM
 WHERE
     a = 8;
 
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-) UPDATE
-    v1
+EXPLAIN (VERBOSE, COSTS OFF)
+UPDATE v1
 SET
     a = 100
 WHERE
     snoop (a)
-    AND LEAKPROOF (a)
+    AND leakproof (a)
     AND a < 7
     AND a != 6;
 
-UPDATE
-    v1
+UPDATE v1
 SET
     a = 100
 WHERE
     snoop (a)
-    AND LEAKPROOF (a)
+    AND leakproof (a)
     AND a < 7
     AND a != 6;
 
@@ -3287,25 +3334,21 @@ WHERE
     a = 100;
 
 -- Nothing should have been changed to 100
-EXPLAIN (
-    VERBOSE,
-    COSTS OFF
-) UPDATE
-    v1
+EXPLAIN (VERBOSE, COSTS OFF)
+UPDATE v1
 SET
     a = a + 1
 WHERE
     snoop (a)
-    AND LEAKPROOF (a)
+    AND leakproof (a)
     AND a = 8;
 
-UPDATE
-    v1
+UPDATE v1
 SET
     a = a + 1
 WHERE
     snoop (a)
-    AND LEAKPROOF (a)
+    AND leakproof (a)
     AND a = 8;
 
 SELECT
@@ -3316,30 +3359,28 @@ WHERE
     b = 8;
 
 DELETE FROM v1
-WHERE snoop (a)
-    AND LEAKPROOF (a);
+WHERE
+    snoop (a)
+    AND leakproof (a);
 
 -- should not delete everything, just where a>5
 TABLE t1;
 
 -- verify all a<=5 are intact
-DROP TABLE t1, t11, t12, t111 CASCADE;
+DROP TABLE t1,
+t11,
+t12,
+t111 CASCADE;
 
 DROP FUNCTION snoop (anyelement);
 
-DROP FUNCTION LEAKPROOF (anyelement);
+DROP FUNCTION leakproof (anyelement);
 
-CREATE TABLE tx1 (
-    a integer
-);
+CREATE TABLE tx1 (a integer);
 
-CREATE TABLE tx2 (
-    b integer
-);
+CREATE TABLE tx2 (b integer);
 
-CREATE TABLE tx3 (
-    c integer
-);
+CREATE TABLE tx3 (c integer);
 
 CREATE VIEW vx1 AS
 SELECT
@@ -3354,8 +3395,10 @@ WHERE
             tx2
             JOIN tx3 ON b = c);
 
-INSERT INTO vx1
-    VALUES (1);
+INSERT INTO
+    vx1
+VALUES
+    (1);
 
 SELECT
     *
@@ -3375,17 +3418,11 @@ DROP TABLE tx2;
 
 DROP TABLE tx3;
 
-CREATE TABLE tx1 (
-    a integer
-);
+CREATE TABLE tx1 (a integer);
 
-CREATE TABLE tx2 (
-    b integer
-);
+CREATE TABLE tx2 (b integer);
 
-CREATE TABLE tx3 (
-    c integer
-);
+CREATE TABLE tx3 (c integer);
 
 CREATE VIEW vx1 AS
 SELECT
@@ -3400,11 +3437,15 @@ WHERE
             tx2
             JOIN tx3 ON b = c);
 
-INSERT INTO vx1
-    VALUES (1);
+INSERT INTO
+    vx1
+VALUES
+    (1);
 
-INSERT INTO vx1
-    VALUES (1);
+INSERT INTO
+    vx1
+VALUES
+    (1);
 
 SELECT
     *
@@ -3424,29 +3465,20 @@ DROP TABLE tx2;
 
 DROP TABLE tx3;
 
-CREATE TABLE tx1 (
-    a integer,
-    b integer
-);
+CREATE TABLE tx1 (a integer, b integer);
 
-CREATE TABLE tx2 (
-    b integer,
-    c integer
-);
+CREATE TABLE tx2 (b integer, c integer);
 
-CREATE TABLE tx3 (
-    c integer,
-    d integer
-);
+CREATE TABLE tx3 (c integer, d integer);
 
 ALTER TABLE tx1
-    DROP COLUMN b;
+DROP COLUMN b;
 
 ALTER TABLE tx2
-    DROP COLUMN c;
+DROP COLUMN c;
 
 ALTER TABLE tx3
-    DROP COLUMN d;
+DROP COLUMN d;
 
 CREATE VIEW vx1 AS
 SELECT
@@ -3461,11 +3493,15 @@ WHERE
             tx2
             JOIN tx3 ON b = c);
 
-INSERT INTO vx1
-    VALUES (1);
+INSERT INTO
+    vx1
+VALUES
+    (1);
 
-INSERT INTO vx1
-    VALUES (1);
+INSERT INTO
+    vx1
+VALUES
+    (1);
 
 SELECT
     *
@@ -3489,36 +3525,36 @@ DROP TABLE tx3;
 -- Test handling of vars from correlated subqueries in quals from outer
 -- security barrier views, per bug #13988
 --
-CREATE TABLE t1 (
-    a int,
-    b text,
-    c int
-);
+CREATE TABLE t1 (a int, b text, c int);
 
-INSERT INTO t1
-    VALUES (1, 'one', 10);
+INSERT INTO
+    t1
+VALUES
+    (1, 'one', 10);
 
-CREATE TABLE t2 (
-    cc int
-);
+CREATE TABLE t2 (cc int);
 
-INSERT INTO t2
+INSERT INTO
+    t2
 VALUES
     (10),
     (20);
 
-CREATE VIEW v1 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW v1
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     *
 FROM
     t1
-WHERE (
-    a > 0
-) WITH CHECK OPTION;
+WHERE
+    (a > 0)
+WITH
+    CHECK OPTION;
 
-CREATE VIEW v2 WITH ( security_barrier = TRUE
-) AS
+CREATE VIEW v2
+WITH
+    (security_barrier = TRUE) AS
 SELECT
     *
 FROM
@@ -3530,39 +3566,43 @@ WHERE
         FROM
             t2
         WHERE
-            t2.cc = v1.c
-) WITH CHECK OPTION;
+            t2.cc = v1.c)
+WITH
+    CHECK OPTION;
 
-INSERT INTO v2
-    VALUES (2, 'two', 20);
+INSERT INTO
+    v2
+VALUES
+    (2, 'two', 20);
 
 -- ok
-INSERT INTO v2
-    VALUES (-2, 'minus two', 20);
-
--- not allowed
-INSERT INTO v2
-    VALUES (3, 'three', 30);
-
--- not allowed
-UPDATE
+INSERT INTO
     v2
+VALUES
+    (-2, 'minus two', 20);
+
+-- not allowed
+INSERT INTO
+    v2
+VALUES
+    (3, 'three', 30);
+
+-- not allowed
+UPDATE v2
 SET
     b = 'ONE'
 WHERE
     a = 1;
 
 -- ok
-UPDATE
-    v2
+UPDATE v2
 SET
     a = -1
 WHERE
     a = 1;
 
 -- not allowed
-UPDATE
-    v2
+UPDATE v2
 SET
     c = 30
 WHERE
@@ -3570,7 +3610,8 @@ WHERE
 
 -- not allowed
 DELETE FROM v2
-WHERE a = 2;
+WHERE
+    a = 2;
 
 -- ok
 SELECT
@@ -3590,10 +3631,7 @@ DROP TABLE t1;
 -- Test CREATE OR REPLACE VIEW turning a non-updatable view into an
 -- auto-updatable view and adding check options in a single step
 --
-CREATE TABLE t1 (
-    a int,
-    b text
-);
+CREATE TABLE t1 (a int, b text);
 
 CREATE VIEW v1 AS
 SELECT
@@ -3605,14 +3643,20 @@ SELECT
 FROM
     t1
 WHERE
-    a > 0 WITH CHECK OPTION;
+    a > 0
+WITH
+    CHECK OPTION;
 
-INSERT INTO v1
-    VALUES (1, 'ok');
+INSERT INTO
+    v1
+VALUES
+    (1, 'ok');
 
 -- ok
-INSERT INTO v1
-    VALUES (-1, 'invalid');
+INSERT INTO
+    v1
+VALUES
+    (-1, 'invalid');
 
 -- should fail
 DROP VIEW v1;
@@ -3620,41 +3664,37 @@ DROP VIEW v1;
 DROP TABLE t1;
 
 -- check that an auto-updatable view on a partitioned table works correctly
-CREATE TABLE uv_pt (
-    a int,
-    b int,
-    v varchar
-)
-PARTITION BY RANGE (a, b);
+CREATE TABLE uv_pt (a int, b int, v varchar)
+PARTITION BY
+    range (a, b);
 
-CREATE TABLE uv_pt1 (
-    b int NOT NULL,
-    v varchar,
-    a int NOT NULL
-)
-PARTITION BY RANGE (b);
+CREATE TABLE uv_pt1 (b int NOT NULL, v varchar, a int NOT NULL)
+PARTITION BY
+    range (b);
 
-CREATE TABLE uv_pt11 (
-    LIKE uv_pt1
-);
+CREATE TABLE uv_pt11 (LIKE uv_pt1);
 
 ALTER TABLE uv_pt11
-    DROP a;
+DROP a;
 
 ALTER TABLE uv_pt11
-    ADD a int;
+ADD a int;
 
 ALTER TABLE uv_pt11
-    DROP a;
+DROP a;
 
 ALTER TABLE uv_pt11
-    ADD a int NOT NULL;
+ADD a int NOT NULL;
 
-ALTER TABLE uv_pt1 ATTACH PARTITION uv_pt11
-FOR VALUES FROM (2) TO (5);
+ALTER TABLE uv_pt1 attach partition uv_pt11 FOR
+VALUES
+FROM
+    (2) TO (5);
 
-ALTER TABLE uv_pt ATTACH PARTITION uv_pt1
-FOR VALUES FROM (1, 2) TO (1, 10);
+ALTER TABLE uv_pt attach partition uv_pt1 FOR
+VALUES
+FROM
+    (1, 2) TO (1, 10);
 
 CREATE VIEW uv_ptv AS
 SELECT
@@ -3695,8 +3735,10 @@ WHERE
 ORDER BY
     column_name;
 
-INSERT INTO uv_ptv
-    VALUES (1, 2);
+INSERT INTO
+    uv_ptv
+VALUES
+    (1, 2);
 
 SELECT
     tableoid::regclass,
@@ -3710,24 +3752,31 @@ SELECT
 FROM
     uv_pt
 WHERE
-    a = 0 WITH CHECK option;
+    a = 0
+WITH
+    CHECK option;
 
-INSERT INTO uv_ptv_wco
-    VALUES (1, 2);
+INSERT INTO
+    uv_ptv_wco
+VALUES
+    (1, 2);
 
-DROP VIEW uv_ptv, uv_ptv_wco;
+DROP VIEW uv_ptv,
+uv_ptv_wco;
 
-DROP TABLE uv_pt, uv_pt1, uv_pt11;
+DROP TABLE uv_pt,
+uv_pt1,
+uv_pt11;
 
 -- check that wholerow vars appearing in WITH CHECK OPTION constraint expressions
 -- work fine with partitioned tables
-CREATE TABLE wcowrtest (
-    a int
-)
-PARTITION BY LIST (a);
+CREATE TABLE wcowrtest (a int)
+PARTITION BY
+    list (a);
 
-CREATE TABLE wcowrtest1 PARTITION OF wcowrtest
-FOR VALUES IN (1);
+CREATE TABLE wcowrtest1 partition of wcowrtest FOR
+VALUES
+    IN (1);
 
 CREATE VIEW wcowrtest_v AS
 SELECT
@@ -3735,32 +3784,31 @@ SELECT
 FROM
     wcowrtest
 WHERE
-    wcowrtest = '(2)'::wcowrtest WITH CHECK option;
+    wcowrtest = '(2)'::wcowrtest
+WITH
+    CHECK option;
 
-INSERT INTO wcowrtest_v
-    VALUES (1);
+INSERT INTO
+    wcowrtest_v
+VALUES
+    (1);
 
 ALTER TABLE wcowrtest
-    ADD b text;
+ADD b text;
 
-CREATE TABLE wcowrtest2 (
-    b text,
-    c int,
-    a int
-);
+CREATE TABLE wcowrtest2 (b text, c int, a int);
 
 ALTER TABLE wcowrtest2
-    DROP c;
+DROP c;
 
-ALTER TABLE wcowrtest ATTACH PARTITION wcowrtest2
-FOR VALUES IN (2);
+ALTER TABLE wcowrtest attach partition wcowrtest2 FOR
+VALUES
+    IN (2);
 
-CREATE TABLE sometable (
-    a int,
-    b text
-);
+CREATE TABLE sometable (a int, b text);
 
-INSERT INTO sometable
+INSERT INTO
+    sometable
 VALUES
     (1, 'a'),
     (2, 'b');
@@ -3777,28 +3825,31 @@ WHERE
         FROM
             sometable s
         WHERE
-            r.a = s.a
-)
-    WITH CHECK option;
+            r.a = s.a)
+WITH
+    CHECK option;
 
 -- WITH CHECK qual will be processed with wcowrtest2's
 -- rowtype after tuple-routing
-INSERT INTO wcowrtest_v2
-    VALUES (2, 'no such row in sometable');
+INSERT INTO
+    wcowrtest_v2
+VALUES
+    (2, 'no such row in sometable');
 
-DROP VIEW wcowrtest_v, wcowrtest_v2;
+DROP VIEW wcowrtest_v,
+wcowrtest_v2;
 
-DROP TABLE wcowrtest, sometable;
+DROP TABLE wcowrtest,
+sometable;
 
 -- Check INSERT .. ON CONFLICT DO UPDATE works correctly when the view's
 -- columns are named and ordered differently than the underlying table's.
-CREATE TABLE uv_iocu_tab (
-    a text UNIQUE,
-    b float
-);
+CREATE TABLE uv_iocu_tab (a text UNIQUE, b float);
 
-INSERT INTO uv_iocu_tab
-    VALUES ('xyxyxy', 0);
+INSERT INTO
+    uv_iocu_tab
+VALUES
+    ('xyxyxy', 0);
 
 CREATE VIEW uv_iocu_view AS
 SELECT
@@ -3809,22 +3860,26 @@ SELECT
 FROM
     uv_iocu_tab;
 
-INSERT INTO uv_iocu_view (a, b)
-    VALUES ('xyxyxy', 1)
-ON CONFLICT (a)
-    DO UPDATE SET
-        b = uv_iocu_view.b;
+INSERT INTO
+    uv_iocu_view (a, b)
+VALUES
+    ('xyxyxy', 1)
+ON CONFLICT (a) DO UPDATE
+SET
+    b = uv_iocu_view.b;
 
 SELECT
     *
 FROM
     uv_iocu_tab;
 
-INSERT INTO uv_iocu_view (a, b)
-    VALUES ('xyxyxy', 1)
-ON CONFLICT (a)
-    DO UPDATE SET
-        b = excluded.b;
+INSERT INTO
+    uv_iocu_view (a, b)
+VALUES
+    ('xyxyxy', 1)
+ON CONFLICT (a) DO UPDATE
+SET
+    b = excluded.b;
 
 SELECT
     *
@@ -3833,34 +3888,39 @@ FROM
 
 -- OK to access view columns that are not present in underlying base
 -- relation in the ON CONFLICT portion of the query
-INSERT INTO uv_iocu_view (a, b)
-    VALUES ('xyxyxy', 3)
-ON CONFLICT (a)
-    DO UPDATE SET
-        b = cast(excluded.two AS float);
+INSERT INTO
+    uv_iocu_view (a, b)
+VALUES
+    ('xyxyxy', 3)
+ON CONFLICT (a) DO UPDATE
+SET
+    b = cast(excluded.two AS float);
 
 SELECT
     *
 FROM
     uv_iocu_tab;
 
-EXPLAIN (
-    COSTS OFF
-) INSERT INTO uv_iocu_view (a, b)
-    VALUES ('xyxyxy', 3)
-ON CONFLICT (a)
-    DO UPDATE SET
-        b = excluded.b
-    WHERE
-        excluded.c > 0;
+EXPLAIN (costs off)
+INSERT INTO
+    uv_iocu_view (a, b)
+VALUES
+    ('xyxyxy', 3)
+ON CONFLICT (a) DO UPDATE
+SET
+    b = excluded.b
+WHERE
+    excluded.c > 0;
 
-INSERT INTO uv_iocu_view (a, b)
-    VALUES ('xyxyxy', 3)
-ON CONFLICT (a)
-    DO UPDATE SET
-        b = excluded.b
-    WHERE
-        excluded.c > 0;
+INSERT INTO
+    uv_iocu_view (a, b)
+VALUES
+    ('xyxyxy', 3)
+ON CONFLICT (a) DO UPDATE
+SET
+    b = excluded.b
+WHERE
+    excluded.c > 0;
 
 SELECT
     *
@@ -3872,10 +3932,7 @@ DROP VIEW uv_iocu_view;
 DROP TABLE uv_iocu_tab;
 
 -- Test whole-row references to the view
-CREATE TABLE uv_iocu_tab (
-    a int UNIQUE,
-    b text
-);
+CREATE TABLE uv_iocu_tab (a int UNIQUE, b text);
 
 CREATE VIEW uv_iocu_view AS
 SELECT
@@ -3885,30 +3942,35 @@ SELECT
 FROM
     uv_iocu_tab;
 
-INSERT INTO uv_iocu_view (aa, bb)
-    VALUES (1, 'x');
+INSERT INTO
+    uv_iocu_view (aa, bb)
+VALUES
+    (1, 'x');
 
-EXPLAIN (
-    COSTS OFF
-) INSERT INTO uv_iocu_view (aa, bb)
-    VALUES (1, 'y')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = 'Rejected: ' || excluded.*
-    WHERE
-        excluded.aa > 0
-        AND excluded.bb != ''
-        AND excluded.cc IS NOT NULL;
+EXPLAIN (costs off)
+INSERT INTO
+    uv_iocu_view (aa, bb)
+VALUES
+    (1, 'y')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = 'Rejected: ' || excluded.*
+WHERE
+    excluded.aa > 0
+    AND excluded.bb != ''
+    AND excluded.cc IS NOT NULL;
 
-INSERT INTO uv_iocu_view (aa, bb)
-    VALUES (1, 'y')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = 'Rejected: ' || excluded.*
-    WHERE
-        excluded.aa > 0
-        AND excluded.bb != ''
-        AND excluded.cc IS NOT NULL;
+INSERT INTO
+    uv_iocu_view (aa, bb)
+VALUES
+    (1, 'y')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = 'Rejected: ' || excluded.*
+WHERE
+    excluded.aa > 0
+    AND excluded.bb != ''
+    AND excluded.cc IS NOT NULL;
 
 SELECT
     *
@@ -3918,14 +3980,18 @@ FROM
 -- Test omitting a column of the base relation
 DELETE FROM uv_iocu_view;
 
-INSERT INTO uv_iocu_view (aa, bb)
-    VALUES (1, 'x');
+INSERT INTO
+    uv_iocu_view (aa, bb)
+VALUES
+    (1, 'x');
 
-INSERT INTO uv_iocu_view (aa)
-    VALUES (1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = 'Rejected: ' || excluded.*;
+INSERT INTO
+    uv_iocu_view (aa)
+VALUES
+    (1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = 'Rejected: ' || excluded.*;
 
 SELECT
     *
@@ -3933,13 +3999,16 @@ FROM
     uv_iocu_view;
 
 ALTER TABLE uv_iocu_tab
-    ALTER COLUMN b SET DEFAULT 'table default';
+ALTER COLUMN b
+SET DEFAULT 'table default';
 
-INSERT INTO uv_iocu_view (aa)
-    VALUES (1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = 'Rejected: ' || excluded.*;
+INSERT INTO
+    uv_iocu_view (aa)
+VALUES
+    (1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = 'Rejected: ' || excluded.*;
 
 SELECT
     *
@@ -3947,13 +4016,16 @@ FROM
     uv_iocu_view;
 
 ALTER VIEW uv_iocu_view
-    ALTER COLUMN bb SET DEFAULT 'view default';
+ALTER COLUMN bb
+SET DEFAULT 'view default';
 
-INSERT INTO uv_iocu_view (aa)
-    VALUES (1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = 'Rejected: ' || excluded.*;
+INSERT INTO
+    uv_iocu_view (aa)
+VALUES
+    (1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = 'Rejected: ' || excluded.*;
 
 SELECT
     *
@@ -3961,11 +4033,13 @@ FROM
     uv_iocu_view;
 
 -- Should fail to update non-updatable columns
-INSERT INTO uv_iocu_view (aa)
-    VALUES (1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        cc = 'XXX';
+INSERT INTO
+    uv_iocu_view (aa)
+VALUES
+    (1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    cc = 'XXX';
 
 DROP VIEW uv_iocu_view;
 
@@ -3976,16 +4050,14 @@ CREATE USER regress_view_user1;
 
 CREATE USER regress_view_user2;
 
-SET session AUTHORIZATION regress_view_user1;
+SET SESSION AUTHORIZATION regress_view_user1;
 
-CREATE TABLE base_tbl (
-    a int UNIQUE,
-    b text,
-    c float
-);
+CREATE TABLE base_tbl (a int UNIQUE, b text, c float);
 
-INSERT INTO base_tbl
-    VALUES (1, 'xxx', 1.0);
+INSERT INTO
+    base_tbl
+VALUES
+    (1, 'xxx', 1.0);
 
 CREATE VIEW rw_view1 AS
 SELECT
@@ -3995,65 +4067,81 @@ SELECT
 FROM
     base_tbl;
 
-GRANT SELECT (aa, bb) ON rw_view1 TO regress_view_user2;
+GRANT
+SELECT
+    (aa, bb) ON rw_view1 TO regress_view_user2;
 
-GRANT INSERT ON rw_view1 TO regress_view_user2;
+GRANT insert ON rw_view1 TO regress_view_user2;
 
-GRANT UPDATE (bb) ON rw_view1 TO regress_view_user2;
+GRANT
+UPDATE (bb) ON rw_view1 TO regress_view_user2;
 
-SET session AUTHORIZATION regress_view_user2;
+SET SESSION AUTHORIZATION regress_view_user2;
 
-INSERT INTO rw_view1
-    VALUES ('yyy', 2.0, 1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.cc;
-
--- Not allowed
-INSERT INTO rw_view1
-    VALUES ('yyy', 2.0, 1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = rw_view1.cc;
+INSERT INTO
+    rw_view1
+VALUES
+    ('yyy', 2.0, 1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.cc;
 
 -- Not allowed
-INSERT INTO rw_view1
-    VALUES ('yyy', 2.0, 1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.bb;
+INSERT INTO
+    rw_view1
+VALUES
+    ('yyy', 2.0, 1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = rw_view1.cc;
+
+-- Not allowed
+INSERT INTO
+    rw_view1
+VALUES
+    ('yyy', 2.0, 1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.bb;
 
 -- OK
-INSERT INTO rw_view1
-    VALUES ('zzz', 2.0, 1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = rw_view1.bb || 'xxx';
+INSERT INTO
+    rw_view1
+VALUES
+    ('zzz', 2.0, 1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = rw_view1.bb || 'xxx';
 
 -- OK
-INSERT INTO rw_view1
-    VALUES ('zzz', 2.0, 1)
-ON CONFLICT (aa)
-    DO UPDATE SET
-        cc = 3.0;
+INSERT INTO
+    rw_view1
+VALUES
+    ('zzz', 2.0, 1)
+ON CONFLICT (aa) DO UPDATE
+SET
+    cc = 3.0;
 
 -- Not allowed
-RESET session AUTHORIZATION;
+RESET SESSION AUTHORIZATION;
 
 SELECT
     *
 FROM
     base_tbl;
 
-SET session AUTHORIZATION regress_view_user1;
+SET SESSION AUTHORIZATION regress_view_user1;
 
-GRANT SELECT (a, b) ON base_tbl TO regress_view_user2;
+GRANT
+SELECT
+    (a, b) ON base_tbl TO regress_view_user2;
 
-GRANT INSERT (a, b) ON base_tbl TO regress_view_user2;
+GRANT insert (a, b) ON base_tbl TO regress_view_user2;
 
-GRANT UPDATE (a, b) ON base_tbl TO regress_view_user2;
+GRANT
+UPDATE (a, b) ON base_tbl TO regress_view_user2;
 
-SET session AUTHORIZATION regress_view_user2;
+SET SESSION AUTHORIZATION regress_view_user2;
 
 CREATE VIEW rw_view2 AS
 SELECT
@@ -4063,11 +4151,13 @@ SELECT
 FROM
     base_tbl;
 
-INSERT INTO rw_view2 (aa, bb)
-    VALUES (1, 'xxx')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.bb;
+INSERT INTO
+    rw_view2 (aa, bb)
+VALUES
+    (1, 'xxx')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.bb;
 
 -- Not allowed
 CREATE VIEW rw_view3 AS
@@ -4077,21 +4167,23 @@ SELECT
 FROM
     base_tbl;
 
-INSERT INTO rw_view3 (aa, bb)
-    VALUES (1, 'xxx')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.bb;
+INSERT INTO
+    rw_view3 (aa, bb)
+VALUES
+    (1, 'xxx')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.bb;
 
 -- OK
-RESET session AUTHORIZATION;
+RESET SESSION AUTHORIZATION;
 
 SELECT
     *
 FROM
     base_tbl;
 
-SET session AUTHORIZATION regress_view_user2;
+SET SESSION AUTHORIZATION regress_view_user2;
 
 CREATE VIEW rw_view4 AS
 SELECT
@@ -4101,11 +4193,13 @@ SELECT
 FROM
     rw_view1;
 
-INSERT INTO rw_view4 (aa, bb)
-    VALUES (1, 'yyy')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.bb;
+INSERT INTO
+    rw_view4 (aa, bb)
+VALUES
+    (1, 'yyy')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.bb;
 
 -- Not allowed
 CREATE VIEW rw_view5 AS
@@ -4115,14 +4209,16 @@ SELECT
 FROM
     rw_view1;
 
-INSERT INTO rw_view5 (aa, bb)
-    VALUES (1, 'yyy')
-ON CONFLICT (aa)
-    DO UPDATE SET
-        bb = excluded.bb;
+INSERT INTO
+    rw_view5 (aa, bb)
+VALUES
+    (1, 'yyy')
+ON CONFLICT (aa) DO UPDATE
+SET
+    bb = excluded.bb;
 
 -- OK
-RESET session AUTHORIZATION;
+RESET SESSION AUTHORIZATION;
 
 SELECT
     *
@@ -4152,8 +4248,7 @@ CREATE TABLE base_tab_def (
     b text DEFAULT 'Table default',
     c text DEFAULT 'Table default',
     d text,
-    e text
-);
+    e text);
 
 CREATE VIEW base_tab_def_view AS
 SELECT
@@ -4162,44 +4257,59 @@ FROM
     base_tab_def;
 
 ALTER VIEW base_tab_def_view
-    ALTER b SET DEFAULT 'View default';
+ALTER b
+SET DEFAULT 'View default';
 
 ALTER VIEW base_tab_def_view
-    ALTER d SET DEFAULT 'View default';
+ALTER d
+SET DEFAULT 'View default';
 
-INSERT INTO base_tab_def
-    VALUES (1);
+INSERT INTO
+    base_tab_def
+VALUES
+    (1);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (2),
     (3);
 
-INSERT INTO base_tab_def
-    VALUES (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def
+VALUES
+    (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (5, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (6, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
-    VALUES (11);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (11);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (12),
     (13);
 
-INSERT INTO base_tab_def_view
-    VALUES (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (15, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (16, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (17),
     (DEFAULT);
@@ -4213,56 +4323,64 @@ ORDER BY
 
 -- Adding an INSTEAD OF trigger should cause NULLs to be inserted instead of
 -- table defaults, where there are no view defaults.
-CREATE FUNCTION base_tab_def_view_instrig_func ()
-    RETURNS TRIGGER
-    AS $$
-BEGIN
-    INSERT INTO base_tab_def
-        VALUES (NEW.a, NEW.b, NEW.c, NEW.d, NEW.e);
-    RETURN new;
-END;
-$$
-LANGUAGE plpgsql;
+CREATE FUNCTION base_tab_def_view_instrig_func () returns trigger AS $$
+begin
+  insert into base_tab_def values (new.a, new.b, new.c, new.d, new.e);
+  return new;
+end;
+$$ language plpgsql;
 
-CREATE TRIGGER base_tab_def_view_instrig
-    INSTEAD OF insert ON base_tab_def_view FOR EACH ROW
-    EXECUTE FUNCTION base_tab_def_view_instrig_func ();
+CREATE TRIGGER base_tab_def_view_instrig instead of insert ON base_tab_def_view FOR each ROW
+EXECUTE function base_tab_def_view_instrig_func ();
 
 TRUNCATE base_tab_def;
 
-INSERT INTO base_tab_def
-    VALUES (1);
+INSERT INTO
+    base_tab_def
+VALUES
+    (1);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (2),
     (3);
 
-INSERT INTO base_tab_def
-    VALUES (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def
+VALUES
+    (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (5, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (6, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
-    VALUES (11);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (11);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (12),
     (13);
 
-INSERT INTO base_tab_def_view
-    VALUES (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (15, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (16, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (17),
     (DEFAULT);
@@ -4280,45 +4398,60 @@ DROP TRIGGER base_tab_def_view_instrig ON base_tab_def_view;
 
 DROP FUNCTION base_tab_def_view_instrig_func;
 
-CREATE RULE base_tab_def_view_ins_rule AS ON INSERT TO base_tab_def_view
-    DO INSTEAD
-    INSERT INTO base_tab_def VALUES (NEW.a, NEW.b, NEW.c, NEW.d, NEW.e);
+CREATE RULE base_tab_def_view_ins_rule AS ON insert TO base_tab_def_view DO instead
+INSERT INTO
+    base_tab_def
+VALUES
+    (new.a, new.b, new.c, new.d, new.e);
 
 TRUNCATE base_tab_def;
 
-INSERT INTO base_tab_def
-    VALUES (1);
+INSERT INTO
+    base_tab_def
+VALUES
+    (1);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (2),
     (3);
 
-INSERT INTO base_tab_def
-    VALUES (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def
+VALUES
+    (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (5, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (6, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
-    VALUES (11);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (11);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (12),
     (13);
 
-INSERT INTO base_tab_def_view
-    VALUES (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (15, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (16, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (17),
     (DEFAULT);
@@ -4337,45 +4470,60 @@ ORDER BY
 -- no view defaults).
 DROP RULE base_tab_def_view_ins_rule ON base_tab_def_view;
 
-CREATE RULE base_tab_def_view_ins_rule AS ON INSERT TO base_tab_def_view
-    DO ALSO
-    INSERT INTO base_tab_def VALUES (NEW.a, NEW.b, NEW.c, NEW.d, NEW.e);
+CREATE RULE base_tab_def_view_ins_rule AS ON insert TO base_tab_def_view DO also
+INSERT INTO
+    base_tab_def
+VALUES
+    (new.a, new.b, new.c, new.d, new.e);
 
 TRUNCATE base_tab_def;
 
-INSERT INTO base_tab_def
-    VALUES (1);
+INSERT INTO
+    base_tab_def
+VALUES
+    (1);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (2),
     (3);
 
-INSERT INTO base_tab_def
-    VALUES (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def
+VALUES
+    (4, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def
+INSERT INTO
+    base_tab_def
 VALUES
     (5, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (6, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
-    VALUES (11);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (11);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (12),
     (13);
 
-INSERT INTO base_tab_def_view
-    VALUES (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO
+    base_tab_def_view
+VALUES
+    (14, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (15, DEFAULT, DEFAULT, DEFAULT, DEFAULT),
     (16, DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 
-INSERT INTO base_tab_def_view
+INSERT INTO
+    base_tab_def_view
 VALUES
     (17),
     (DEFAULT);
@@ -4395,10 +4543,9 @@ DROP TABLE base_tab_def;
 -- Test defaults with array assignments
 CREATE TABLE base_tab (
     a serial,
-    b int[],
+    b INT[],
     c text,
-    d text DEFAULT 'Table default'
-);
+    d text DEFAULT 'Table default');
 
 CREATE VIEW base_tab_view AS
 SELECT
@@ -4409,9 +4556,11 @@ FROM
     base_tab;
 
 ALTER VIEW base_tab_view
-    ALTER COLUMN c SET DEFAULT 'View default';
+ALTER COLUMN c
+SET DEFAULT 'View default';
 
-INSERT INTO base_tab_view (b[1], b[2], c, b[5], b[4], a, b[3])
+INSERT INTO
+    base_tab_view (b[1], b[2], c, b[5], b[4], a, b[3])
 VALUES
     (1, 2, DEFAULT, 5, 4, DEFAULT, 3),
     (10, 11, 'C value', 14, 13, 100, 12);
@@ -4426,4 +4575,3 @@ ORDER BY
 DROP VIEW base_tab_view;
 
 DROP TABLE base_tab;
-

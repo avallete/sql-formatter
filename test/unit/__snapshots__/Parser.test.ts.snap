@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Parser parses BETWEEN expression 1`] = `
+exports[`Parser > parses BETWEEN expression 1`] = `
 [
   {
     "children": [
@@ -54,7 +54,7 @@ exports[`Parser parses BETWEEN expression 1`] = `
 ]
 `;
 
-exports[`Parser parses CASE expression 1`] = `
+exports[`Parser > parses CASE expression 1`] = `
 [
   {
     "children": [
@@ -150,7 +150,7 @@ exports[`Parser parses CASE expression 1`] = `
 ]
 `;
 
-exports[`Parser parses LIMIT clause with count 1`] = `
+exports[`Parser > parses LIMIT clause with count 1`] = `
 [
   {
     "children": [
@@ -176,7 +176,7 @@ exports[`Parser parses LIMIT clause with count 1`] = `
 ]
 `;
 
-exports[`Parser parses LIMIT clause with longer expressions 1`] = `
+exports[`Parser > parses LIMIT clause with longer expressions 1`] = `
 [
   {
     "children": [
@@ -224,7 +224,7 @@ exports[`Parser parses LIMIT clause with longer expressions 1`] = `
 ]
 `;
 
-exports[`Parser parses LIMIT clause with offset and count 1`] = `
+exports[`Parser > parses LIMIT clause with offset and count 1`] = `
 [
   {
     "children": [
@@ -256,7 +256,7 @@ exports[`Parser parses LIMIT clause with offset and count 1`] = `
 ]
 `;
 
-exports[`Parser parses SELECT * 1`] = `
+exports[`Parser > parses SELECT * 1`] = `
 [
   {
     "children": [
@@ -281,7 +281,7 @@ exports[`Parser parses SELECT * 1`] = `
 ]
 `;
 
-exports[`Parser parses SELECT ident.* 1`] = `
+exports[`Parser > parses SELECT ident.* 1`] = `
 [
   {
     "children": [
@@ -315,7 +315,7 @@ exports[`Parser parses SELECT ident.* 1`] = `
 ]
 `;
 
-exports[`Parser parses array subscript 1`] = `
+exports[`Parser > parses array subscript 1`] = `
 [
   {
     "children": [
@@ -356,7 +356,7 @@ exports[`Parser parses array subscript 1`] = `
 ]
 `;
 
-exports[`Parser parses array subscript with comment 1`] = `
+exports[`Parser > parses array subscript with comment 1`] = `
 [
   {
     "children": [
@@ -404,7 +404,7 @@ exports[`Parser parses array subscript with comment 1`] = `
 ]
 `;
 
-exports[`Parser parses curly braces 1`] = `
+exports[`Parser > parses curly braces 1`] = `
 [
   {
     "children": [
@@ -447,7 +447,7 @@ exports[`Parser parses curly braces 1`] = `
 ]
 `;
 
-exports[`Parser parses function call 1`] = `
+exports[`Parser > parses function call 1`] = `
 [
   {
     "children": [
@@ -489,7 +489,7 @@ exports[`Parser parses function call 1`] = `
 ]
 `;
 
-exports[`Parser parses function name with and without parameters 1`] = `
+exports[`Parser > parses function name with and without parameters 1`] = `
 [
   {
     "children": [
@@ -544,7 +544,7 @@ exports[`Parser parses function name with and without parameters 1`] = `
 ]
 `;
 
-exports[`Parser parses list of statements 1`] = `
+exports[`Parser > parses list of statements 1`] = `
 [
   {
     "children": [
@@ -571,7 +571,7 @@ exports[`Parser parses list of statements 1`] = `
 ]
 `;
 
-exports[`Parser parses parenthesized expressions 1`] = `
+exports[`Parser > parses parenthesized expressions 1`] = `
 [
   {
     "children": [
@@ -629,7 +629,7 @@ exports[`Parser parses parenthesized expressions 1`] = `
 ]
 `;
 
-exports[`Parser parses qualified.identifier.sequence 1`] = `
+exports[`Parser > parses qualified.identifier.sequence 1`] = `
 [
   {
     "children": [
@@ -674,7 +674,7 @@ exports[`Parser parses qualified.identifier.sequence 1`] = `
 ]
 `;
 
-exports[`Parser parses set operations 1`] = `
+exports[`Parser > parses set operations 1`] = `
 [
   {
     "children": [
@@ -759,7 +759,7 @@ exports[`Parser parses set operations 1`] = `
 ]
 `;
 
-exports[`Parser parses square brackets 1`] = `
+exports[`Parser > parses square brackets 1`] = `
 [
   {
     "children": [
