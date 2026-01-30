@@ -1,47 +1,6 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-exports[`Tokenizer > tokenizes multiline SQL tokens 1`] = `
-[
-  {
-    "precedingWhitespace": undefined,
-    "raw": "SELECT",
-    "start": 0,
-    "text": "SELECT",
-    "type": "RESERVED_SELECT",
-  },
-  {
-    "precedingWhitespace": " ",
-    "raw": ""foo
- bar"",
-    "start": 7,
-    "text": ""foo
- bar"",
-    "type": "QUOTED_IDENTIFIER",
-  },
-  {
-    "precedingWhitespace": " ",
-    "raw": "/* 
-
-
- */",
-    "start": 18,
-    "text": "/* 
-
-
- */",
-    "type": "BLOCK_COMMENT",
-  },
-  {
-    "precedingWhitespace": undefined,
-    "raw": ";",
-    "start": 27,
-    "text": ";",
-    "type": "DELIMITER",
-  },
-]
-`;
-
-exports[`Tokenizer > tokenizes single line SQL tokens 1`] = `
+exports[`Tokenizer tokenizes single line SQL tokens 1`] = `
 [
   {
     "precedingWhitespace": undefined,
@@ -75,6 +34,55 @@ exports[`Tokenizer > tokenizes single line SQL tokens 1`] = `
     "precedingWhitespace": undefined,
     "raw": ";",
     "start": 17,
+    "text": ";",
+    "type": "DELIMITER",
+  },
+]
+`;
+
+exports[`Tokenizer tokenizes multiline SQL tokens 1`] = `
+[
+  {
+    "precedingWhitespace": undefined,
+    "raw": "SELECT",
+    "start": 0,
+    "text": "SELECT",
+    "type": "RESERVED_SELECT",
+  },
+  {
+    "precedingWhitespace": " ",
+    "raw": 
+""foo
+ bar""
+,
+    "start": 7,
+    "text": 
+""foo
+ bar""
+,
+    "type": "QUOTED_IDENTIFIER",
+  },
+  {
+    "precedingWhitespace": " ",
+    "raw": 
+"/* 
+
+
+ */"
+,
+    "start": 18,
+    "text": 
+"/* 
+
+
+ */"
+,
+    "type": "BLOCK_COMMENT",
+  },
+  {
+    "precedingWhitespace": undefined,
+    "raw": ";",
+    "start": 27,
     "text": ";",
     "type": "DELIMITER",
   },

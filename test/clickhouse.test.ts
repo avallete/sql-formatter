@@ -1710,7 +1710,7 @@ describe('ClickhouseFormatter', () => {
   });
 
   // https://clickhouse.com/docs/sql-reference/statements/describe-table
-  describe('DESCRIBE TABLE statements', () => {
+  describe('TABLE statements', () => {
     it('formats DESCRIBE TABLE and DESC TABLE', () => {
       expect(format('DESCRIBE TABLE table1;')).toBe(dedent`
         DESCRIBE TABLE table1;
