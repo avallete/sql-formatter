@@ -2,56 +2,143 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Expand PSQL_COMMAND regex for \\. and \\! (Category C)",
         "description": "Modify the PSQL_COMMAND regex in the tokenizer to match \\. (end COPY data) and \\! (shell command), not just letters after backslash.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "**File:** `src/lexer/Tokenizer.ts`, in `buildRulesBeforeParams()`, lines 46–50.\n\n**Current code (line 49):**\n`regex: cfg.psqlMetaCommands ? /(?<=^|\\\\n)\\\\\\[a-zA-Z_]+[^\\\\n]*/uy : undefined`\n\n**Problem:** The character class `[a-zA-Z_]+` only allows letters and underscore after the backslash. Psql also uses:\n- `\\\\.` — end of COPY ... FROM stdin data (single period, e.g. in ex51.sql)\n- `\\\\!` — run shell command (e.g. `\\\\! cat /tmp/file` in hs_standby_allowed.sql)\n\n**Exact change:** On line 49, replace `[a-zA-Z_]+` with `[a-zA-Z_!.]+` so the full regex becomes:\n`/(?<=^|\\\\n)\\\\\\\\[a-zA-Z_!.]+[^\\\\n]*/uy`\nKeep the lookbehind `(?<=^|\\\\n)` unchanged (Task 2 will relax it for inline commands).\n\n**Verification:** Confirm `psqlMetaCommands` is enabled for PostgreSQL in `src/languages/postgresql/postgresql.formatter.ts` (tokenizerOptions).\n\n**Acceptance criteria:** ex51.sql and hs_standby_allowed.sql format without parse errors; full test suite passes.",
         "testStrategy": "1) bun run grammar && vitest run --testPathPattern=pgFormatter (or filter for ex51 / hs_standby). 2) bun run test for full suite.",
         "subtasks": [
-          { "id": 1, "title": "Confirm psqlMetaCommands and PSQL_COMMAND location", "status": "pending", "description": "Open src/lexer/Tokenizer.ts:46-50 and src/languages/postgresql/postgresql.formatter.ts; confirm psqlMetaCommands is true for PostgreSQL so the regex is active." },
-          { "id": 2, "title": "Edit regex: add . and ! to character class", "status": "pending", "description": "In Tokenizer.ts line 49, change [a-zA-Z_]+ to [a-zA-Z_!.]+ in the PSQL_COMMAND regex. Save file." },
-          { "id": 3, "title": "Run pgFormatter tests for ex51.sql and hs_standby_allowed.sql", "status": "pending", "description": "Run pgFormatter tests (test-files for ex51; pg-test-files for hs_standby_allowed). Both must pass." },
-          { "id": 4, "title": "Run full test suite", "status": "pending", "description": "Run bun run test (or bun run grammar && vitest run). Fix any regressions." }
-        ]
+          {
+            "id": 1,
+            "title": "Confirm psqlMetaCommands and PSQL_COMMAND location",
+            "status": "done",
+            "description": "Open src/lexer/Tokenizer.ts:46-50 and src/languages/postgresql/postgresql.formatter.ts; confirm psqlMetaCommands is true for PostgreSQL so the regex is active.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-31T11:05:53.753Z"
+          },
+          {
+            "id": 2,
+            "title": "Edit regex: add . and ! to character class",
+            "status": "done",
+            "description": "In Tokenizer.ts line 49, change [a-zA-Z_]+ to [a-zA-Z_!.]+ in the PSQL_COMMAND regex. Save file.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-31T11:06:00.276Z"
+          },
+          {
+            "id": 3,
+            "title": "Run pgFormatter tests for ex51.sql and hs_standby_allowed.sql",
+            "status": "done",
+            "description": "Run pgFormatter tests (test-files for ex51; pg-test-files for hs_standby_allowed). Both must pass.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-31T11:08:29.575Z"
+          },
+          {
+            "id": 4,
+            "title": "Run full test suite",
+            "status": "done",
+            "description": "Run bun run test (or bun run grammar && vitest run). Fix any regressions.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-31T11:08:30.093Z"
+          }
+        ],
+        "updatedAt": "2026-01-31T11:08:30.093Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Handle inline psql commands (Category B)",
         "description": "Allow psql meta-commands like \\gset, \\g, \\gx to appear at end of SQL statements, not only at line start.",
         "status": "pending",
-        "dependencies": [1],
+        "dependencies": [
+          "1"
+        ],
         "priority": "medium",
         "details": "**File:** `src/lexer/Tokenizer.ts` — same PSQL_COMMAND rule (after Task 1). Depends on Task 1 so the regex already uses `[a-zA-Z_!.]+`.\n\n**Current behaviour:** The lookbehind `(?<=^|\\\\n)` only allows a match at start of input or immediately after a newline. So `SELECT 1 as a \\\\gset` fails because `\\\\gset` is preceded by space, not newline.\n\n**Target behaviour:** These should parse and format:\n- `SELECT 1 as a \\\\gset`\n- `SELECT 'test' \\\\g testfile.txt`\n- `\\\\g`, `\\\\gx` at end of a line of SQL\n\n**Why it's safe:** In `buildRulesBeforeParams()` (Tokenizer.ts), LINE_COMMENT, BLOCK_COMMENT, QUOTED_IDENTIFIER, and string rules run before PSQL_COMMAND. So a backslash inside a string (e.g. `'x \\\\gset'`) is already consumed as part of a STRING token and never seen by the PSQL rule. We only need to allow the backslash-command to be preceded by optional horizontal whitespace on the same line.\n\n**Exact change:** Relax the lookbehind to allow optional spaces/tabs before the backslash. Replace:\n`/(?<=^|\\\\n)\\\\\\\\[a-zA-Z_!.]+[^\\\\n]*/uy`\nwith:\n`/(?<=^|\\n)[ \\t]*\\\\[a-zA-Z_!.]+[^\\n]*/uy`\nSo after start or newline we allow zero or more space/tab, then backslash, then command. Do not use `\\\\s` (would match newline and could change behaviour).\n\n**Affected pgFormatter tests:** ex21.sql, psql.sql, psql_crosstab.sql (test-files); reloptions.sql, txid.sql (pg-test-files). See test/pgFormatter/pgFormatter.test.ts for the two describe blocks.\n\n**Acceptance criteria:** All five files format without parse errors; a string containing `'\\\\gset'` remains one string token (no false positive).",
         "testStrategy": "1) Run pgFormatter tests (test-files and pg-test-files) — ex21, psql, psql_crosstab, reloptions, txid must pass. 2) Format a minimal SQL containing a string with backslash (e.g. SELECT '\\\\gset';) and confirm output is still a single string, not a psql command.",
         "subtasks": [
-          { "id": 1, "title": "Verify token order in buildRulesBeforeParams", "status": "pending", "description": "In Tokenizer.ts, confirm LINE_COMMENT, BLOCK_COMMENT, QUOTED_IDENTIFIER/string rules appear before the PSQL_COMMAND rule (lines 34-50). Document that backslash inside quotes is safe." },
-          { "id": 2, "title": "Add optional [ \\\\t]* inside lookbehind", "status": "pending", "description": "In the PSQL_COMMAND regex (after Task 1), change the lookbehind from (?<=^|\\n) to (?<=^|\\n)[ \\t]* so that backslash-command after spaces on the same line is matched. Keep the rest of the regex unchanged." },
-          { "id": 3, "title": "Run pgFormatter tests for all five affected files", "status": "pending", "description": "Run vitest with pgFormatter pattern; ensure ex21, psql, psql_crosstab (test-files) and reloptions, txid (pg-test-files) all pass." },
-          { "id": 4, "title": "Regression: string with backslash not treated as command", "status": "pending", "description": "Format SELECT '\\\\gset' AS x; and confirm the single-quoted value is not tokenized as PSQL_COMMAND. Add a small test in test/features/strings.ts or pgFormatter if useful." }
+          {
+            "id": 1,
+            "title": "Verify token order in buildRulesBeforeParams",
+            "status": "pending",
+            "description": "In Tokenizer.ts, confirm LINE_COMMENT, BLOCK_COMMENT, QUOTED_IDENTIFIER/string rules appear before the PSQL_COMMAND rule (lines 34-50). Document that backslash inside quotes is safe.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Add optional [ \\\\t]* inside lookbehind",
+            "status": "pending",
+            "description": "In the PSQL_COMMAND regex (after Task 1), change the lookbehind from (?<=^|\\n) to (?<=^|\\n)[ \\t]* so that backslash-command after spaces on the same line is matched. Keep the rest of the regex unchanged.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Run pgFormatter tests for all five affected files",
+            "status": "pending",
+            "description": "Run vitest with pgFormatter pattern; ensure ex21, psql, psql_crosstab (test-files) and reloptions, txid (pg-test-files) all pass.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Regression: string with backslash not treated as command",
+            "status": "pending",
+            "description": "Format SELECT '\\\\gset' AS x; and confirm the single-quoted value is not tokenized as PSQL_COMMAND. Add a small test in test/features/strings.ts or pgFormatter if useful.",
+            "parentId": "undefined"
+          }
         ]
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Handle COMMENT ON OPERATOR with operator names (Category H)",
         "description": "Grammar change so COMMENT ON OPERATOR accepts operator tokens (e.g. ######) not just identifiers.",
         "status": "pending",
-        "dependencies": [1],
+        "dependencies": [
+          "1"
+        ],
         "priority": "medium",
         "details": "**Context:** PostgreSQL allows `COMMENT ON OPERATOR ###### (int4, NONE) IS '...';` — the operator name can be operator characters (e.g. `######`), not only an identifier. create_operator.sql line 40 has this; the formatter currently fails on it.\n\n**Grammar layout (grammar.ne):** Statements are `statement -> expressions_or_clauses (%DELIMITER | %EOF)` and `expressions_or_clauses -> free_form_sql:* clause:*`. So COMMENT ON ... is consumed as a sequence of `free_form_sql` tokens. Inside that, `asteriskless_free_form_sql` can be `atomic_expression` (line 192-207), and `atomic_expression` already includes `operator` (line 202) and `identifier` (line 203). So in theory OPERATOR tokens are allowed in free-form SQL. The failure may be: (a) tokenization — e.g. `######` tokenized as multiple tokens or wrong type; (b) ambiguity — parser choosing a different branch (e.g. property_access expects identifier after dot at line 259, but COMMENT ON OPERATOR is not property_access); (c) a specific sequence the grammar doesn't allow. The `comment` rule (line 368-391) only handles LINE_COMMENT, BLOCK_COMMENT, DISABLE_COMMENT, PSQL_COMMAND — no dedicated COMMENT ON OPERATOR rule.\n\n**Files:** `src/parser/grammar.ne` (main place to change); `src/lexer/` and `src/languages/postgresql/postgresql.formatter.ts` (operators list) if tokenization is wrong.\n\n**Acceptance criteria:** `COMMENT ON OPERATOR ###### (int4, NONE) IS 'bad right unary';` formats without parse error; create_operator.sql pgFormatter test passes; full suite passes.",
         "testStrategy": "1) Reproduce with format(..., { language: 'postgresql' }). 2) After grammar change: bun run grammar, then vitest run (pgFormatter for create_operator.sql, then full suite).",
         "subtasks": [
-          { "id": 1, "title": "Reproduce and capture exact parse error", "status": "pending", "description": "Call format(\"COMMENT ON OPERATOR ###### (int4, NONE) IS 'bad right unary';\", { language: 'postgresql' }) or run on test/pgFormatter/fixtures/pg-test-files/sql/create_operator.sql. Note the exact error message and stack (token/rule where it fails)." },
-          { "id": 2, "title": "Trace grammar path for COMMENT ON OPERATOR", "status": "pending", "description": "In grammar.ne: main -> statement -> expressions_or_clauses -> free_form_sql. No dedicated COMMENT ON rule. Check whether the failure is in tokenization (lexer) or in a grammar rule (e.g. property_access at 259, or something consuming OPERATOR)." },
-          { "id": 3, "title": "Inspect tokenization of ######", "status": "pending", "description": "Add a temporary log or run tokenizer on 'COMMENT ON OPERATOR ###### (int4, NONE) IS 'x';' with PostgreSQL config. See if ###### is one OPERATOR token or several; check postgresql.formatter operators list for '#'." },
-          { "id": 4, "title": "Implement fix in grammar or tokenizer", "status": "pending", "description": "Either: (1) Add a grammar rule that accepts operator(s) or identifier after COMMENT ON OPERATOR before the parenthesis; or (2) If tokenization is wrong, adjust lexer/operator list. Then run bun run grammar if grammar.ne changed." },
-          { "id": 5, "title": "Verify create_operator.sql and full suite", "status": "pending", "description": "Run pgFormatter tests (create_operator.sql in pg-test-files) and bun run test. Fix any regressions." }
+          {
+            "id": 1,
+            "title": "Reproduce and capture exact parse error",
+            "status": "pending",
+            "description": "Call format(\"COMMENT ON OPERATOR ###### (int4, NONE) IS 'bad right unary';\", { language: 'postgresql' }) or run on test/pgFormatter/fixtures/pg-test-files/sql/create_operator.sql. Note the exact error message and stack (token/rule where it fails).",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Trace grammar path for COMMENT ON OPERATOR",
+            "status": "pending",
+            "description": "In grammar.ne: main -> statement -> expressions_or_clauses -> free_form_sql. No dedicated COMMENT ON rule. Check whether the failure is in tokenization (lexer) or in a grammar rule (e.g. property_access at 259, or something consuming OPERATOR).",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Inspect tokenization of ######",
+            "status": "pending",
+            "description": "Add a temporary log or run tokenizer on 'COMMENT ON OPERATOR ###### (int4, NONE) IS 'x';' with PostgreSQL config. See if ###### is one OPERATOR token or several; check postgresql.formatter operators list for '#'.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Implement fix in grammar or tokenizer",
+            "status": "pending",
+            "description": "Either: (1) Add a grammar rule that accepts operator(s) or identifier after COMMENT ON OPERATOR before the parenthesis; or (2) If tokenization is wrong, adjust lexer/operator list. Then run bun run grammar if grammar.ne changed.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Verify create_operator.sql and full suite",
+            "status": "pending",
+            "description": "Run pgFormatter tests (create_operator.sql in pg-test-files) and bun run test. Fix any regressions.",
+            "parentId": "undefined"
+          }
         ]
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Skip MySQL DELIMITER test in pgFormatter (Category G)",
         "description": "Exclude ex59.sql from PostgreSQL pgFormatter tests—it uses MySQL DELIMITER syntax.",
         "status": "pending",
@@ -62,7 +149,7 @@
         "subtasks": []
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Document test command (Issue 1)",
         "description": "Clarify that users must run 'bun run test' (Vitest) not 'bun test' (Bun runner) to avoid 'it is not defined' errors.",
         "status": "pending",
@@ -72,6 +159,15 @@
         "testStrategy": "N/A – documentation only.",
         "subtasks": []
       }
-    ]
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-01-31T11:08:30.093Z",
+      "taskCount": 5,
+      "completedCount": 1,
+      "tags": [
+        "master"
+      ]
+    }
   }
 }

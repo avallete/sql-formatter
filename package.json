@@ -147,7 +147,7 @@
     "test:perf": "bun run grammar && bun test test/perftest.ts",
     "test:bundle-size": "bun run grammar && bun test test/bundleSize.test.ts",
     "test:pgFormatter": "bun run grammar && bun test test/pgFormatter/",
-    "test:pgFormatter:update": "bunx tsx test/pgFormatter/updateExpected.ts",
+    "test:pgFormatter:update": "bun run test/pgFormatter/updateExpected.ts",
     "test:coverage": "bun run grammar && bun test --coverage",
     "check": "bun run ts:check && bun run pretty:check && bun run lint && bun run test",
     "prepare": "bun run clean && bun run grammar && bun run fix && bun run check && bun run build",

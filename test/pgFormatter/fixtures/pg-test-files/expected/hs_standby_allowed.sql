@@ -28,91 +28,122 @@ FROM
 
 -- Transactions
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 END;
-BEGIN TRANSACTION read ONLY;
+
+BEGIN transaction read ONLY;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 END;
-BEGIN TRANSACTION ISOLATION level REPEATABLE read;
+
+BEGIN transaction isolation level repeatable read;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 COMMIT;
 
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 COMMIT;
 
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
-abort;
+
+ABORT;
+
 START TRANSACTION;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 COMMIT;
 
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 ROLLBACK;
 
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 SAVEPOINT s;
+
 SELECT
     count(*) AS should_be_2
 FROM
     hs2;
+
 COMMIT;
 
 BEGIN;
+
 SELECT
     count(*) AS should_be_1
 FROM
     hs1;
+
 SAVEPOINT s;
+
 SELECT
     count(*) AS should_be_2
 FROM
     hs2;
-release SAVEPOINT s;
+
+RELEASE SAVEPOINT s;
+
 SELECT
     count(*) AS should_be_2
 FROM
     hs2;
+
 SAVEPOINT s;
+
 SELECT
     count(*) AS should_be_3
 FROM
     hs3;
+
 ROLLBACK TO SAVEPOINT s;
 
 SELECT
@@ -124,28 +155,44 @@ COMMIT;
 
 -- SET parameters
 -- has no effect on read only transactions, but we can still set it
-SET synchronous_commit = ON;
+SET
+    synchronous_commit = ON;
 
 SHOW synchronous_commit;
 
 RESET synchronous_commit;
 
-discard temp;
+DISCARD temp;
 
-discard ALL;
+DISCARD ALL;
 
 -- CURSOR commands
 BEGIN;
+
 DECLARE hsc CURSOR FOR
-    SELECT
-        *
-    FROM
-        hs3;
-FETCH NEXT FROM hsc;
-FETCH FIRST FROM hsc;
-FETCH LAST FROM hsc;
-FETCH 1 FROM hsc;
+SELECT
+    *
+FROM
+    hs3;
+
+FETCH NEXT
+FROM
+    hsc;
+
+FETCH FIRST
+FROM
+    hsc;
+
+FETCH last
+FROM
+    hsc;
+
+FETCH 1
+FROM
+    hsc;
+
 CLOSE hsc;
+
 COMMIT;
 
 -- Prepared plans
@@ -156,8 +203,10 @@ FROM
     hs1;
 
 PREPARE hsp_noexec (integer) AS
-INSERT INTO hs1
-    VALUES ($1);
+INSERT INTO
+    hs1
+VALUES
+    ($1);
 
 EXECUTE hsp;
 
@@ -165,9 +214,13 @@ DEALLOCATE hsp;
 
 -- LOCK
 BEGIN;
+
 LOCK hs1 IN ACCESS SHARE MODE;
+
 LOCK hs1 IN ROW SHARE MODE;
+
 LOCK hs1 IN ROW EXCLUSIVE MODE;
+
 COMMIT;
 
 -- UNLISTEN
@@ -180,5 +233,4 @@ UNLISTEN *;
 -- ALLOWED COMMANDS
 CHECKPOINT;
 
-discard ALL;
-
+DISCARD ALL;
