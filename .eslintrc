@@ -1,17 +1,18 @@
 {
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": "./tsconfig.json", "ecmaVersion": 6, "sourceType": "module" },
-  "extends": [
-    "airbnb-base",
-    "airbnb-typescript/base",
-    "plugin:import/typescript",
-    "plugin:vitest/recommended",
-    "prettier"
-  ],
+  "extends": ["airbnb-base", "airbnb-typescript/base", "plugin:import/typescript", "prettier"],
   "plugins": ["@typescript-eslint", "prettier"],
   "globals": {
     "document": true,
-    "sqlFormatter": true
+    "sqlFormatter": true,
+    "describe": true,
+    "it": true,
+    "expect": true,
+    "beforeAll": true,
+    "afterAll": true,
+    "beforeEach": true,
+    "afterEach": true
   },
   "rules": {
     "class-methods-use-this": "off",
@@ -22,7 +23,7 @@
     "import/no-extraneous-dependencies": [
       "error",
       {
-        "devDependencies": ["test/**", "**/*.test.js", "**/*.test.ts", "vitest.config.ts"],
+        "devDependencies": ["test/**", "**/*.test.js", "**/*.test.ts"],
         "packageDir": ["./"]
       }
     ],

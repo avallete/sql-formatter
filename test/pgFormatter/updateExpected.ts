@@ -69,7 +69,7 @@ interface UpdateResult {
   errors: string[];
 }
 
-function updateExpectedFiles(inputDir: string, expectedDir: string, label: string): UpdateResult {
+function updateExpectedFiles(inputDir: string, expectedDir: string, _label: string): UpdateResult {
   const testFiles = getTestFiles(inputDir);
   const result: UpdateResult = { updated: 0, skipped: 0, errors: [] };
 

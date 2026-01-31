@@ -4,6 +4,7 @@
     "moduleResolution": "NodeNext",
     "target": "es6",
     "lib": ["es6", "dom"],
+    "types": ["bun-types"],
     "rootDirs": ["src"],
     "baseUrl": "./",
     "sourceMap": true,
@@ -14,6 +15,6 @@
     // Report error when not all code paths in function return a value.
     "noImplicitReturns": true
   },
-  "include": ["src", "test", "static", "vitest.config.ts"],
+  "include": ["src", "test", "static"],
   "exclude": ["node_modules"]
 }

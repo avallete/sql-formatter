@@ -6,17 +6,13 @@ export default function supportsExpressionWidth(format: FormatFn) {
   it('throws error when expressionWidth negative number', () => {
     expect(() => {
       format('SELECT *', { expressionWidth: -2 });
-    }).toThrowErrorMatchingInlineSnapshot(
-      `[Error: expressionWidth config must be positive number. Received -2 instead.]`
-    );
+    }).toThrow('expressionWidth config must be positive number. Received -2 instead.');
   });
 
   it('throws error when expressionWidth is zero', () => {
     expect(() => {
       format('SELECT *', { expressionWidth: 0 });
-    }).toThrowErrorMatchingInlineSnapshot(
-      `[Error: expressionWidth config must be positive number. Received 0 instead.]`
-    );
+    }).toThrow('expressionWidth config must be positive number. Received 0 instead.');
   });
 
   it('breaks paranthesized expressions to multiple lines when they exceed expressionWidth', () => {

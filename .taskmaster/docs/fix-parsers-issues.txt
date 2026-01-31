@@ -1,0 +1,246 @@
+# Plan: Fix sql-formatter Test Failures
+
+## Problem Summary
+
+Running `bun test` results in two categories of failures:
+1. **"it is not defined" errors** - 19 dialect test files fail with `ReferenceError: it is not defined`
+2. **pgFormatter parsing errors** - 19 PostgreSQL test files fail with various parse errors
+
+---
+
+## Issue 1: "it is not defined" Errors
+
+### Root Cause
+The command `bun test` uses **Bun's native test runner**, not Vitest.
+
+The project is configured to use Vitest (see `package.json`):
+```json
+"test": "bun run grammar && vitest run"
+```
+
+**Solution**: Run tests with `bun run test` (which invokes Vitest), NOT `bun test`.
+
+---
+
+## Issue 2: pgFormatter Parsing Errors - Detailed Investigation
+
+After investigating each failing file, I've identified **8 distinct categories** of parsing failures:
+
+### Category A: Backslash Escapes Without E'' Prefix
+**Files**: ex8.sql, strings.sql
+
+**Example** (ex8.sql line 1):
+```sql
+select 'o\'grady', 'that\'s the position'
+```
+
+**Problem**: PostgreSQL requires the `E''` prefix for backslash escaping (e.g., `E'o\'grady'`). Standard strings use `''` for quote escaping.
+
+**Current Config**: The postgresql formatter only allows backslash escapes with `E` prefix:
+```typescript
+{ quote: "''-qq-bs", prefixes: ['E'], requirePrefix: true }
+```
+
+**Verdict**: **Correct behavior** - these test files use non-standard SQL that only works with `standard_conforming_strings = off`.
+
+**Fix Complexity**: N/A - this is intentional
+
+---
+
+### Category B: Inline PSQL Meta-Commands (After SQL)
+**Files**: ex21.sql, psql.sql, psql_crosstab.sql, reloptions.sql, txid.sql
+
+**Example** (ex21.sql):
+```sql
+SELECT 1 as a \gset
+SELECT 'test' \g testfile.txt
+```
+
+**Problem**: The PSQL_COMMAND regex only matches commands at line start:
+```typescript
+regex: /(?<=^|\n)\\[a-zA-Z_]+[^\n]*/uy
+```
+But `\gset`, `\g`, `\gx` can appear at the end of SQL statements.
+
+**Verdict**: **Fixable** - expand regex to match inline psql commands
+
+**Fix Complexity**: Medium - need careful regex to avoid false positives
+
+---
+
+### Category C: PSQL Meta-Commands With Non-Letter Characters
+**Files**: ex51.sql, hs_standby_allowed.sql
+
+**Example** (ex51.sql line 19):
+```sql
+COPY public.subjects FROM stdin;
+1	subject1	F	1
+\.
+```
+
+**Example** (hs_standby_allowed.sql):
+```sql
+\! cat /tmp/file
+```
+
+**Problem**: The regex `\\[a-zA-Z_]+` requires letters after backslash, but:
+- `\.` ends COPY data (period, not a letter)
+- `\!` executes shell command (exclamation mark)
+
+**Verdict**: **Fixable** - expand character class in regex
+
+**Fix Complexity**: Easy - modify regex pattern
+
+---
+
+### Category D: Schema-Qualified Operators
+**Files**: ex48.sql, alter_table.sql, create_operator.sql, drop_if_exists.sql, temp.sql
+
+**Example** (alter_table.sql line 1694):
+```sql
+create operator alter1.=(procedure = alter1.same, leftarg = alter1.ctype);
+```
+
+**Example** (drop_if_exists.sql line 258):
+```sql
+DROP OPERATOR IF EXISTS no_such_schema.+ (int, int);
+```
+
+**Problem**: After `schema.` (property access), the parser expects an identifier, but gets an operator token (`=`, `+`, `@@`, `#*#`). In PostgreSQL, operators can be schema-qualified.
+
+**Verdict**: **Fixable** but complex - requires grammar changes
+
+**Fix Complexity**: Hard - need to modify grammar.ne to allow operators after property access in specific DDL contexts
+
+---
+
+### Category E: Postfix Factorial Operator
+**Files**: int4.sql
+
+**Example** (int4.sql line 117):
+```sql
+SELECT 4! AS twenty_four;
+SELECT !!3 AS six;
+```
+
+**Problem**: PostgreSQL's `!` (factorial) is a postfix operator. The parser doesn't handle postfix operators - it sees `4` then `!` and doesn't know `!` can follow a number.
+
+**Verdict**: **Fixable** but complex - requires grammar changes for postfix operators
+
+**Fix Complexity**: Hard - significant grammar changes needed
+
+---
+
+### Category F: Semicolons Inside Parenthesized Rule Bodies
+**Files**: rules.sql
+
+**Example** (rules.sql lines 39-44):
+```sql
+create rule rtest_sys_upd as on update to rtest_system do also (
+    update rtest_interface set sysname = new.sysname
+        where sysname = old.sysname;
+    update rtest_admin set sysname = new.sysname
+        where sysname = old.sysname
+);
+```
+
+**Problem**: The parser sees `;` inside parentheses and treats it as a statement delimiter, but in PostgreSQL's `CREATE RULE ... DO ALSO (...)` syntax, semicolons separate multiple actions inside the parentheses.
+
+**Verdict**: **Fixable** but complex - requires special handling for RULE syntax
+
+**Fix Complexity**: Hard - need grammar changes for CREATE RULE
+
+---
+
+### Category G: MySQL DELIMITER Syntax (Wrong Dialect)
+**Files**: ex59.sql
+
+**Example**:
+```sql
+DELIMITER $$
+CREATE PROCEDURE TEST ()
+BEGIN
+    SELECT "Hello World";
+END;
+$$
+DELIMITER ;
+```
+
+**Problem**: This is **MySQL syntax**, not PostgreSQL. The `DELIMITER` command doesn't exist in PostgreSQL.
+
+**Verdict**: **Skip test** - this file is testing the wrong dialect
+
+**Fix Complexity**: N/A - remove from PostgreSQL test suite
+
+---
+
+### Category H: COMMENT ON OPERATOR With Custom Operators
+**Files**: create_operator.sql
+
+**Example** (line 40):
+```sql
+COMMENT ON OPERATOR ###### (int4, NONE) IS 'bad right unary';
+```
+
+**Problem**: After `COMMENT ON OPERATOR`, the parser expects an operator, but `######` isn't recognized as a valid operator token in this context.
+
+**Verdict**: **Fixable** - need to handle operator names in COMMENT ON context
+
+**Fix Complexity**: Medium - grammar changes for COMMENT ON OPERATOR
+
+---
+
+## Summary Table
+
+| Category | Files | Root Cause | Fix? | Complexity |
+|----------|-------|------------|------|------------|
+| A. Backslash escapes | ex8, strings | Non-standard SQL | No (correct) | N/A |
+| B. Inline psql commands | ex21, psql, psql_crosstab, reloptions, txid | Regex only matches line start | Yes | Medium |
+| C. Special psql commands | ex51, hs_standby_allowed | Regex requires letters | Yes | Easy |
+| D. Schema-qualified operators | ex48, alter_table, create_operator, drop_if_exists, temp | Grammar limitation | Yes | Hard |
+| E. Postfix factorial | int4 | No postfix operator support | Yes | Hard |
+| F. Semicolons in RULE | rules | Grammar limitation | Yes | Hard |
+| G. MySQL DELIMITER | ex59 | Wrong dialect | Skip | N/A |
+| H. COMMENT ON OPERATOR | create_operator | Grammar limitation | Yes | Medium |
+
+---
+
+## Recommended Implementation Order
+
+### Phase 1: Quick Wins (Easy Fixes)
+1. **Category C**: Expand PSQL_COMMAND regex to include `\.` and `\!`
+   - Change: `\\[a-zA-Z_]+` → `\\[a-zA-Z_!.]+` or `\\[^\s]+`
+
+### Phase 2: Medium Complexity
+2. **Category B**: Handle inline psql commands (`SELECT 1 \gset`)
+   - Need to match `\command` after SQL content, not just at line start
+   - Consider: Match `\[a-z]+` at end of statement before newline
+
+3. **Category H**: Handle COMMENT ON OPERATOR with operator names
+   - Grammar change to accept operator tokens after `COMMENT ON OPERATOR`
+
+### Phase 3: Skip or Defer (Hard/Not Applicable)
+4. **Category A**: No fix needed - correct behavior
+5. **Category G**: Skip test - wrong dialect
+6. **Categories D, E, F**: Complex grammar changes - defer or skip
+   - Schema-qualified operators
+   - Postfix operators
+   - Semicolons in RULE bodies
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/lexer/Tokenizer.ts:50` | Expand PSQL_COMMAND regex for Categories B & C |
+| `src/parser/grammar.ne` | Grammar rules for Categories D, E, F, H |
+| `test/pgFormatter/pgFormatter.test.ts` | Skip ex59.sql (MySQL syntax) |
+
+---
+
+## Verification Steps
+
+1. Run `bun test`
+2. Run `bun test` and filter for pgFormatter-specific tests
+3. Check that fixes don't regress other dialect tests

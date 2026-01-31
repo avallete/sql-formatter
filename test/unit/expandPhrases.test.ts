@@ -74,16 +74,20 @@ describe('expandSinglePhrase()', () => {
   });
 
   it('throws error when encountering unbalanced ][-braces', () => {
-    expect(() => expandSinglePhrase('CREATE [TABLE')).toThrowErrorMatchingInlineSnapshot(
-      `"Unbalanced parenthesis in: CREATE [TABLE"`);
-    expect(() => expandSinglePhrase('CREATE TABLE]')).toThrowErrorMatchingInlineSnapshot(
-      `"Unbalanced parenthesis in: CREATE TABLE]"`);
+    expect(() => expandSinglePhrase('CREATE [TABLE')).toThrow(
+      'Unbalanced parenthesis in: CREATE [TABLE'
+    );
+    expect(() => expandSinglePhrase('CREATE TABLE]')).toThrow(
+      'Unbalanced parenthesis in: CREATE TABLE]'
+    );
   });
 
   it('throws error when encountering unbalanced }{-braces', () => {
-    expect(() => expandSinglePhrase('CREATE {TABLE')).toThrowErrorMatchingInlineSnapshot(
-      `"Unbalanced parenthesis in: CREATE {TABLE"`);
-    expect(() => expandSinglePhrase('CREATE TABLE}')).toThrowErrorMatchingInlineSnapshot(
-      `"Unbalanced parenthesis in: CREATE TABLE}"`);
+    expect(() => expandSinglePhrase('CREATE {TABLE')).toThrow(
+      'Unbalanced parenthesis in: CREATE {TABLE'
+    );
+    expect(() => expandSinglePhrase('CREATE TABLE}')).toThrow(
+      'Unbalanced parenthesis in: CREATE TABLE}'
+    );
   });
 });
